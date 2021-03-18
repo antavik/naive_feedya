@@ -1,0 +1,16 @@
+version: '3.7'
+services:
+
+  naive_feedya:
+    image: naive_feedya_dev
+    build: ./
+    restart: always
+    # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
+    command: python main.py
+    ports:
+      - "8888:8888"
+      - "8008:8008"
+    volumes:
+      - ./app/:/home/app/app/
+      - ./notebooks/:/mnt/notebooks/
+      - ./cache/:/var/lib/naive_feedya/
