@@ -161,10 +161,7 @@ class FeedEntriesStorage(BaseStorage):
         return result.rowcount
 
     @classmethod
-    async def fetch_last_news(
-            cls,
-            hours_delta: int = settings.RECENT_FEED_ENTRIES_HOURS
-        ) -> Tuple[FeedEntry, ...]:
+    async def fetch_last_news(cls, hours_delta) -> Tuple[FeedEntry, ...]:
         command = f"""
             SELECT * FROM {cls.FEED_ENTRIES_TABLE}
             WHERE 
@@ -179,10 +176,7 @@ class FeedEntriesStorage(BaseStorage):
         return tuple(FeedEntry(*n) for n in news)
 
     @classmethod
-    async def fetch_last_spam(
-            cls,
-            hours_delta: int = settings.RECENT_FEED_ENTRIES_HOURS
-        ) -> Tuple[FeedEntry, ...]:
+    async def fetch_last_spam(cls, hours_delta) -> Tuple[FeedEntry, ...]:
         command = f"""
             SELECT * FROM {cls.FEED_ENTRIES_TABLE}
             WHERE 

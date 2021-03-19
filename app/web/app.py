@@ -1,3 +1,5 @@
+import settings
+
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
@@ -15,12 +17,12 @@ class UserFeedback(BaseModel):
 
 
 @app.get(
-    '/feed/',
+    '/feed/news/',
     response_class=HTMLResponse,
     summary='Get rendered news html page',
 )
-async def get_news():
-    response = await get_news_page()
+async def get_news(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
+    response = await get_news_page(last_hours)
 
     return response
 
@@ -30,8 +32,8 @@ async def get_news():
     response_class=HTMLResponse,
     summary='Get rendered spam html page',
 )
-async def get_spam():
-    response = await get_spam_page()
+async def get_spam(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
+    response = await get_spam_page(last_hours)
 
     return response
 

@@ -72,7 +72,9 @@ class TestFeedEntriesStorage:
             datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
         )
 
-        recent_news = await fake_db.fetch_last_news()
+        recent_news = await fake_db.fetch_last_news(
+            settings.RECENT_FEED_ENTRIES_HOURS
+        )
 
         assert all(
             n.valid
@@ -91,7 +93,9 @@ class TestFeedEntriesStorage:
             datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
         )
 
-        recent_news = await fake_db.fetch_last_spam()
+        recent_news = await fake_db.fetch_last_spam(
+            settings.RECENT_FEED_ENTRIES_HOURS
+        )
 
         assert all(
             not n.valid
