@@ -62,7 +62,8 @@ def _get_html_template() -> Template:
 
 def render_html_page(
         feeds: Dict[Feed, List[FeedEntry]],
-        entry_type: str
+        entry_type: str,
+        recent_hours: int
     ) -> str:
     template = _get_html_template()
 
@@ -74,6 +75,7 @@ def render_html_page(
         feed_datetime=datetime.datetime.now(),
         feeds=feeds,
         entry_type=entry_type,
+        recent_hours=recent_hours
     )
 
     return html_page

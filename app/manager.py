@@ -38,7 +38,10 @@ async def process_feed(feed: Feed) -> None:
                 )
             )
     else:
-        logging.info('%s feed entries saved in DB', feed.title)
+        if parsed_feed.entries:
+            logging.info('%s feed entries saved in DB', feed.title)
+        else:
+            logging.warning('Feed %s is empty', feed.title)
 
 
 async def clean_feed_entries_db():
@@ -48,30 +51,30 @@ async def clean_feed_entries_db():
         logging.info('Feed entries DB cleaned. Removed %d entries', removed)
 
 
-async def get_news_page() -> str:
+async def get_news_page(last_hours: int) -> str:
     feed_to_entries = {f: [] for f in FEEDS}
 
-    news_entries = await feed_entries_db.fetch_last_news()
+    news_entries = await feed_entries_db.fetch_last_news(last_hours)
 
     for entry in news_entries:
         feed = FEEDS_REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
 
-    html_page = render_html_page(feed_to_entries, 'news')
+    html_page = render_html_page(feed_to_entries, 'news', last_hours)
 
     return html_page
 
 
-async def get_spam_page() -> str:
+async def get_spam_page(last_hours: int) -> str:
     feed_to_entries = {f: [] for f in FEEDS}
 
-    spam_entries = await feed_entries_db.fetch_last_spam()
+    spam_entries = await feed_entries_db.fetch_last_spam(last_hours)
 
     for entry in spam_entries:
         feed = FEEDS_REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
 
-    html_page = render_html_page(feed_to_entries, 'spam')
+    html_page = render_html_page(feed_to_entries, 'spam', last_hours)
 
     return html_page
 
