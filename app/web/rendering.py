@@ -23,7 +23,7 @@ def color_randomizer() -> Tuple[str, str]:
         ('#8dcf83', '#c583cf',),
         ('#6dd81b', '#861bd8',),
         ('#96ca98', '#814c7f',),
-        ('#2a7e6c', '#7e2a3c',),
+        ('#71bdac', '#7e2a3c',),
         ('#42e4e7', '#e74542',),
         ('#ffedbe', '#779dfe',),
     )
@@ -63,7 +63,8 @@ def _get_html_template() -> Template:
 def render_html_page(
         feeds: Dict[Feed, List[FeedEntry]],
         entry_type: str,
-        recent_hours: int
+        recent_hours: int,
+        weather: str
     ) -> str:
     template = _get_html_template()
 
@@ -75,7 +76,8 @@ def render_html_page(
         feed_datetime=datetime.datetime.now(),
         feeds=feeds,
         entry_type=entry_type,
-        recent_hours=recent_hours
+        recent_hours=recent_hours,
+        weather=weather
     )
 
     return html_page
