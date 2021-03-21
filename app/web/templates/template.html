@@ -11,7 +11,7 @@
     <!-- End load HTMX from unpkg -->
     <style type="text/css">
       body {
-        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
         background-color: #e3e3e3d7;
       }
       table {
@@ -93,9 +93,6 @@
         font-style: normal;
         text-align: center;
       }
-      .btn-disabled {
-        cursor: not-allowed;
-      }
       .hours-options {
         text-align: left;
       }
@@ -110,6 +107,9 @@
     <div class="common title-border">
       <div class="title-text">{{ entry_type.capitalize() }} for last {{ recent_hours }} hours</div>
       <div class="title-date">{{ feed_datetime.strftime('%d %B %Y, %a') }}</div>
+      {% if weather %}
+        <div class="title-date">{{ weather }}</div>
+      {% endif %}
       <div class="hours-options">
         <a href="/feed/{{ entry_type }}" {% if recent_hours == 6 %}class="link-not-active"{% endif %}>last 6 hours</a>,
         <a href="/feed/{{ entry_type }}/?last_hours=12" {% if recent_hours == 12 %}class="link-not-active"{% endif %}>last 12 hours</a>,
@@ -129,15 +129,15 @@
               <div class="entry-title">
                 <a class="entry-link" href="{{ entry.url }}">{{- entry.title }}</a>
                 <br>
-                {% if not entry.updated %}
+                {% if not entry.classified %}
                 <button hx-put="/feed/update" hx-swap="outerHTML" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
                 <button hx-put="/feed/update" hx-swap="outerHTML" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
                 {% else %}
                   {% if entry.valid %}
                   ✅
-                  <button disabled class="btn-disabled">👎</button>
+                  <button hx-put="/feed/update" hx-swap="outerHTML" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
                   {% else %}
-                  <button disabled class="btn-disabled">👍</button>
+                  <button hx-put="/feed/update" hx-swap="outerHTML" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
                   🚫
                   {% endif %}
                 {% endif %}

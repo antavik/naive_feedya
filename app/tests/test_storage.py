@@ -117,7 +117,7 @@ class TestFeedEntriesStorage:
 
         updated_news_entry = await fake_feed_entries_db.get(fake_spam_entry.url)
 
-        assert updated_news_entry.valid and updated_news_entry.updated
+        assert updated_news_entry.valid and updated_news_entry.classified
 
     @pytest.mark.asyncio
     async def test_update_validity_command__news_url__updated_spam(
@@ -133,7 +133,49 @@ class TestFeedEntriesStorage:
 
         updated_news_entry = await fake_feed_entries_db.get(fake_news_entry.url)
 
-        assert not updated_news_entry.valid and updated_news_entry.updated
+        assert not updated_news_entry.valid and updated_news_entry.classified
+
+    @pytest.mark.asyncio
+    async def test_is_classified_command__valid_url__classified(
+            self,
+            fake_feed_entries_db_with_random_data,
+            fake_feed_entry_classified
+        ):
+        fake_db = fake_feed_entries_db_with_random_data
+
+        await fake_db.save(fake_feed_entry_classified)
+
+        classified = await fake_db.is_classified(fake_feed_entry_classified.url)
+
+        assert classified
+
+    @pytest.mark.asyncio
+    async def test_is_classified_command__valid_url__unclassified(
+            self,
+            fake_feed_entries_db_with_random_data,
+            fake_feed_entry_unclassified
+        ):
+        fake_db = fake_feed_entries_db_with_random_data
+
+        await fake_db.save(fake_feed_entry_unclassified)
+
+        classified = await fake_db.is_classified(
+            fake_feed_entry_unclassified.url
+        )
+
+        assert not classified
+
+    @pytest.mark.asyncio
+    async def test_is_classified_command__invalid_url__none(
+            self,
+            fake_feed_entries_db_with_random_data,
+            fake_feed_entry
+        ):
+        fake_db = fake_feed_entries_db_with_random_data
+
+        result = await fake_db.is_classified(fake_feed_entry.url)
+
+        assert result is None
 
 
 class TestStatsSotrage:
@@ -249,3 +291,23 @@ class TestStatsSotrage:
         token_p_values = await fake_db.get_token_p_values(random_token.token)
 
         assert (token_news_p_value, token_spam_p_value) == token_p_values
+
+    @pytest.mark.asyncio
+    async def test_reverse_news_token_command__news_label__success(
+            self,
+            fake_stats_db_with_random_doc_and_token_data,
+            fake_seq_token_stats
+        ):
+        fake_db = fake_stats_db_with_random_doc_and_token_data
+
+        token_stats = random.choice(fake_seq_token_stats)
+        token_stats.news += 1
+        token_stats.spam -= 1
+
+        await fake_db.reverse_token_stats(token_stats.token, 'news', 'spam')
+
+        result = await fake_db.get_token_stats(token_stats.token)
+
+        assert (
+            (result.news, result.spam) == (token_stats.news, token_stats.spam)
+        )
