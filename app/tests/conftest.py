@@ -55,8 +55,20 @@ def fake_spam_entry(fake_feed_entry):
 
 
 @pytest.fixture
+def fake_feed_entry_unclassified(fake_feed_entry):
+    return fake_feed_entry
+
+
+@pytest.fixture
+def fake_feed_entry_classified(fake_feed_entry):
+    fake_feed_entry.classified = True
+
+    return fake_feed_entry
+
+
+@pytest.fixture
 def fake_seq_feed_entries():
-    fake_seq = tuple(
+    fake_seq = [
         FeedEntry(
             fake.company(),
             'Test_title-{}'.format(i),
@@ -67,7 +79,7 @@ def fake_seq_feed_entries():
             int(fake.pybool()),
         )
         for i in range(TEST_DB_ROWS_COUNT)
-    )
+    ]
 
     return fake_seq
 
@@ -182,6 +194,15 @@ async def fake_token():
 
 
 @pytest.fixture
+async def fake_token_stats(fake_token):
+    return TokenStats(
+        fake_token,
+        fake.pyint(),
+        fake.pyint()
+    )
+
+
+@pytest.fixture
 async def fake_seq_token_stats():
     token_stats = {
         TokenStats(
@@ -192,7 +213,7 @@ async def fake_seq_token_stats():
         for _ in range(TEST_DB_ROWS_COUNT)
     }
 
-    return tuple(token_stats)
+    return list(token_stats)
 
 
 @pytest.fixture

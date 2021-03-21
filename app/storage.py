@@ -20,11 +20,11 @@ class FeedEntry:
     summary: str
     published_timestamp: float
     valid: bool
-    updated: bool = field(default=False)
+    classified: bool = field(default=False)
 
     def __post_init__(self):
         self.valid = bool(self.valid)
-        self.updated = bool(self.updated)
+        self.classified = bool(self.classified)
 
     @property
     def published_datetime(self) -> datetime.datetime:
@@ -118,14 +118,15 @@ class FeedEntriesStorage(BaseStorage):
     async def save(cls, feed_entry: FeedEntry) -> int:
         command = f"""
             INSERT OR IGNORE INTO {cls.FEED_ENTRIES_TABLE}
-            (feed, title, url, summary, published_date, valid)
+            (feed, title, url, summary, published_date, valid, classified)
             VALUES(
                 '{feed_entry.feed}',
                 '{escape_single_quote(feed_entry.title)}',
                 '{feed_entry.url}',
                 '{escape_single_quote(feed_entry.summary)}',
                 {feed_entry.published_timestamp},
-                {int(feed_entry.valid)}
+                {int(feed_entry.valid)},
+                {int(feed_entry.classified)}
             )
         """
 
@@ -191,16 +192,28 @@ class FeedEntriesStorage(BaseStorage):
         return tuple(FeedEntry(*s) for s in spam)
 
     @classmethod
-    async def update_validity(cls, url: str, label: bool):
+    async def update_validity(cls, url: str, label: bool) -> int:
         command = f"""
             UPDATE {cls.FEED_ENTRIES_TABLE}
-            SET valid = {int(label)}, updated = 1
+            SET valid = {int(label)}, classified = 1
             WHERE url = '{url}'
         """
 
         result = await cls._execute(command)
 
         return result.rowcount
+
+    @classmethod
+    async def is_classified(cls, url: str) -> int:
+        command = f"""
+            SELECT classified
+            FROM {cls.FEED_ENTRIES_TABLE}
+            WHERE url = '{url}'
+        """
+
+        result = await cls._fetch_one(command)
+
+        return result[0] if result else None
 
     @classmethod
     async def _setup_db(cls):
@@ -212,7 +225,7 @@ class FeedEntriesStorage(BaseStorage):
                 summary BLOB,
                 published_date DATETIME,
                 valid BOOLEAN,
-                updated BOOLEAN DEFAULT 0
+                classified BOOLEAN DEFAULT 0
             )
         """
 
@@ -360,6 +373,23 @@ class StatsStorage(BaseStorage):
         return token_p_news, token_p_spam
 
     @classmethod
+    async def reverse_token_stats(
+            cls,
+            token: str,
+            new_label: str,
+            old_label: str
+        ):
+        command = f"""
+            UPDATE {cls.ENG_STATS_TABLE}
+            SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
+            WHERE token = '{token}'
+        """
+
+        result = await cls._execute(command)
+
+        return result.rowcount
+
+    @classmethod
     async def _setup_db(cls):
         create_table_command = f"""
             CREATE TABLE IF NOT EXISTS {cls.ENG_STATS_TABLE}(
@@ -420,4 +450,8 @@ if __name__ == '__main__':
         await stats_db._setup_db()
 
 
+    print('Setup new DBs')
+
     asyncio.run(setup_dbs())
+
+    print('DBs have been setuped')
