@@ -300,3 +300,8 @@ def fake_text_more_than_summary_limit():
     )
 
     return fake.text(max_nb_chars=max_text_length)
+
+
+@pytest.fixture
+def datetime_now():
+    return datetime.datetime.now()
