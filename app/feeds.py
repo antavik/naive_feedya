@@ -25,6 +25,10 @@ FEEDS = (
     Feed('CNet', 'https://www.cnet.com/rss/all/', ENGLISH_LANGUAGE),
     Feed('Venture Beat', 'https://venturebeat.com/feed/', ENGLISH_LANGUAGE),
     # Feed('python PEP', 'https://www.python.org/dev/peps/peps.rss', ENGLISH_LANGUAGE),  # TODO: Don't process
+    Feed('ArXive CS', 'https://export.arxiv.org/rss/cs', ENGLISH_LANGUAGE),
+    Feed('ArXive Economics', 'https://export.arxiv.org/rss/econ',ENGLISH_LANGUAGE),
+    Feed('ArXive Statistics', 'https://export.arxiv.org/rss/stat', ENGLISH_LANGUAGE),
+    Feed('ArXive Mathematics', 'https://export.arxiv.org/rss/math', ENGLISH_LANGUAGE),
 )
 
 
