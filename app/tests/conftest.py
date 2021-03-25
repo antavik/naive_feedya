@@ -1,5 +1,6 @@
 import tempfile
 import datetime
+import random
 
 import pytest
 
@@ -279,3 +280,23 @@ async def fake_stats_db_with_random_doc_and_token_data(
     )
 
     return fake_stats_db
+
+
+@pytest.fixture
+def fake_text_less_than_summary_limit():
+    max_text_length = random.randint(
+        settings.SUMMARY_LIMIT // 2,
+        settings.SUMMARY_LIMIT
+    )
+
+    return fake.text(max_nb_chars=max_text_length)
+
+
+@pytest.fixture
+def fake_text_more_than_summary_limit():
+    max_text_length = random.randint(
+        settings.SUMMARY_LIMIT + 1,
+        settings.SUMMARY_LIMIT * 2
+    )
+
+    return fake.text(max_nb_chars=max_text_length)

@@ -8,6 +8,7 @@ from storage import FeedEntry, feed_entries_db
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 from feed_classifier.parser import parse
 from web.rendering import render_html_page
+from utils import trim_text
 
 
 async def process_feed(feed: Feed) -> None:
@@ -19,7 +20,9 @@ async def process_feed(feed: Feed) -> None:
     for entry in parsed_feed.entries:
         if not await feed_entries_db.exists(entry.link):
             published_timestamp = time.mktime(
-                entry.get('published_parsed') or entry.get('updated_parsed')
+                entry.get('published_parsed')
+                or entry.get('updated_parsed')
+                or time.localtime()
             )
 
             # TODO: Fix parsing
@@ -35,7 +38,7 @@ async def process_feed(feed: Feed) -> None:
                     url=entry.link,
                     published_timestamp=published_timestamp,
                     feed=feed.title,
-                    summary=published_summary,
+                    summary=trim_text(published_summary),
                     valid=valid,
                 )
             )
