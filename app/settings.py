@@ -38,19 +38,4 @@ DT_TEMPLATE = '%b %d, %Y, %H:%M'
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'
 
-
-def configure_logging():
-    import sys
-
-    from logging import Formatter, getLogger, INFO, DEBUG, StreamHandler
-
-    logger = getLogger()
-
-    handler = StreamHandler(sys.stdout)
-    formatter = Formatter(LOGGING_FORMAT, LOGGING_DT_FORMAT)
-
-    handler.setLevel(INFO)
-    handler.setFormatter(formatter)
-
-    logger.setLevel(DEBUG)
-    logger.addHandler(handler)
+SUMMARY_LIMIT = 200

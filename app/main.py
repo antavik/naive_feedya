@@ -9,6 +9,7 @@ from manager import (
     clean_feed_entries_db,
 )
 from web.app import app
+from utils import configure_logging
 
 try:
     import uvloop
@@ -18,7 +19,7 @@ except:
     pass
 
 
-settings.configure_logging()
+configure_logging()
 
 
 async def main():
@@ -44,9 +45,7 @@ async def serve():
     config = Config(
         app=app,
         host=settings.SERVER_HOST,
-        port=settings.SERVER_PORT,
-        reload=True,
-        # reload_dir='./',
+        port=settings.SERVER_PORT
     )
     server = Server(config)
 
