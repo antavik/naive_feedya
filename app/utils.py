@@ -50,3 +50,4 @@ def label_by_feed_type(feed_type: str) -> bool:
         raise Exception
     
     return label
+
