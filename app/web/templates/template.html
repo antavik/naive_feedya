@@ -2,7 +2,7 @@
 {%- set EVENING_HOURS = 17 %}
 <html>
   <head>
-    <title>📰 Feed // {{ feed_datetime.strftime('%d %b %Y') }}</title>
+    <title>📰 Feed {{ feed_datetime.strftime('%d %b %Y') }}</title>
     <meta http-equiv="Content-Type" content="text/html, charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Load HTMX from unpkg -->
@@ -18,14 +18,14 @@
         border: 0px;
         width: 100%;
         table-layout: fixed;
-        /* border-collapse: collapse; */
+        border-collapse: collapse;
       }
       tr {
         border-bottom: 10px solid #ffffff
       }
       td {
         vertical-align: top;
-        border-right: 15px solid #ffffff;
+        border-right: 10px solid #ffffff;
       }
       .common {
         width: 1000px;
@@ -43,10 +43,8 @@
       .title-text {
         font-size: 32px;
       }
-      .title-date {
-        font-style: italic;
-        /* font-weight: bold; */
-        font-size: 16px;
+      .title-date-weather {
+        font-size: 14px;
       }
       .entry-border {
         background: #ffffff;
@@ -93,7 +91,7 @@
         font-style: normal;
         text-align: center;
       }
-      .hours-options {
+      .hours-options-cell {
         text-align: left;
       }
       .link-not-active {
@@ -106,11 +104,14 @@
   <body>
     <div class="common title-border">
       <div class="title-text">{{ entry_type.capitalize() }} for last {{ recent_hours }} hours</div>
-      <div class="title-date">{{ feed_datetime.strftime('%d %B %Y, %a') }}</div>
-      {% if weather %}
-        <div class="title-date">{{ weather }}</div>
-      {% endif %}
-      <div class="hours-options">
+      <div class="title-date-weather">
+        {{ feed_datetime.strftime('%d %B %Y, %a') }}
+        {% if weather %}
+        <br>
+        {{ weather }}
+        {% endif %}
+      </div>
+      <div class="hours-options-cell">
         <a href="/feed/{{ entry_type }}" {% if recent_hours == 6 %}class="link-not-active"{% endif %}>last 6 hours</a>,
         <a href="/feed/{{ entry_type }}/?last_hours=12" {% if recent_hours == 12 %}class="link-not-active"{% endif %}>last 12 hours</a>,
         <a href="/feed/{{ entry_type }}/?last_hours=24" {% if recent_hours == 24 %}class="link-not-active"{% endif %}>last 24 hours</a>
@@ -120,6 +121,10 @@
       {% for feed, entries in feeds|reverse_empty_feeds %}
       <div class="feed-title">{{ feed.title }}</div>
       {% if entries %}
+      {% if entries|length > 9 %}
+      <details>
+      <summary>More than 9 entries</summary>
+      {% endif %}
       <table cols="3">
         <tbody>
           {% for entry_line in entries|batch(3) %}
@@ -127,7 +132,7 @@
             {% for entry in entry_line %}
             <td>
               <div class="entry-title">
-                <a class="entry-link" href="{{ entry.url }}">{{- entry.title }}</a>
+                <a class="entry-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{- entry.title }}</a>
                 <br>
                 {% if not entry.classified %}
                 <button hx-put="/feed/update" hx-swap="outerHTML" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
@@ -156,6 +161,9 @@
           {% endfor %}
         </tbody>
       </table>
+      {% if entries|length > 9 %}
+      </details>
+      {% endif %}
       {% else %}
       <center><p class="entry-summary">Feed is empty</p></center>
       {% endif %}

@@ -39,3 +39,6 @@ LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'
 
 SUMMARY_LIMIT = 200
+
+NEWS = 'news'
+SPAM = 'spam'

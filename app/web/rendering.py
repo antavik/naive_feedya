@@ -15,7 +15,7 @@ from storage import FeedEntry
 def color_randomizer() -> Tuple[str, str]:
     _support_color_pairs = (
         # background color, font color
-        ('#fff3b0', '#b0bcff',),
+        ('#fff3b0', '#586acb',),
         ('#25b8a9', '#b82534',),
         ('#b6ff1c', '#651cff',),
         ('#19f76d', '#f719a3',),
@@ -51,7 +51,8 @@ def reverse_empty_feeds(
 def _get_html_template() -> Template:
     environment = Environment(
         loader=FileSystemLoader(settings.TEMPLATES_PATH),
-        autoescape=True
+        autoescape=True,
+        enable_async=True
     )
 
     environment.filters['format_datetime'] = format_datetime
@@ -60,7 +61,7 @@ def _get_html_template() -> Template:
     return environment.get_template(settings.TEMPLATE_FILENAME)
 
 
-def render_html_page(
+async def render_html_page(
         feeds: Dict[Feed, List[FeedEntry]],
         entry_type: str,
         recent_hours: int,
@@ -70,7 +71,7 @@ def render_html_page(
 
     title_bg_color, title_font_color = color_randomizer()
 
-    html_page = template.render(
+    html_page = await template.render_async(
         title_bg_color=title_bg_color,
         title_font_color=title_font_color,
         feed_datetime=datetime.datetime.now(),

@@ -39,3 +39,15 @@ def trim_text(text: str) -> str:
     text = text[:end_index] + ending
 
     return text
+
+
+def label_by_feed_type(feed_type: str) -> bool:
+    if feed_type == settings.NEWS:
+        label = True
+    elif feed_type == settings.SPAM:
+        label = False
+    else:
+        raise Exception
+    
+    return label
+

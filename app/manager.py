@@ -8,7 +8,7 @@ from storage import FeedEntry, feed_entries_db
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 from feed_classifier.parser import parse
 from web.rendering import render_html_page
-from utils import trim_text
+from utils import trim_text, label_by_feed_type
 
 
 async def process_feed(feed: Feed) -> None:
@@ -56,7 +56,7 @@ async def clean_feed_entries_db():
         logging.info('Feed entries DB cleaned. Removed %d entries', removed)
 
 
-async def get_current_weather():
+async def get_current_weather() -> str:
     weather_service_url = (
         'https://wttr.in/Minsk?'
         'format=%l:+%c+%t+(feels+like+%f),+wind+%w,+%p+%P'
@@ -79,30 +79,23 @@ async def get_current_weather():
     return weather
 
 
-async def get_news_page(last_hours: int) -> str:
+async def get_feed_page(feed_type: str, last_hours: int) -> str:
     weather = await get_current_weather()
 
+    label = label_by_feed_type(feed_type)
+
     feed_to_entries = {f: [] for f in FEEDS}
-    news_entries = await feed_entries_db.fetch_last_news(last_hours)
+    news_entries = await feed_entries_db.fetch_last_entries(label, last_hours)
     for entry in news_entries:
         feed = FEEDS_REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
 
-    html_page = render_html_page(feed_to_entries, 'news', last_hours, weather)
-
-    return html_page
-
-
-async def get_spam_page(last_hours: int) -> str:
-    weather = await get_current_weather()
-
-    feed_to_entries = {f: [] for f in FEEDS}
-    spam_entries = await feed_entries_db.fetch_last_spam(last_hours)
-    for entry in spam_entries:
-        feed = FEEDS_REGISTRY[entry.feed]
-        feed_to_entries[feed].append(entry)
-
-    html_page = render_html_page(feed_to_entries, 'spam', last_hours, weather)
+    html_page = await render_html_page(
+        feed_to_entries,
+        feed_type,
+        last_hours,
+        weather
+    )
 
     return html_page
 

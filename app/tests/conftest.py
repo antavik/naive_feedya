@@ -305,3 +305,8 @@ def fake_text_more_than_summary_limit():
 @pytest.fixture
 def datetime_now():
     return datetime.datetime.now()
+
+
+@pytest.fixture
+def fake_feed_type():
+    return 'fake_feed_type'

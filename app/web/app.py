@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from manager import get_news_page, get_spam_page, update_feed_classifier
+from manager import get_feed_page, update_feed_classifier
 
 app = FastAPI(title='Naive Feedya')
 
@@ -22,7 +22,7 @@ class UserFeedback(BaseModel):
     summary='Get rendered news html page',
 )
 async def get_news(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
-    response = await get_news_page(last_hours)
+    response = await get_feed_page(settings.NEWS, last_hours)
 
     return response
 
@@ -33,7 +33,7 @@ async def get_news(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
     summary='Get rendered spam html page',
 )
 async def get_spam(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
-    response = await get_spam_page(last_hours)
+    response = await get_feed_page(settings.SPAM, last_hours)
 
     return response
 
