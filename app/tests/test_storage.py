@@ -62,7 +62,7 @@ class TestFeedEntriesStorage:
         assert not test_feed_entries
 
     @pytest.mark.asyncio
-    async def test_fetch_last_news_command__default__fetch_recent_news(
+    async def test_fetch_last_entries_command__true_label__fetch_recent_news(
             self,
             fake_feed_entries_db_with_random_data_with_recent_feed_entries
         ):
@@ -72,7 +72,8 @@ class TestFeedEntriesStorage:
             datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
         )
 
-        recent_news = await fake_db.fetch_last_news(
+        recent_news = await fake_db.fetch_last_entries(
+            True,
             settings.RECENT_FEED_ENTRIES_HOURS
         )
 
@@ -83,7 +84,7 @@ class TestFeedEntriesStorage:
         )
 
     @pytest.mark.asyncio
-    async def test_fetch_last_spam_command__default__fetch_recent_spam(
+    async def test_fetch_last_entries_command__false_label__fetch_recent_spam(
             self,
             fake_feed_entries_db_with_random_data_with_recent_feed_entries
         ):
@@ -93,7 +94,8 @@ class TestFeedEntriesStorage:
             datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
         )
 
-        recent_news = await fake_db.fetch_last_spam(
+        recent_news = await fake_db.fetch_last_entries(
+            False,
             settings.RECENT_FEED_ENTRIES_HOURS
         )
 

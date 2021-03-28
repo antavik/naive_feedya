@@ -162,11 +162,15 @@ class FeedEntriesStorage(BaseStorage):
         return result.rowcount
 
     @classmethod
-    async def fetch_last_news(cls, hours_delta) -> Tuple[FeedEntry, ...]:
+    async def fetch_last_entries(
+            cls,
+            valid: bool,
+            hours_delta: int
+        ) -> Tuple[FeedEntry, ...]:
         command = f"""
             SELECT * FROM {cls.FEED_ENTRIES_TABLE}
             WHERE 
-                valid = 1 AND
+                valid = {int(valid)} AND
                 published_date >
                 CAST(strftime('%s', date('now', '-{hours_delta} hours')) as integer)
             ORDER BY published_date DESC
@@ -175,21 +179,6 @@ class FeedEntriesStorage(BaseStorage):
         news = await cls._fetch_all(command)
 
         return tuple(FeedEntry(*n) for n in news)
-
-    @classmethod
-    async def fetch_last_spam(cls, hours_delta) -> Tuple[FeedEntry, ...]:
-        command = f"""
-            SELECT * FROM {cls.FEED_ENTRIES_TABLE}
-            WHERE 
-                valid = 0 AND
-                published_date >
-                CAST(strftime('%s', date('now', '-{hours_delta} hours')) as integer)
-            ORDER BY published_date DESC
-        """
-
-        spam = await cls._fetch_all(command)
-
-        return tuple(FeedEntry(*s) for s in spam)
 
     @classmethod
     async def update_validity(cls, url: str, label: bool) -> int:
