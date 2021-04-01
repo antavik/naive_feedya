@@ -112,9 +112,14 @@
         {% endif %}
       </div>
       <div class="hours-options-cell">
-        <a href="/feed/{{ entry_type }}" {% if recent_hours == 6 %}class="link-not-active"{% endif %}>last 6 hours</a>,
-        <a href="/feed/{{ entry_type }}/?last_hours=12" {% if recent_hours == 12 %}class="link-not-active"{% endif %}>last 12 hours</a>,
+        <a href="/feed/{{ entry_type }}" {% if recent_hours == 6 %}class="link-not-active"{% endif %}>last 6 hours</a> /
+        <a href="/feed/{{ entry_type }}/?last_hours=12" {% if recent_hours == 12 %}class="link-not-active"{% endif %}>last 12 hours</a> /
         <a href="/feed/{{ entry_type }}/?last_hours=24" {% if recent_hours == 24 %}class="link-not-active"{% endif %}>last 24 hours</a>
+        {% if entry_type == 'news' %}
+        / <a href="/feed/spam/">Spam</a>
+        {% elif entry_type == 'spam' %}
+        / <a href="/feed/news/">News</a>
+        {% endif %}
       </div>
     </div>
     <div class="common entry-border">
@@ -123,7 +128,7 @@
       {% if entries %}
       {% if entries|length > 9 %}
       <details>
-      <summary>More than 9 entries</summary>
+        <summary>More than 9 ({{ entries|length }}) entries</summary>
       {% endif %}
       <table cols="3">
         <tbody>
