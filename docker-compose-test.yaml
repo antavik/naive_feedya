@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+
+  naive_feedya:
+    image: naive_feedya_test
+    build: ./
+    restart: always
