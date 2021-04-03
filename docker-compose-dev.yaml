@@ -3,7 +3,9 @@ services:
 
   naive_feedya:
     image: naive_feedya_dev
-    build: ./
+    build:
+      context: .
+      dockerfile: Dockerfile
     restart: always
     # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
     command: python main.py

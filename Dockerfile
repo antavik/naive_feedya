@@ -1,6 +1,7 @@
 FROM python:3.9-slim
 
 ARG USER=app
+ARG APP_NAME=naive_feedya
 
 ENV PYTHONUNBUFFERED 1
 
@@ -22,8 +23,8 @@ RUN pip install --no-cache-dir pipenv==2020.8.13 && \
 # Setup app env and create cache folder
 RUN useradd -m -U -s /bin/bash $USER && \
     chown -R $USER:$USER /home/$USER/ && \
-    mkdir /var/lib/naive_feedya && \
-    chown -R $USER:$USER /var/lib/naive_feedya
+    mkdir /var/lib/$APP_NAME && \
+    chown -R $USER:$USER /var/lib/$APP_NAME
 
 COPY ./app/ /home/$USER/app/
 
