@@ -7,7 +7,7 @@ from utils import trim_text, label_by_feed_type, escape_single_quote
 
 def test_trim_text__text_less_than_summary_limit__same_text(
         fake_text_less_than_summary_limit
-    ):
+        ):
     text = trim_text(fake_text_less_than_summary_limit)
 
     assert len(text) <= settings.SUMMARY_LIMIT and text[-1] == '.'
@@ -15,7 +15,7 @@ def test_trim_text__text_less_than_summary_limit__same_text(
 
 def test_trim_text__text_more_than_summary_limit__trimmed_text(
         fake_text_more_than_summary_limit
-    ):
+        ):
     text = trim_text(fake_text_more_than_summary_limit)
 
     assert len(text) <= settings.SUMMARY_LIMIT and text[-1] == '.'

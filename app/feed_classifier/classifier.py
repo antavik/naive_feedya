@@ -10,7 +10,7 @@ async def train(
         labeled_documents: List[Tuple[int, str]],
         label_func: Callable[[Union[int, bool]], bool],
         language: str,
-    ):
+        ):
     for label, document in labeled_documents:
         tokens = tokenize_document(document, language)
         is_valid = label_func(label)
@@ -61,14 +61,14 @@ async def _update_tokens_and_docs_stats(
         document_tokens: Tuple[str, ...],
         is_valid: bool,
         language: str
-    ) -> Tuple[int, int]:
+        ) -> Tuple[int, int]:
     updated_tokens = 0
 
     for token in document_tokens:
         if is_valid:
-            updated_tokens += await stats_db.save_or_increment_news_token(token)
+            updated_tokens += await stats_db.save_or_increment_news_token(token)  # noqa
         else:
-            updated_tokens += await stats_db.save_or_increment_spam_token(token)
+            updated_tokens += await stats_db.save_or_increment_spam_token(token)  # noqa
 
     if is_valid:
         updated_docs = await stats_db.increment_doc_counter(language, 'news')
@@ -81,7 +81,7 @@ async def _update_tokens_and_docs_stats(
 async def _reverse_tokens_stats(
         document_tokens: Tuple[str, ...],
         is_valid: bool
-    ) -> int:
+        ) -> int:
     updated_tokens = 0
     new_label, old_label = ('news', 'spam') if is_valid else ('spam', 'news')
 

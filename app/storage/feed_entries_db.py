@@ -85,8 +85,8 @@ async def exists(url: str) -> bool:
 
 
 async def remove_old(
-        days_delta: int=settings.FEED_ENTRIES_DAYS_THRESHOLD
-    ) -> int:
+        days_delta: int = settings.FEED_ENTRIES_DAYS_THRESHOLD
+        ) -> int:
     command = f"""
         DELETE FROM {FEED_ENTRIES_TABLE}
         WHERE
@@ -102,13 +102,15 @@ async def remove_old(
 async def fetch_last_entries(
         valid: bool,
         hours_delta: int
-    ) -> Tuple[FeedEntry, ...]:
+        ) -> Tuple[FeedEntry, ...]:
     command = f"""
         SELECT * FROM {FEED_ENTRIES_TABLE}
-        WHERE 
+        WHERE
             valid = {int(valid)} AND
             published_date >
-            CAST(strftime('%s', date('now', '-{hours_delta} hours')) as integer)
+            CAST(
+                strftime('%s', date('now', '-{hours_delta} hours')) as integer
+            )
         ORDER BY published_date DESC
     """
 
@@ -136,7 +138,7 @@ async def is_classified(url: str) -> int:
         WHERE url = '{url}'
     """
 
-    result = await fetch_one(DB_FILEPATH ,command)
+    result = await fetch_one(DB_FILEPATH, command)
 
     return result[0] if result else None
 

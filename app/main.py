@@ -15,7 +15,7 @@ try:
     import uvloop
 
     uvloop.install()
-except:
+except:  # noqa
     pass
 
 

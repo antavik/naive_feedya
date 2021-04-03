@@ -72,8 +72,8 @@ async def save_or_increment_news_token(token: str) -> int:
 async def save_or_increment_spam_token(token: str) -> int:
     command = f"""
         INSERT INTO {ENG_STATS_TABLE}(token, news, spam)
-        VALUES("{token}", 0, 1) 
-        ON CONFLICT(token) 
+        VALUES("{token}", 0, 1)
+        ON CONFLICT(token)
         DO UPDATE SET spam = spam + 1
     """
 
@@ -85,7 +85,7 @@ async def save_or_increment_spam_token(token: str) -> int:
 async def increment_doc_counter(
         language: str,
         counter_type: str
-    ) -> int:
+        ) -> int:
     command = f"""
         UPDATE {DOC_STATS_TABLE}
         SET {counter_type} = {counter_type} + 1
@@ -99,7 +99,7 @@ async def increment_doc_counter(
 
 async def get_docs_p_values(language: str) -> Tuple[_Number, _Number]:
     command = f"""
-        SELECT news_p, spam_p 
+        SELECT news_p, spam_p
         FROM
         (
             SELECT CASE
@@ -110,7 +110,7 @@ async def get_docs_p_values(language: str) -> Tuple[_Number, _Number]:
             FROM {DOC_STATS_TABLE}
             WHERE language = "{language}"
         ) NEWS_STATS
-        JOIN 
+        JOIN
         (
             SELECT CASE
             WHEN spam > 0
@@ -156,7 +156,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
 
             SELECT log((1.0 + T1.token_frequency) / T2.tokens_sum)
             FROM
-            ( 
+            (
                 SELECT CASE WHEN count(*) > 0
                 THEN spam ELSE 0 END AS token_frequency
                 FROM {ENG_STATS_TABLE} WHERE token = "{token}"
@@ -165,7 +165,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT sum(c) as tokens_sum
                 FROM (
-                    SELECT count(*) AS c FROM {ENG_STATS_TABLE} WHERE spam > 0 
+                    SELECT count(*) AS c FROM {ENG_STATS_TABLE} WHERE spam > 0
                     UNION ALL
                     SELECT count(*) AS c FROM {ENG_STATS_TABLE}
                 )
@@ -180,7 +180,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             result = await cursor.fetchall()
 
     token_p_news, token_p_spam = (r[0] for r in result)
-    
+
     return token_p_news, token_p_spam
 
 
@@ -188,7 +188,7 @@ async def reverse_token_stats(
         token: str,
         new_label: str,
         old_label: str
-    ) -> int:
+        ) -> int:
     command = f"""
         UPDATE {ENG_STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
@@ -225,8 +225,7 @@ async def _setup_db():
 
         await db.executemany(
             insert_requred_values_command,
-            ((l,) for l in settings.SUPPORTED_LANGUAGES)
+            ((lang,) for lang in settings.SUPPORTED_LANGUAGES)
         )
 
         await db.commit()
-

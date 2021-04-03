@@ -3,10 +3,10 @@ import logging
 import httpx
 import feedparser
 
+from feeds import Feed
+
 # Add exceptions in feed parsing sinitize filter
 feedparser.sanitizer._HTMLSanitizer.acceptable_elements -= {'img', 'em'}
-
-from feeds import Feed
 
 
 async def parse(feed: Feed) -> dict:

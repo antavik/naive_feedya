@@ -14,7 +14,7 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db,
             fake_feed_entry
-        ):
+            ):
         result_row_count = await fake_feed_entries_db.save(fake_feed_entry)
 
         feed_entry = await fake_feed_entries_db.get(fake_feed_entry.url)
@@ -27,7 +27,7 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db_with_random_data,
             fake_seq_feed_entries
-        ):
+            ):
         fake_random_feed_entry = random.choice(fake_seq_feed_entries)
 
         exists = await fake_feed_entries_db_with_random_data.exists(
@@ -41,7 +41,7 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db_with_random_data,
             fake_feed_entry
-        ):
+            ):
         exists = await fake_feed_entries_db_with_random_data.exists(
             fake_feed_entry.url
         )
@@ -52,8 +52,8 @@ class TestFeedEntriesStorage:
     async def test_remove_old_command__valid_date_delta__removed_old(
             self,
             fake_feed_entries_db_with_random_data_older_than_days_threshold
-        ):
-        fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold
+            ):
+        fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold  # noqa
 
         await fake_db.remove_old()
 
@@ -65,10 +65,10 @@ class TestFeedEntriesStorage:
     async def test_fetch_last_entries_command__true_label__fetch_recent_news(
             self,
             fake_feed_entries_db_with_random_data_with_recent_feed_entries
-        ):
-        fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries
+            ):
+        fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries  # noqa
         tracking_datetime = (
-            datetime.datetime.now() - 
+            datetime.datetime.now() -
             datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
         )
 
@@ -87,10 +87,10 @@ class TestFeedEntriesStorage:
     async def test_fetch_last_entries_command__false_label__fetch_recent_spam(
             self,
             fake_feed_entries_db_with_random_data_with_recent_feed_entries
-        ):
-        fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries
+            ):
+        fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries  # noqa
         tracking_datetime = (
-            datetime.datetime.now() - 
+            datetime.datetime.now() -
             datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
         )
 
@@ -110,14 +110,19 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db,
             fake_spam_entry
-        ):
+            ):
         is_news = True
 
         await fake_feed_entries_db.save(fake_spam_entry)
 
-        await fake_feed_entries_db.update_validity(fake_spam_entry.url, is_news)
+        await fake_feed_entries_db.update_validity(
+            fake_spam_entry.url,
+            is_news
+        )
 
-        updated_news_entry = await fake_feed_entries_db.get(fake_spam_entry.url)
+        updated_news_entry = await fake_feed_entries_db.get(
+            fake_spam_entry.url
+        )
 
         assert updated_news_entry.valid and updated_news_entry.classified
 
@@ -126,14 +131,19 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db,
             fake_news_entry
-        ):
+            ):
         is_spam = False
 
         await fake_feed_entries_db.save(fake_news_entry)
 
-        await fake_feed_entries_db.update_validity(fake_news_entry.url, is_spam)
+        await fake_feed_entries_db.update_validity(
+            fake_news_entry.url,
+            is_spam
+        )
 
-        updated_news_entry = await fake_feed_entries_db.get(fake_news_entry.url)
+        updated_news_entry = await fake_feed_entries_db.get(
+            fake_news_entry.url
+        )
 
         assert not updated_news_entry.valid and updated_news_entry.classified
 
@@ -142,12 +152,14 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db_with_random_data,
             fake_feed_entry_classified
-        ):
+            ):
         fake_db = fake_feed_entries_db_with_random_data
 
         await fake_db.save(fake_feed_entry_classified)
 
-        classified = await fake_db.is_classified(fake_feed_entry_classified.url)
+        classified = await fake_db.is_classified(
+            fake_feed_entry_classified.url
+        )
 
         assert classified
 
@@ -156,7 +168,7 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db_with_random_data,
             fake_feed_entry_unclassified
-        ):
+            ):
         fake_db = fake_feed_entries_db_with_random_data
 
         await fake_db.save(fake_feed_entry_unclassified)
@@ -172,7 +184,7 @@ class TestFeedEntriesStorage:
             self,
             fake_feed_entries_db_with_random_data,
             fake_feed_entry
-        ):
+            ):
         fake_db = fake_feed_entries_db_with_random_data
 
         result = await fake_db.is_classified(fake_feed_entry.url)
@@ -183,11 +195,11 @@ class TestFeedEntriesStorage:
 class TestStatsSotrage:
 
     @pytest.mark.asyncio
-    async def test_save_or_increment_news_token_command__new_token__success_insert(
+    async def test_save_or_increment_news_token_command__new_token__success_insert(  # noqa
             self,
             fake_stats_db,
             fake_token
-        ):
+            ):
         await fake_stats_db.save_or_increment_news_token(fake_token)
 
         token_stats = await fake_stats_db.get_token_stats(fake_token)
@@ -195,11 +207,11 @@ class TestStatsSotrage:
         assert token_stats.news == 1 and token_stats.spam == 0
 
     @pytest.mark.asyncio
-    async def test_save_or_increment_news_token_command__existing_token__success_insert(
+    async def test_save_or_increment_news_token_command__existing_token__success_insert(  # noqa
             self,
             fake_stats_db,
             fake_token
-        ):
+            ):
         new_token_count = 2
 
         for _ in range(new_token_count):
@@ -210,11 +222,11 @@ class TestStatsSotrage:
         assert token_stats.news == new_token_count and token_stats.spam == 0
 
     @pytest.mark.asyncio
-    async def test_save_or_increment_spam_token_command__new_token__success_insert(
+    async def test_save_or_increment_spam_token_command__new_token__success_insert(  # noqa
             self,
             fake_stats_db,
             fake_token
-        ):
+            ):
         await fake_stats_db.save_or_increment_spam_token(fake_token)
 
         token_stats = await fake_stats_db.get_token_stats(fake_token)
@@ -222,11 +234,11 @@ class TestStatsSotrage:
         assert token_stats.news == 0 and token_stats.spam == 1
 
     @pytest.mark.asyncio
-    async def test_save_or_increment_spam_token_command__existing_token__success_insert(
+    async def test_save_or_increment_spam_token_command__existing_token__success_insert(  # noqa
             self,
             fake_stats_db,
             fake_token
-        ):
+            ):
         new_token_count = 2
 
         for _ in range(new_token_count):
@@ -240,7 +252,7 @@ class TestStatsSotrage:
     async def test_increment_doc_counter_command__increment_counters__success(
             self,
             fake_stats_db
-        ):
+            ):
         docs_qty = 1
         language = settings.ENGLISH_LANGUAGE
 
@@ -257,7 +269,7 @@ class TestStatsSotrage:
             self,
             fake_stats_db_with_random_doc_data,
             fake_eng_doc_counter
-        ):
+            ):
         doc_count = fake_eng_doc_counter
         expected_p_values = (
             math.log(doc_count.news / (doc_count.news + doc_count.spam)),
@@ -275,8 +287,7 @@ class TestStatsSotrage:
             self,
             fake_stats_db,
             fake_eng_doc_counter
-        ):
-        doc_count = fake_eng_doc_counter
+            ):
         expected_p_values = (None, None)
 
         p_value = await fake_stats_db.get_docs_p_values(
@@ -290,7 +301,7 @@ class TestStatsSotrage:
             self,
             fake_stats_db_with_random_doc_and_token_data,
             fake_seq_token_stats
-        ):
+            ):
         fake_db = fake_stats_db_with_random_doc_and_token_data
 
         random_token = random.choice(fake_seq_token_stats)
@@ -314,7 +325,7 @@ class TestStatsSotrage:
             self,
             fake_stats_db_with_random_doc_and_token_data,
             fake_seq_token_stats
-        ):
+            ):
         fake_db = fake_stats_db_with_random_doc_and_token_data
 
         token_stats = random.choice(fake_seq_token_stats)

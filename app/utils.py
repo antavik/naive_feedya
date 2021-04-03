@@ -30,8 +30,8 @@ def trim_text(text: str) -> str:
     limit_index = settings.SUMMARY_LIMIT - 1
     trimmed_limit_index = limit_index - len(ending)
 
-    for l, i in zip(text[limit_index::-1], count(limit_index, -1)):
-        if (l == ' ' or i == '.') and i <= trimmed_limit_index:
+    for line, i in zip(text[limit_index::-1], count(limit_index, -1)):
+        if (line == ' ' or i == '.') and i <= trimmed_limit_index:
             end_index = i - 1 if text[i-1] == '.' else i
 
             break
@@ -48,7 +48,7 @@ def label_by_feed_type(feed_type: str) -> bool:
         label = False
     else:
         raise Exception
-    
+
     return label
 
 
