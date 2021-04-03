@@ -15,9 +15,10 @@ from storage import (
     FeedEntry,
     DocCounter,
     TokenStats,
+    base,
     feed_entries_db,
     stats_db,
-    feed_entry_to_tuple,
+    feed_entry_tuple_factory,
 )
 
 TEST_DB_FILENAME = 'temp_db.sqlite'
@@ -90,14 +91,14 @@ async def fake_feed_entries_db():
     with tempfile.TemporaryDirectory() as temp_path:
         temp_db_filepath = Path(temp_path) / TEST_DB_FILENAME
 
-        original_db_filepath = feed_entries_db._db_filepath
-        feed_entries_db._db_filepath = temp_db_filepath
+        original_db_filepath = feed_entries_db.DB_FILEPATH
+        feed_entries_db.DB_FILEPATH = temp_db_filepath
 
         await feed_entries_db._setup_db()
 
         yield feed_entries_db
 
-        feed_entries_db._db_filepath = original_db_filepath
+        feed_entries_db.DB_FILEPATH = original_db_filepath
 
 
 @pytest.fixture
@@ -111,11 +112,12 @@ async def fake_feed_entries_db_with_random_data(
     """
 
     fake_seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_to_tuple)
+        astuple(f, tuple_factory=feed_entry_tuple_factory)
         for f in fake_seq_feed_entries
     )
 
-    await fake_feed_entries_db._execute_many(
+    await base.execute_many(
+        fake_feed_entries_db.DB_FILEPATH,
         command,
         fake_seq_feed_entries_data
     )
@@ -142,11 +144,12 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
         feed_entry.published_timestamp = test_timestamp
 
     fake_seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_to_tuple)
+        astuple(f, tuple_factory=feed_entry_tuple_factory)
         for f in fake_seq_feed_entries
     )
 
-    await fake_feed_entries_db._execute_many(
+    await base.execute_many(
+        fake_feed_entries_db.DB_FILEPATH,
         command,
         fake_seq_feed_entries_data
     )
@@ -177,11 +180,12 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
             fake_seq_feed_entries[i].valid = False
 
     fake_seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_to_tuple)
+        astuple(f, tuple_factory=feed_entry_tuple_factory)
         for f in fake_seq_feed_entries
     )
 
-    await fake_feed_entries_db._execute_many(
+    await base.execute_many(
+        fake_feed_entries_db.DB_FILEPATH,
         command,
         fake_seq_feed_entries_data
     )
@@ -236,14 +240,14 @@ async def fake_stats_db():
     with tempfile.TemporaryDirectory() as temp_path:
         temp_db_filepath = Path(temp_path) / TEST_DB_FILENAME
 
-        original_db_filepath = stats_db._db_filepath
-        stats_db._db_filepath = temp_db_filepath
+        original_db_filepath = stats_db.DB_FILEPATH
+        stats_db.DB_FILEPATH = temp_db_filepath
 
         await stats_db._setup_db()
 
         yield stats_db
 
-        stats_db._db_filepath = original_db_filepath
+        stats_db.DB_FILEPATH = original_db_filepath
 
 
 @pytest.fixture
@@ -257,7 +261,7 @@ async def fake_stats_db_with_random_doc_data(
         WHERE language = '{fake_eng_doc_counter.language}'
     """
 
-    await fake_stats_db._execute(command)
+    await base.execute(fake_stats_db.DB_FILEPATH, command)
 
     return fake_stats_db
 
@@ -274,7 +278,8 @@ async def fake_stats_db_with_random_doc_and_token_data(
 
     fake_seq_token_stats_data = tuple(astuple(f) for f in fake_seq_token_stats)
 
-    await fake_stats_db._execute_many(
+    await base.execute_many(
+        fake_stats_db.DB_FILEPATH,
         command,
         fake_seq_token_stats_data
     )
@@ -310,3 +315,8 @@ def datetime_now():
 @pytest.fixture
 def fake_feed_type():
     return 'fake_feed_type'
+
+
+@pytest.fixture
+def fake_string():
+    return fake.word()

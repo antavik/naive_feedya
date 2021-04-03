@@ -2,7 +2,7 @@ import pytest
 
 import settings
 
-from utils import trim_text, label_by_feed_type
+from utils import trim_text, label_by_feed_type, escape_single_quote
 
 
 def test_trim_text__text_less_than_summary_limit__same_text(
@@ -32,3 +32,12 @@ def test_label_by_feed_type__spam__false():
 def test_label_by_feed_type__invalid_type__exception(fake_feed_type):
     with pytest.raises(Exception):
         label_by_feed_type(fake_feed_type)
+
+
+def test_escape_single_quote__string__string(fake_string):
+    text_with_single_quotes = fake_string + "'"
+    text_with_double_quotes = fake_string + "''"
+
+    assert (
+        escape_single_quote(text_with_single_quotes) == text_with_double_quotes
+    )
