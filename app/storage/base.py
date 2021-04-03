@@ -18,7 +18,7 @@ async def execute_many(
         db_filepath: Path,
         command: str,
         iterable: Iterable
-    ) -> Cursor:
+        ) -> Cursor:
     async with aiosqlite.connect(db_filepath) as db:
         result = await db.executemany(command, iterable)
 

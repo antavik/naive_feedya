@@ -1,14 +1,13 @@
 import settings
 
-from .feed_entries_db import FeedEntry, feed_entry_tuple_factory
-from .stats_db import DocCounter, TokenStats
+from .feed_entries_db import FeedEntry, feed_entry_tuple_factory  # noqa
+from .stats_db import DocCounter, TokenStats  # noqa
 
 
 def _setup_dbs():
     import asyncio
 
     from . import feed_entries_db, stats_db
-
 
     async def setup_dbs():
         if not settings.FEED_ENTRIES_DB_FILEPATH.exists():
@@ -24,5 +23,5 @@ def _setup_dbs():
     asyncio.run(setup_dbs())
 
 
-if not settings.FEED_ENTRIES_DB_FILEPATH.exists() or not settings.STATS_DB_FILEPATH.exists():
+if not settings.FEED_ENTRIES_DB_FILEPATH.exists() or not settings.STATS_DB_FILEPATH.exists():  # noqa
     _setup_dbs()

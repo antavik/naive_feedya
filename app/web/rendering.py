@@ -34,13 +34,13 @@ def color_randomizer() -> Tuple[str, str]:
 def format_datetime(
         dt: datetime.datetime,
         format: str = settings.DT_TEMPLATE
-    ) -> str:
+        ) -> str:
     return dt.strftime(format)
 
 
 def reverse_empty_feeds(
         feeds: Dict[Feed, List[FeedEntry]]
-    ) -> List[Tuple[Feed, List[FeedEntry]]]:
+        ) -> List[Tuple[Feed, List[FeedEntry]]]:
     return sorted(
         feeds.items(),
         key=lambda x: 1 if x[1] else 0,
@@ -66,7 +66,7 @@ async def render_html_page(
         entry_type: str,
         recent_hours: int,
         weather: str
-    ) -> str:
+        ) -> str:
     template = _get_html_template()
 
     title_bg_color, title_font_color = color_randomizer()

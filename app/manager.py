@@ -4,7 +4,7 @@ import logging
 import httpx
 
 from feeds import Feed, FEEDS_REGISTRY, FEEDS
-from storage import FeedEntry, feed_entries_db 
+from storage import FeedEntry, feed_entries_db
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 from feed_classifier.parser import parse
 from web.rendering import render_html_page

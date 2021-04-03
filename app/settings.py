@@ -36,7 +36,7 @@ DT_TEMPLATE = '%b %d, %Y, %H:%M'
 
 # Logging
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
-LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'
+LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
 
 SUMMARY_LIMIT = 200
 
