@@ -1,4 +1,6 @@
-from typing import Callable, List, Tuple, Union, Iterable
+import logging
+
+from typing import Callable, List, Tuple, Union
 
 from storage import stats_db
 from .tokenizer import tokenize_document
@@ -13,13 +15,18 @@ async def train(
         tokens = tokenize_document(document, language)
         is_valid = label_func(label)
 
-        await _update_tokens(tokens, is_valid, language)
+        await _update_tokens_and_docs_stats(tokens, is_valid, language)
 
 
 async def classify(document: str, language: str) -> bool:
     tokens = tokenize_document(document, language)
 
     total_p_news, total_p_spam = await stats_db.get_docs_p_values(language)
+
+    if total_p_news is None or total_p_spam is None:
+        logging.warning('%s docs stats have zero stats', language.capitalize())
+
+        return True
 
     for token in tokens:
         p_news, p_spam = await stats_db.get_token_p_values(token)
@@ -33,7 +40,11 @@ async def classify(document: str, language: str) -> bool:
 async def update_stats(document: str, label: bool, language: str) -> bool:
     tokens = tokenize_document(document, language)
 
-    updated_tokens, updated_docs = await _update_tokens(tokens, label, language)
+    updated_tokens, updated_docs = await _update_tokens_and_docs_stats(
+        tokens,
+        label,
+        language
+    )
 
     return updated_tokens, updated_docs
 
@@ -46,7 +57,7 @@ async def reverse_stats(document: str, label: bool, language: str):
     return updated_tokens
 
 
-async def _update_tokens(
+async def _update_tokens_and_docs_stats(
         document_tokens: Tuple[str, ...],
         is_valid: bool,
         language: str
