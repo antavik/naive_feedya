@@ -51,3 +51,6 @@ def label_by_feed_type(feed_type: str) -> bool:
     
     return label
 
+
+def escape_single_quote(string: str) -> str:
+    return string.replace('\'', '\'\'')
