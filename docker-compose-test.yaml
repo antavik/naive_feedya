@@ -3,5 +3,7 @@ services:
 
   naive_feedya:
     image: naive_feedya_test
-    build: ./test.Dockerfile
+    build:
+      context: .
+      dockerfile: test.Dockerfile
     restart: "no"
