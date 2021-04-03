@@ -22,8 +22,7 @@ RUN pip install --no-cache-dir pipenv==2020.8.13 && \
 # Setup app env and create cache folder
 RUN useradd -m -U -s /bin/bash $USER && \
     chown -R $USER:$USER /home/$USER/ && \
-    mkdir /var/lib/naive_feedya && \
-    chown -R $USER:$USER /var/lib/naive_feedya
+    mkdir /var/lib/naive_feedya
 
 COPY ./app/ /home/$USER/app/
 
