@@ -57,7 +57,7 @@ class TestFeedEntriesStorage:
 
         await fake_db.remove_old()
 
-        test_feed_entries = await fake_db.fetch_all()
+        test_feed_entries = await fake_db.fetch_all_entries()
 
         assert not test_feed_entries
 
@@ -265,6 +265,21 @@ class TestStatsSotrage:
         )
 
         p_value = await fake_stats_db_with_random_doc_data.get_docs_p_values(
+            fake_eng_doc_counter.language
+        )
+
+        assert p_value == expected_p_values
+
+    @pytest.mark.asyncio
+    async def test_get_docs_p_values_command__empty_db__success(
+            self,
+            fake_stats_db,
+            fake_eng_doc_counter
+        ):
+        doc_count = fake_eng_doc_counter
+        expected_p_values = (None, None)
+
+        p_value = await fake_stats_db.get_docs_p_values(
             fake_eng_doc_counter.language
         )
 
