@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Setup python env
-COPY ./pipfiles/Pipfile /etc/pipfiles/
+COPY ./pipfiles/Pipfile-test /etc/pipfiles/Pipfile
 
 WORKDIR /etc/pipfiles/
 
@@ -24,7 +24,7 @@ RUN pip install --no-cache-dir pipenv==2020.8.13 && \
 RUN useradd -m -U -s /bin/bash $USER && \
     chown -R $USER:$USER /home/$USER/ && \
     mkdir /var/lib/$APP_NAME && \
-    chown -R $USER:$USER /var/lib/$APP_NAME
+    chown -R $USER:$USER /var/lib/$APP_NAME/
 
 COPY ./app/ /home/$USER/app/
 
