@@ -19,6 +19,7 @@ FEEDS = (
     Feed('Wired', 'https://www.wired.com/feed/rss', ENGLISH_LANGUAGE),
     # Feed('The Atlantic', 'https://www.theatlantic.com/feed/all/.rss', ENGLISH_LANGUAGE),  # noqa
     Feed('Hacker News', 'https://news.ycombinator.com/rss', ENGLISH_LANGUAGE),
+    Feed('Lobsters', 'https://lobste.rs/rss', ENGLISH_LANGUAGE),
     Feed('Engadged', 'https://www.engadget.com/rss.xml', ENGLISH_LANGUAGE),
     Feed('MIT Tech Review', 'https://www.technologyreview.com/topnews.rss', ENGLISH_LANGUAGE),  # noqa
     Feed('The Register', 'https://www.theregister.com/headlines.atom', ENGLISH_LANGUAGE),  # noqa
