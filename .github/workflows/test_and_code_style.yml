@@ -18,10 +18,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build image
-      run: docker-compose -f docker-compose-test.yaml build naive_feedya
+      run: docker build ./ -f test.Dockerfile -t naive_feedya_test_buld
 
     - name: Run tests
-      run: docker-compose -f docker-compose-test.yaml run naive_feedya pytest
+      run: docker run -it naive_feedya_test_buld pytest
 
     - name: Check code style
-      run: docker-compose -f docker-compose-test.yaml run naive_feedya flake8
+      run: docker run -it naive_feedya_test_buld flake8
