@@ -21,7 +21,7 @@ jobs:
       run: docker build ./ -f test.Dockerfile -t naive_feedya_test_buld
 
     - name: Run tests
-      run: docker run -it naive_feedya_test_buld pytest
+      run: docker run -i naive_feedya_test_buld pytest
 
     - name: Check code style
-      run: docker run -it naive_feedya_test_buld flake8
+      run: docker run -i naive_feedya_test_buld flake8
