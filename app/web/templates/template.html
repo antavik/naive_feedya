@@ -56,6 +56,9 @@
         padding-bottom: 7px;
         text-align: center;
       }
+      .feed-title-link {
+        color: #000000;
+      }
       .entry-title {
         font-weight: bold;
         font-size: 16px;
@@ -124,7 +127,9 @@
     </div>
     <div class="common entry-border">
       {% for feed, entries in feeds|reverse_empty_feeds %}
-      <div class="feed-title">{{ feed.title }}</div>
+      <div class="feed-title">
+        <a class="feed-title-link" href="{{ feed.base_url }}">{{ feed.title }}</a>
+      </div>
       {% if entries %}
       {% if entries|length > 9 %}
       <details>
