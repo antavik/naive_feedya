@@ -37,7 +37,6 @@ async def fetch_one(db_filepath: Path, command: str) -> Tuple[Any, ...]:
 
 async def fetch_all(db_filepath: Path, command: str) -> List[Tuple[Any, ...]]:
     async with aiosqlite.connect(db_filepath) as db:
-        async with db.execute(command) as cursor:
-            result = await cursor.fetchall()
+        result = await db.execute_fetchall(command)
 
     return result
