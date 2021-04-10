@@ -11,11 +11,10 @@ async def test_save_command__valid_feed_entry__success_insert(
         fake_feed_entries_db,
         fake_feed_entry
         ):
-    result_row_count = await fake_feed_entries_db.save(fake_feed_entry)
+    await fake_feed_entries_db.save(fake_feed_entry)
 
     feed_entry = await fake_feed_entries_db.get(fake_feed_entry.url)
 
-    assert result_row_count == 1
     assert feed_entry == fake_feed_entry
 
 
@@ -49,7 +48,7 @@ async def test_exists_command__invalid_url__not_exists(
 async def test_remove_old_command__valid_date_delta__removed_old(
         fake_feed_entries_db_with_random_data_older_than_days_threshold
         ):
-    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold  # noqa
+    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold
 
     await fake_db.remove_old()
 
@@ -60,17 +59,20 @@ async def test_remove_old_command__valid_date_delta__removed_old(
 
 @pytest.mark.asyncio
 async def test_fetch_last_entries_command__true_label__fetch_recent_news(
-        fake_feed_entries_db_with_random_data_with_recent_feed_entries
+        fake_feed_entries_db_with_random_data_with_recent_feed_entries,
+        fake_seq_feed_entries
         ):
-    fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries  # noqa
+    fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries
     tracking_datetime = (
         datetime.datetime.now() -
         datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
     )
+    feeds = (e.feed for e in fake_seq_feed_entries)
 
     recent_news = await fake_db.fetch_last_entries(
-        True,
-        settings.RECENT_FEED_ENTRIES_HOURS
+        feeds=feeds,
+        valid=True,
+        hours_delta=settings.RECENT_FEED_ENTRIES_HOURS
     )
 
     assert all(
@@ -82,17 +84,20 @@ async def test_fetch_last_entries_command__true_label__fetch_recent_news(
 
 @pytest.mark.asyncio
 async def test_fetch_last_entries_command__false_label__fetch_recent_spam(
-        fake_feed_entries_db_with_random_data_with_recent_feed_entries
+        fake_feed_entries_db_with_random_data_with_recent_feed_entries,
+        fake_seq_feed_entries
         ):
-    fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries  # noqa
+    fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries
     tracking_datetime = (
         datetime.datetime.now() -
         datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
     )
+    feeds = (e.feed for e in fake_seq_feed_entries)
 
     recent_news = await fake_db.fetch_last_entries(
-        False,
-        settings.RECENT_FEED_ENTRIES_HOURS
+        feeds=feeds,
+        valid=False,
+        hours_delta=settings.RECENT_FEED_ENTRIES_HOURS
     )
 
     assert all(
@@ -186,3 +191,49 @@ async def test_is_classified_command__invalid_url__none(
     result = await fake_db.is_classified(fake_feed_entry.url)
 
     assert result is None
+
+
+@pytest.mark.asyncio
+async def test_exist_urls__new_urls__empty_tuple(
+        fake_feed_entries_db_with_random_data,
+        fake_url
+        ):
+    fake_db = fake_feed_entries_db_with_random_data
+
+    result = await fake_db.exist_urls([fake_url])
+
+    assert not result
+
+
+@pytest.mark.asyncio
+async def test_exist_urls__urls_from_db__urls_from_db(
+        fake_feed_entries_db_with_random_data,
+        fake_seq_feed_entries
+        ):
+    fake_db = fake_feed_entries_db_with_random_data
+    fake_urls = [e.url for e in fake_seq_feed_entries]
+
+    result = await fake_db.exist_urls(fake_urls)
+
+    assert sorted(result) == sorted(fake_urls)
+
+
+@pytest.mark.asyncio
+async def test_save_many__many_feeds__row_count(
+        fake_feed_entries_db,
+        fake_seq_feed_entries
+        ):
+    fake_db = fake_feed_entries_db
+
+    result = await fake_db.save_many(fake_seq_feed_entries)
+
+    assert result == len(fake_seq_feed_entries)
+
+
+@pytest.mark.asyncio
+async def test_save_many__empty_list__row_count(fake_feed_entries_db):
+    fake_db = fake_feed_entries_db
+
+    result = await fake_db.save_many([])
+
+    assert not result

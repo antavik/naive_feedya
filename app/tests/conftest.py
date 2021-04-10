@@ -320,3 +320,8 @@ def fake_feed_type():
 @pytest.fixture
 def fake_string():
     return fake.word()
+
+
+@pytest.fixture
+def fake_url():
+    return fake.uri()
