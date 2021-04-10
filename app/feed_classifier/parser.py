@@ -9,7 +9,7 @@ from feeds import Feed
 feedparser.sanitizer._HTMLSanitizer.acceptable_elements -= {'img', 'em'}
 
 
-async def parse(feed: Feed) -> dict:
+async def get_feed(feed: Feed) -> bytes:
     async with httpx.AsyncClient() as http_client:
         response = await http_client.get(feed.url)
 
@@ -19,13 +19,24 @@ async def parse(feed: Feed) -> dict:
         logging.error(
             'Error while getting feed %s data: %s',
             feed.title,
-            exc,
+            exc
         )
 
-        parsed_feed_dict = {}
+        feed_data = None
     else:
         logging.info('Feed %s recieved', feed.title)
 
-        parsed_feed_dict = feedparser.parse(await response.aread())
+        feed_data = await response.aread()
 
-    return parsed_feed_dict
+    return feed_data
+
+
+async def parse(feed: Feed) -> list:
+    feed_data = await get_feed(feed)
+
+    if feed_data is not None:
+        parsed_feed_entries = feedparser.parse(feed_data).entries
+    else:
+        parsed_feed_entries = []
+
+    return parsed_feed_entries
