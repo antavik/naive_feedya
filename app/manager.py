@@ -12,41 +12,50 @@ from utils import trim_text, label_by_feed_type
 
 
 async def process_feed(feed: Feed) -> None:
-    parsed_feed = await parse(feed)
+    parsed_feed_entries = await parse(feed)
 
-    if not parsed_feed:
+    if not parsed_feed_entries:
+        logging.warning('Feed %s is empty', feed.title)
+
         return
 
-    for entry in parsed_feed.entries:
-        if not await feed_entries_db.exists(entry.link):
-            published_timestamp = time.mktime(
-                entry.get('published_parsed')
-                or entry.get('updated_parsed')
-                or time.localtime()
-            )
+    exist_urls = await feed_entries_db.exist_urls(
+        (e.link for e in parsed_feed_entries)
+    )
 
-            # TODO: Fix parsing
-            published_summary = (
-                '' if feed.skip_summary else entry.get('summary', '')
-            )
+    if sorted(exist_urls) == sorted(e.link for e in parsed_feed_entries):
+        logging.info('All entries from %s feed exist', feed.title)
 
-            valid = await classify(entry.title, feed.language)
+        return
 
-            await feed_entries_db.save(
-                FeedEntry(
-                    title=entry.title,
-                    url=entry.link,
-                    published_timestamp=published_timestamp,
-                    feed=feed.title,
-                    summary=trim_text(published_summary),
-                    valid=valid,
-                )
+    entries_to_save = []
+
+    for entry in (e for e in parsed_feed_entries if e.link not in exist_urls):
+        published_timestamp = time.mktime(
+            entry.get('published_parsed')
+            or entry.get('updated_parsed')
+            or time.localtime()
+        )
+
+        # TODO: Fix parsing
+        published_summary = (
+            '' if feed.skip_summary else entry.get('summary', '')
+        )
+
+        valid = await classify(entry.title, feed.language)
+
+        entries_to_save.append(
+            FeedEntry(
+                title=entry.title,
+                url=entry.link,
+                published_timestamp=published_timestamp,
+                feed=feed.title,
+                summary=trim_text(published_summary),
+                valid=valid,
             )
-    else:
-        if parsed_feed.entries:
-            logging.info('%s feed entries saved in DB', feed.title)
-        else:
-            logging.warning('Feed %s is empty', feed.title)
+        )
+
+    await feed_entries_db.save_many(entries_to_save)
 
 
 async def clean_feed_entries_db():
@@ -85,7 +94,11 @@ async def get_feed_page(feed_type: str, last_hours: int) -> str:
     label = label_by_feed_type(feed_type)
 
     feed_to_entries = {f: [] for f in FEEDS}
-    news_entries = await feed_entries_db.fetch_last_entries(label, last_hours)
+    news_entries = await feed_entries_db.fetch_last_entries(
+        feeds=(f.title for f in FEEDS),
+        valid=label,
+        hours_delta=last_hours
+    )
     for entry in news_entries:
         feed = FEEDS_REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
