@@ -3,6 +3,8 @@ import logging
 
 import settings
 
+from uvicorn import Config, Server
+
 from feeds import FEEDS
 from manager import (
     process_feed,
@@ -32,16 +34,20 @@ async def parse():
 
     while True:
         for feed in FEEDS:
-            asyncio.create_task(process_feed(feed))
+            asyncio.create_task(
+                process_feed(feed),
+                name=f'{feed.title.capitalize()} feed procession task'
+            )
 
-        asyncio.create_task(clean_feed_entries_db())
+        asyncio.create_task(
+            clean_feed_entries_db(),
+            name='DB cleaning task'
+        )
 
         await asyncio.sleep(settings.FEED_REFRESH_TIME_SECONDS)
 
 
 async def serve():
-    from uvicorn import Config, Server
-
     config = Config(
         app=app,
         host=settings.SERVER_HOST,
