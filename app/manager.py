@@ -1,6 +1,9 @@
 import time
 import logging
 
+from typing import List
+from collections.abc import Iterable
+
 import httpx
 
 from feeds import Feed, FEEDS_REGISTRY, FEEDS
@@ -9,6 +12,40 @@ from feed_classifier.classifier import classify, update_stats, reverse_stats
 from feed_classifier.parser import parse
 from web.rendering import render_html_page
 from utils import trim_text, label_by_feed_type
+
+
+async def _prepare_feed_entries(
+        feed: Feed,
+        new_parsed_entries: Iterable[str]
+        ) -> List[FeedEntry]:
+    feed_entries = []
+
+    for entry in new_parsed_entries:
+        published_timestamp = time.mktime(
+            entry.get('published_parsed')
+            or entry.get('updated_parsed')
+            or time.localtime()
+        )
+
+        # TODO: Fix parsing
+        published_summary = (
+            '' if feed.skip_summary else entry.get('summary', '')
+        )
+
+        valid = await classify(entry.title, feed.language)
+
+        feed_entries.append(
+            FeedEntry(
+                title=entry.title,
+                url=entry.link,
+                published_timestamp=published_timestamp,
+                feed=feed.title,
+                summary=trim_text(published_summary),
+                valid=valid,
+            )
+        )
+
+    return feed_entries
 
 
 async def process_feed(feed: Feed) -> None:
@@ -28,32 +65,10 @@ async def process_feed(feed: Feed) -> None:
 
         return
 
-    entries_to_save = []
-
-    for entry in (e for e in parsed_feed_entries if e.link not in exist_urls):
-        published_timestamp = time.mktime(
-            entry.get('published_parsed')
-            or entry.get('updated_parsed')
-            or time.localtime()
-        )
-
-        # TODO: Fix parsing
-        published_summary = (
-            '' if feed.skip_summary else entry.get('summary', '')
-        )
-
-        valid = await classify(entry.title, feed.language)
-
-        entries_to_save.append(
-            FeedEntry(
-                title=entry.title,
-                url=entry.link,
-                published_timestamp=published_timestamp,
-                feed=feed.title,
-                summary=trim_text(published_summary),
-                valid=valid,
-            )
-        )
+    entries_to_save = await _prepare_feed_entries(
+        feed,
+        (e for e in parsed_feed_entries if e.link not in exist_urls)
+    )
 
     await feed_entries_db.save_many(entries_to_save)
 

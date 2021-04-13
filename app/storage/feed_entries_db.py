@@ -3,7 +3,8 @@ import datetime
 import settings
 
 from dataclasses import dataclass, field, astuple
-from typing import Tuple, List, Any, Iterable
+from typing import Tuple, List, Any
+from collections.abc import Iterable
 
 from .base import execute, fetch_one, fetch_all, execute_many
 from utils import escape_single_quote

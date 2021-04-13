@@ -1,7 +1,8 @@
 import aiosqlite
 from aiosqlite.cursor import Cursor
 
-from typing import Tuple, Iterable, List, Any
+from typing import Tuple, List, Any
+from collections.abc import Iterable
 from pathlib import Path
 
 
