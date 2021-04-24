@@ -1,8 +1,7 @@
 import aiosqlite
-from aiosqlite.cursor import Cursor
+from aiosqlite import Cursor, Row
 
-from typing import Tuple, List, Any
-from collections.abc import Iterable
+from typing import Optional, Iterable
 from pathlib import Path
 
 
@@ -28,7 +27,7 @@ async def execute_many(
     return result
 
 
-async def fetch_one(db_filepath: Path, command: str) -> Tuple[Any, ...]:
+async def fetch_one(db_filepath: Path, command: str) -> Optional[Row]:
     async with aiosqlite.connect(db_filepath) as db:
         async with db.execute(command) as cursor:
             result = await cursor.fetchone()
@@ -36,7 +35,7 @@ async def fetch_one(db_filepath: Path, command: str) -> Tuple[Any, ...]:
     return result
 
 
-async def fetch_all(db_filepath: Path, command: str) -> List[Tuple[Any, ...]]:
+async def fetch_all(db_filepath: Path, command: str) -> Iterable[Row]:
     async with aiosqlite.connect(db_filepath) as db:
         result = await db.execute_fetchall(command)
 
