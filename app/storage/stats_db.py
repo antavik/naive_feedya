@@ -5,7 +5,7 @@ import aiosqlite
 import settings
 
 from dataclasses import dataclass
-from typing import TypeVar, Tuple
+from typing import TypeVar, Tuple, Optional
 
 from .base import execute, fetch_one
 
@@ -97,7 +97,8 @@ async def increment_doc_counter(
     return result.rowcount
 
 
-async def get_docs_p_values(language: str) -> Tuple[_Number, _Number]:
+async def get_docs_p_values(
+        language: str) -> Tuple[Optional[_Number], Optional[_Number]]:
     command = f"""
         SELECT news_p, spam_p
         FROM
