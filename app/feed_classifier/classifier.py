@@ -1,5 +1,7 @@
 import logging
 
+import settings
+
 from typing import Callable, List, Tuple, Union
 
 from storage import stats_db
@@ -70,10 +72,10 @@ async def _update_tokens_and_docs_stats(
         else:
             updated_tokens += await stats_db.save_or_increment_spam_token(token)  # noqa
 
-    if is_valid:
-        updated_docs = await stats_db.increment_doc_counter(language, 'news')
-    else:
-        updated_docs = await stats_db.increment_doc_counter(language, 'spam')
+    updated_docs = await stats_db.increment_doc_counter(
+        language,
+        settings.NEWS if is_valid else settings.SPAM
+    )
 
     return updated_tokens, updated_docs
 
