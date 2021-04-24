@@ -1,51 +1,16 @@
 import datetime
-import random
 
 import settings
+import utils
 
-from typing import Tuple, List, Dict
+from typing import List, Dict
 
 from jinja2 import Environment, FileSystemLoader
 from jinja2.environment import Template
 
 from feeds import Feed
 from storage import FeedEntry
-
-
-def color_randomizer() -> Tuple[str, str]:
-    _support_color_pairs = (
-        # background color, font color
-        ('#fff3b0', '#586acb',),
-        ('#25b8a9', '#b82534',),
-        ('#b6ff1c', '#651cff',),
-        ('#19f76d', '#f719a3',),
-        ('#aec575', '#8c75c5',),
-        ('#8dcf83', '#c583cf',),
-        ('#6dd81b', '#861bd8',),
-        ('#96ca98', '#814c7f',),
-        ('#71bdac', '#7e2a3c',),
-        ('#42e4e7', '#e74542',),
-        ('#ffedbe', '#779dfe',),
-    )
-
-    return random.choice(_support_color_pairs)
-
-
-def format_datetime(
-        dt: datetime.datetime,
-        format: str = settings.DT_TEMPLATE
-        ) -> str:
-    return dt.strftime(format)
-
-
-def reverse_empty_feeds(
-        feeds: Dict[Feed, List[FeedEntry]]
-        ) -> List[Tuple[Feed, List[FeedEntry]]]:
-    return sorted(
-        feeds.items(),
-        key=lambda x: 1 if x[1] else 0,
-        reverse=True
-    )
+from storage.feed_entries_db import reverse_empty_feeds
 
 
 def _get_html_template() -> Template:
@@ -55,10 +20,13 @@ def _get_html_template() -> Template:
         enable_async=True
     )
 
-    environment.filters['format_datetime'] = format_datetime
+    environment.filters['format_datetime'] = utils.format_datetime
     environment.filters['reverse_empty_feeds'] = reverse_empty_feeds
 
     return environment.get_template(settings.TEMPLATE_FILENAME)
+
+
+TEMPLATE = _get_html_template()
 
 
 async def render_html_page(
@@ -67,11 +35,9 @@ async def render_html_page(
         recent_hours: int,
         weather: str
         ) -> str:
-    template = _get_html_template()
+    title_bg_color, title_font_color = utils.color_pairs_randomizer()
 
-    title_bg_color, title_font_color = color_randomizer()
-
-    html_page = await template.render_async(
+    html_page = await TEMPLATE.render_async(
         title_bg_color=title_bg_color,
         title_font_color=title_font_color,
         feed_datetime=datetime.datetime.now(),

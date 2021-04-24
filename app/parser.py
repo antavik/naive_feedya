@@ -1,12 +1,16 @@
 import logging
 
 import httpx
-import feedparser
+import feedparser as fp
+
+from typing import List
+
+from feedparser import FeedParserDict
 
 from feeds import Feed
 
 # Add exceptions in feed parsing sinitize filter
-feedparser.sanitizer._HTMLSanitizer.acceptable_elements -= {'img', 'em'}
+fp.sanitizer._HTMLSanitizer.acceptable_elements -= {'img', 'em'}
 
 
 async def get_feed(feed: Feed) -> bytes:
@@ -31,12 +35,9 @@ async def get_feed(feed: Feed) -> bytes:
     return feed_data
 
 
-async def parse(feed: Feed) -> list:
+async def parse(feed: Feed) -> List[FeedParserDict]:
     feed_data = await get_feed(feed)
 
-    if feed_data is not None:
-        parsed_feed_entries = feedparser.parse(feed_data).entries
-    else:
-        parsed_feed_entries = []
+    parsed_entries = [] if feed_data is None else fp.parse(feed_data).entries
 
-    return parsed_feed_entries
+    return parsed_entries

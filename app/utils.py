@@ -1,8 +1,11 @@
 import sys
+import random
+import datetime
 
 import settings
 
 from itertools import count
+from typing import Tuple
 
 
 def configure_logging():
@@ -41,6 +44,36 @@ def trim_text(text: str) -> str:
     return text
 
 
+def escape_single_quote(string: str) -> str:
+    return string.replace('\'', '\'\'')
+
+
+def color_pairs_randomizer() -> Tuple[str, str]:
+    _support_color_pairs = (
+        # background color, font color
+        ('#fff3b0', '#586acb',),
+        ('#25b8a9', '#b82534',),
+        ('#b6ff1c', '#651cff',),
+        ('#19f76d', '#f719a3',),
+        ('#aec575', '#8c75c5',),
+        ('#8dcf83', '#c583cf',),
+        ('#6dd81b', '#861bd8',),
+        ('#96ca98', '#814c7f',),
+        ('#71bdac', '#7e2a3c',),
+        ('#42e4e7', '#e74542',),
+        ('#ffedbe', '#779dfe',),
+    )
+
+    return random.choice(_support_color_pairs)
+
+
+def format_datetime(
+        dt: datetime.datetime,
+        format: str = settings.DT_TEMPLATE
+        ) -> str:
+    return dt.strftime(format)
+
+
 def label_by_feed_type(feed_type: str) -> bool:
     if feed_type == settings.NEWS:
         label = True
@@ -50,7 +83,3 @@ def label_by_feed_type(feed_type: str) -> bool:
         raise Exception
 
     return label
-
-
-def escape_single_quote(string: str) -> str:
-    return string.replace('\'', '\'\'')
