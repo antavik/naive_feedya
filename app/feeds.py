@@ -21,7 +21,8 @@ FEEDS = (
     Feed('Wired', 'https://www.wired.com/feed/rss', ENGLISH_LANGUAGE, base_url='https://www.wired.com'),  # noqa
     Feed('Hacker News', 'https://news.ycombinator.com/rss', ENGLISH_LANGUAGE, base_url='https://news.ycombinator.com'),  # noqa
     Feed('Lobsters', 'https://lobste.rs/rss', ENGLISH_LANGUAGE, base_url='https://lobste.rs'),  # noqa
-    Feed('Business insider Tech', 'https://www.businessinsider.com/sai/rss', ENGLISH_LANGUAGE, base_url='https://www.businessinsider.com'),  # noqa
+    Feed('Spectrum IEEE', 'https://spectrum.ieee.org/rss', ENGLISH_LANGUAGE, base_url='https://spectrum.ieee.org'),  # noqa
+    Feed('Business insider Tech', 'https://www.businessinsider.com/sai/rss', ENGLISH_LANGUAGE, skip_summary=True, base_url='https://www.businessinsider.com'),  # noqa
     Feed('Engadged', 'https://www.engadget.com/rss.xml', ENGLISH_LANGUAGE, base_url='https://www.engadget.com'),  # noqa
     Feed('Slashdot', 'http://rss.slashdot.org/Slashdot/slashdotMain', ENGLISH_LANGUAGE, base_url='https://slashdot.org'),  # noqa
     Feed('MIT Tech Review', 'https://www.technologyreview.com/topnews.rss', ENGLISH_LANGUAGE, base_url='https://www.technologyreview.com'),  # noqa
@@ -37,6 +38,6 @@ FEEDS = (
 )
 
 
-FEEDS_REGISTRY = {
+REGISTRY = {
     f.title: f for f in FEEDS
 }
