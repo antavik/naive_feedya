@@ -29,6 +29,17 @@ async def main():
     asyncio.create_task(parse())
 
 
+async def serve():
+    config = Config(
+        app=app,
+        host=settings.SERVER_HOST,
+        port=settings.SERVER_PORT
+    )
+    server = Server(config)
+
+    await server.serve()
+
+
 async def parse():
     logging.info('Start fetching feeds')
 
@@ -45,17 +56,6 @@ async def parse():
         )
 
         await asyncio.sleep(settings.FEED_REFRESH_TIME_SECONDS)
-
-
-async def serve():
-    config = Config(
-        app=app,
-        host=settings.SERVER_HOST,
-        port=settings.SERVER_PORT
-    )
-    server = Server(config)
-
-    await server.serve()
 
 
 if __name__ == '__main__':
