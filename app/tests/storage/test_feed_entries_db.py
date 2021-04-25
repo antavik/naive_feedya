@@ -194,26 +194,26 @@ async def test_is_classified_command__invalid_url__none(
 
 
 @pytest.mark.asyncio
-async def test_exist_urls__new_urls__empty_tuple(
+async def test_compare_urls__new_urls__empty_tuple(
         fake_feed_entries_db_with_random_data,
         fake_url
         ):
     fake_db = fake_feed_entries_db_with_random_data
 
-    result = await fake_db.exist_urls([fake_url])
+    result = await fake_db.compare_urls([fake_url])
 
     assert not result
 
 
 @pytest.mark.asyncio
-async def test_exist_urls__urls_from_db__urls_from_db(
+async def test_compare_urls__urls_from_db__urls_from_db(
         fake_feed_entries_db_with_random_data,
         fake_seq_feed_entries
         ):
     fake_db = fake_feed_entries_db_with_random_data
     fake_urls = [e.url for e in fake_seq_feed_entries]
 
-    result = await fake_db.exist_urls(fake_urls)
+    result = await fake_db.compare_urls(fake_urls)
 
     assert sorted(result) == sorted(fake_urls)
 
