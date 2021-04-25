@@ -1,8 +1,5 @@
 import settings
 
-from .feed_entries_db import FeedEntry, feed_entry_tuple_factory  # noqa
-from .stats_db import DocCounter, TokenStats  # noqa
-
 
 def _setup_dbs():
     import asyncio
