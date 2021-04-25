@@ -1,6 +1,6 @@
 import settings
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
@@ -44,6 +44,7 @@ async def get_spam(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
     summary='Update feed classificator and entry label',
 )
 async def update(feedback: UserFeedback):
-    await update_feed_classifier(feedback)
+    if await update_feed_classifier(feedback) is None:
+        raise HTTPException(status_code=404, detail='Feed entry URL not found')
 
     return '✅' if feedback.entry_is_valid else '🚫'
