@@ -12,13 +12,15 @@ from dataclasses import astuple
 from faker import Faker
 
 from storage import (
-    FeedEntry,
-    DocCounter,
-    TokenStats,
     base,
     feed_entries_db,
     stats_db,
-    feed_entry_tuple_factory,
+)
+from storage.entities import (
+    FeedEntry,
+    DocCounter,
+    TokenStats,
+    feed_entry_as_tuple,
 )
 
 TEST_DB_FILENAME = 'temp_db.sqlite'
@@ -112,7 +114,7 @@ async def fake_feed_entries_db_with_random_data(
     """
 
     fake_seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_tuple_factory)
+        feed_entry_as_tuple(f)
         for f in fake_seq_feed_entries
     )
 
@@ -144,7 +146,7 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
         feed_entry.published_timestamp = test_timestamp
 
     fake_seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_tuple_factory)
+        feed_entry_as_tuple(f)
         for f in fake_seq_feed_entries
     )
 
@@ -180,7 +182,7 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
             fake_seq_feed_entries[i].valid = False
 
     fake_seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_tuple_factory)
+        feed_entry_as_tuple(f)
         for f in fake_seq_feed_entries
     )
 
