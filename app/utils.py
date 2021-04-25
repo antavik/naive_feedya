@@ -5,7 +5,10 @@ import datetime
 import settings
 
 from itertools import count
-from typing import Tuple
+from typing import Tuple, Dict, List
+
+from feeds import Feed
+from storage.entities import FeedEntry
 
 
 def configure_logging():
@@ -83,3 +86,13 @@ def label_by_feed_type(feed_type: str) -> bool:
         raise Exception
 
     return label
+
+
+def reverse_empty_feeds(
+        feeds: Dict[Feed, List[FeedEntry]]
+        ) -> List[Tuple[Feed, List[FeedEntry]]]:
+    return sorted(
+        feeds.items(),
+        key=lambda x: bool(x[1]),
+        reverse=True
+    )
