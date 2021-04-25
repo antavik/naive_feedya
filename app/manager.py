@@ -1,22 +1,61 @@
 import time
 import logging
 
-from typing import List
-from collections.abc import Iterable
-
 import httpx
 
-from feeds import Feed, FEEDS_REGISTRY, FEEDS
-from storage import FeedEntry, feed_entries_db
+import parser
+import utils
+
+from typing import Iterable, List, Dict, Optional
+
+from feedparser import FeedParserDict
+
+from feeds import Feed, REGISTRY, FEEDS
+from storage import feed_entries_db
+from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
-from feed_classifier.parser import parse
 from web.rendering import render_html_page
-from utils import trim_text, label_by_feed_type
 
 
-async def _prepare_feed_entries(
+async def process_feed(feed: Feed) -> None:
+    parsed_feed_entries = await parser.parse(feed)
+
+    if not parsed_feed_entries:
+        logging.warning('Feed %s is empty', feed.title)
+
+        return
+
+    unique_parsed_feed_entries = await get_uniqie_feed_entries(
+        parsed_feed_entries
+    )
+
+    entries_to_save = await prepare_feed_entries(
+        feed,
+        unique_parsed_feed_entries
+    )
+
+    await feed_entries_db.save_many(entries_to_save)
+
+
+async def get_uniqie_feed_entries(
+        parsed_feed_entries: List[FeedParserDict]
+        ) -> Iterable[FeedParserDict]:
+    exist_urls = await feed_entries_db.compare_urls(
+        (e.link for e in parsed_feed_entries)
+    )
+
+    unique_parsed_feed_entries = (
+        entry
+        for entry in parsed_feed_entries
+        if entry.link not in exist_urls
+    )
+
+    return unique_parsed_feed_entries
+
+
+async def prepare_feed_entries(
         feed: Feed,
-        new_parsed_entries: Iterable[str]
+        new_parsed_entries: Iterable[FeedParserDict]
         ) -> List[FeedEntry]:
     feed_entries = []
 
@@ -40,37 +79,12 @@ async def _prepare_feed_entries(
                 url=entry.link,
                 published_timestamp=published_timestamp,
                 feed=feed.title,
-                summary=trim_text(published_summary),
+                summary=utils.trim_text(published_summary),
                 valid=valid,
             )
         )
 
     return feed_entries
-
-
-async def process_feed(feed: Feed) -> None:
-    parsed_feed_entries = await parse(feed)
-
-    if not parsed_feed_entries:
-        logging.warning('Feed %s is empty', feed.title)
-
-        return
-
-    exist_urls = await feed_entries_db.exist_urls(
-        (e.link for e in parsed_feed_entries)
-    )
-
-    if sorted(exist_urls) == sorted(e.link for e in parsed_feed_entries):
-        logging.info('All entries from %s feed exist', feed.title)
-
-        return
-
-    entries_to_save = await _prepare_feed_entries(
-        feed,
-        (e for e in parsed_feed_entries if e.link not in exist_urls)
-    )
-
-    await feed_entries_db.save_many(entries_to_save)
 
 
 async def clean_feed_entries_db():
@@ -106,16 +120,18 @@ async def get_current_weather() -> str:
 async def get_feed_page(feed_type: str, last_hours: int) -> str:
     weather = await get_current_weather()
 
-    label = label_by_feed_type(feed_type)
+    label = utils.label_by_feed_type(feed_type)
 
-    feed_to_entries = {f: [] for f in FEEDS}
+    feed_to_entries: Dict[Feed, list] = {f: [] for f in FEEDS}
+
     news_entries = await feed_entries_db.fetch_last_entries(
         feeds=(f.title for f in FEEDS),
         valid=label,
         hours_delta=last_hours
     )
+
     for entry in news_entries:
-        feed = FEEDS_REGISTRY[entry.feed]
+        feed = REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
 
     html_page = await render_html_page(
@@ -128,15 +144,20 @@ async def get_feed_page(feed_type: str, last_hours: int) -> str:
     return html_page
 
 
-async def update_feed_classifier(feedback):
-    if await feed_entries_db.is_classified(feedback.entry_url):
+async def update_feed_classifier(feedback) -> Optional[bool]:
+    entry_classified = await feed_entries_db.is_classified(feedback.entry_url)
+
+    if entry_classified is None:
+        return
+
+    if entry_classified:
         updated_tokens = await reverse_stats(
             document=feedback.entry_title,
             label=feedback.entry_is_valid,
             language=feedback.entry_language
         )
 
-        updated_tokens = bool(updated_tokens)
+        updated = bool(updated_tokens)
     else:
         updated_tokens, updated_docs = await update_stats(
             document=feedback.entry_title,
@@ -144,10 +165,12 @@ async def update_feed_classifier(feedback):
             language=feedback.entry_language
         )
 
-        updated_tokens = bool(updated_tokens and updated_docs)
+        updated = bool(updated_tokens and updated_docs)
 
-    if updated_tokens:
+    if updated:
         await feed_entries_db.update_validity(
             url=feedback.entry_url,
             label=feedback.entry_is_valid
         )
+
+    return updated
