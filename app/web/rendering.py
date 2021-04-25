@@ -9,8 +9,7 @@ from jinja2 import Environment, FileSystemLoader
 from jinja2.environment import Template
 
 from feeds import Feed
-from storage import FeedEntry
-from storage.feed_entries_db import reverse_empty_feeds
+from storage.entities import FeedEntry
 
 
 def _get_html_template() -> Template:
@@ -21,7 +20,7 @@ def _get_html_template() -> Template:
     )
 
     environment.filters['format_datetime'] = utils.format_datetime
-    environment.filters['reverse_empty_feeds'] = reverse_empty_feeds
+    environment.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
 
     return environment.get_template(settings.TEMPLATE_FILENAME)
 
