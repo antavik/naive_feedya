@@ -1,41 +1,20 @@
-import datetime
-
 import settings
 
-from dataclasses import dataclass, field, astuple
-from typing import Tuple, List, Any
+from typing import Tuple, Optional
 from collections.abc import Iterable
 
 from .base import execute, fetch_one, fetch_all, execute_many
+from .entities import FeedEntry, feed_entry_as_tuple
 from utils import escape_single_quote
-
-
-@dataclass
-class FeedEntry:
-    feed: str
-    title: str
-    url: str
-    summary: str
-    published_timestamp: float
-    valid: bool
-    classified: bool = field(default=False)
-
-    def __post_init__(self):
-        self.valid = bool(self.valid)
-        self.classified = bool(self.classified)
-
-    @property
-    def published_datetime(self) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(self.published_timestamp)
-
 
 DB_FILEPATH = settings.FEED_ENTRIES_DB_FILEPATH
 FEED_ENTRIES_TABLE = 'feed_entries'
 
 
-async def get(url: str) -> Tuple[Any, ...]:
+async def get(url: str) -> FeedEntry:
     command = f"""
-        SELECT * FROM {FEED_ENTRIES_TABLE}
+        SELECT *
+        FROM {FEED_ENTRIES_TABLE}
         WHERE url = '{url}'
     """
 
@@ -44,7 +23,7 @@ async def get(url: str) -> Tuple[Any, ...]:
     return FeedEntry(*result)
 
 
-async def fetch_all_entries() -> Tuple[Tuple[Any, ...]]:
+async def fetch_all_entries() -> Tuple[FeedEntry, ...]:
     command = f"""
         SELECT * FROM {FEED_ENTRIES_TABLE}
     """
@@ -76,7 +55,8 @@ async def save(feed_entry: FeedEntry) -> int:
 
 async def exists(url: str) -> bool:
     command = f"""
-        SELECT * FROM {FEED_ENTRIES_TABLE}
+        SELECT url
+        FROM {FEED_ENTRIES_TABLE}
         WHERE url = '{url}'
     """
 
@@ -85,12 +65,13 @@ async def exists(url: str) -> bool:
     return result is not None
 
 
-async def exist_urls(urls: Iterable[str]) -> Tuple[str, ...]:
+async def compare_urls(urls: Iterable[str]) -> Tuple[str, ...]:
     quoted_urls = (f"'{url}'" for url in urls)
 
     command = f"""
-        SELECT url FROM {FEED_ENTRIES_TABLE}
-        WHERE url in ({', '.join(quoted_urls)})
+        SELECT url
+        FROM {FEED_ENTRIES_TABLE}
+        WHERE url IN ({', '.join(quoted_urls)})
     """
 
     result = await fetch_all(DB_FILEPATH, command)
@@ -121,7 +102,8 @@ async def fetch_last_entries(
     quoted_titles = (f"'{f}'" for f in feeds)
 
     command = f"""
-        SELECT * FROM {FEED_ENTRIES_TABLE}
+        SELECT *
+        FROM {FEED_ENTRIES_TABLE}
         WHERE
             valid = {int(valid)} AND
             feed in ({", ".join(quoted_titles)}) AND
@@ -149,7 +131,7 @@ async def update_validity(url: str, label: bool) -> int:
     return result.rowcount
 
 
-async def is_classified(url: str) -> int:
+async def is_classified(url: str) -> Optional[bool]:
     command = f"""
         SELECT classified
         FROM {FEED_ENTRIES_TABLE}
@@ -158,7 +140,7 @@ async def is_classified(url: str) -> int:
 
     result = await fetch_one(DB_FILEPATH, command)
 
-    return result[0] if result else None
+    return result if result is None else bool(result[0])
 
 
 async def save_many(feeds: Iterable[FeedEntry]) -> int:
@@ -168,7 +150,7 @@ async def save_many(feeds: Iterable[FeedEntry]) -> int:
     """
 
     seq_feed_entries_data = (
-        astuple(f, tuple_factory=feed_entry_tuple_factory)
+        feed_entry_as_tuple(f)
         for f in feeds
     )
 
@@ -195,15 +177,3 @@ async def _setup_db():
     """
 
     await execute(DB_FILEPATH, command)
-
-
-def feed_entry_tuple_factory(feed_entry_list: List) -> Tuple[Any, ...]:
-    return (
-        feed_entry_list[0],
-        feed_entry_list[1],
-        feed_entry_list[2],
-        feed_entry_list[3],
-        feed_entry_list[4],
-        int(feed_entry_list[5]),
-        int(feed_entry_list[6]),
-    )

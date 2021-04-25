@@ -4,30 +4,12 @@ import aiosqlite
 
 import settings
 
-from dataclasses import dataclass
 from typing import TypeVar, Tuple, Optional
 
 from .base import execute, fetch_one
+from .entities import TokenStats, DocCounter
 
 _Number = TypeVar('_Number', int, float)
-
-
-@dataclass
-class TokenStats:
-    token: str
-    news: int
-    spam: int
-
-    def __hash__(self) -> int:
-        return hash(self.token)
-
-
-@dataclass
-class DocCounter:
-    language: str
-    news: int
-    spam: int
-
 
 DB_FILEPATH = settings.STATS_DB_FILEPATH
 ENG_STATS_TABLE = f'{settings.ENGLISH_LANGUAGE}_token_stats'
@@ -37,7 +19,7 @@ DOC_STATS_TABLE = 'doc_stats'
 async def get_token_stats(token: str) -> TokenStats:
     command = f"""
         SELECT * FROM {ENG_STATS_TABLE}
-        WHERE token = "{token}"
+        WHERE token = '{token}'
     """
 
     result = await fetch_one(DB_FILEPATH, command)
@@ -48,7 +30,7 @@ async def get_token_stats(token: str) -> TokenStats:
 async def get_doc_counter(language: str) -> DocCounter:
     command = f"""
         SELECT * FROM {DOC_STATS_TABLE}
-        WHERE language = "{language}"
+        WHERE language = '{language}'
     """
 
     result = await fetch_one(DB_FILEPATH, command)
@@ -89,7 +71,7 @@ async def increment_doc_counter(
     command = f"""
         UPDATE {DOC_STATS_TABLE}
         SET {counter_type} = {counter_type} + 1
-        WHERE language = "{language}"
+        WHERE language = '{language}'
     """
 
     result = await execute(DB_FILEPATH, command)
@@ -109,7 +91,7 @@ async def get_docs_p_values(
             ELSE NULL
             END AS news_p
             FROM {DOC_STATS_TABLE}
-            WHERE language = "{language}"
+            WHERE language = '{language}'
         ) NEWS_STATS
         JOIN
         (
@@ -119,7 +101,7 @@ async def get_docs_p_values(
             ELSE NULL
             END AS spam_p
             FROM {DOC_STATS_TABLE}
-            WHERE language = "{language}"
+            WHERE language = '{language}'
         ) SPAM_STATS
     """
 
@@ -141,7 +123,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT CASE WHEN count(*) > 0
                 THEN news ELSE 0 END AS token_frequency
-                FROM {ENG_STATS_TABLE} WHERE token = "{token}"
+                FROM {ENG_STATS_TABLE} WHERE token = '{token}'
             ) T1
             JOIN
             (
@@ -160,7 +142,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT CASE WHEN count(*) > 0
                 THEN spam ELSE 0 END AS token_frequency
-                FROM {ENG_STATS_TABLE} WHERE token = "{token}"
+                FROM {ENG_STATS_TABLE} WHERE token = '{token}'
             ) T1
             JOIN
             (
@@ -193,7 +175,7 @@ async def reverse_token_stats(
     command = f"""
         UPDATE {ENG_STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
-        WHERE token = "{token}"
+        WHERE token = '{token}'
     """
 
     result = await execute(DB_FILEPATH, command)
