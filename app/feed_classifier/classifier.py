@@ -65,6 +65,7 @@ async def _update_tokens_and_docs_stats(
         language: str
         ) -> Tuple[int, int]:
     updated_tokens = 0
+    updated_docs = 0
 
     for token in document_tokens:
         if is_valid:
@@ -72,10 +73,11 @@ async def _update_tokens_and_docs_stats(
         else:
             updated_tokens += await stats_db.save_or_increment_spam_token(token)  # noqa
 
-    updated_docs = await stats_db.increment_doc_counter(
-        language,
-        settings.NEWS if is_valid else settings.SPAM
-    )
+    if updated_tokens:
+        updated_docs = await stats_db.increment_doc_counter(
+            language,
+            settings.NEWS if is_valid else settings.SPAM
+        )
 
     return updated_tokens, updated_docs
 
@@ -85,7 +87,11 @@ async def _reverse_tokens_stats(
         is_valid: bool
         ) -> int:
     updated_tokens = 0
-    new_label, old_label = ('news', 'spam') if is_valid else ('spam', 'news')
+
+    if is_valid:
+        new_label, old_label = settings.NEWS, settings.SPAM
+    else:
+        new_label, old_label = settings.SPAM, settings.NEWS
 
     for token in document_tokens:
         updated_tokens += await stats_db.reverse_token_stats(
