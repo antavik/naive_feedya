@@ -6,7 +6,7 @@ import httpx
 import parser
 import utils
 
-from typing import Iterable, List, Dict, Optional
+from typing import Generator, Iterable, List, Dict, Optional
 
 from feedparser import FeedParserDict
 
@@ -25,32 +25,50 @@ async def process_feed(feed: Feed) -> None:
 
         return
 
-    unique_parsed_feed_entries = await get_uniqie_feed_entries(
-        parsed_feed_entries
-    )
+    filtered_entries = await filter_feed_entries(parsed_feed_entries)
 
     entries_to_save = await prepare_feed_entries(
         feed,
-        unique_parsed_feed_entries
+        filtered_entries
     )
 
     await feed_entries_db.save_many(entries_to_save)
 
 
-async def get_uniqie_feed_entries(
-        parsed_feed_entries: List[FeedParserDict]
-        ) -> Iterable[FeedParserDict]:
-    exist_urls = await feed_entries_db.compare_urls(
-        (e.link for e in parsed_feed_entries)
+async def filter_feed_entries(feed_entries: List[parser.EntryProxy]):
+    filtered_entries = await filter_uniqie_feed_entries(
+        filter_old_feed_entries(feed_entries)
     )
 
-    unique_parsed_feed_entries = (
+    return filtered_entries
+
+
+async def filter_uniqie_feed_entries(
+        parsed_feed_entries: Generator[parser.EntryProxy, None, None]
+        ) -> Generator[parser.EntryProxy, None, None]:
+    exist_urls = await feed_entries_db.compare_urls(
+        (entry.url for entry in parsed_feed_entries)
+    )
+
+    unique_feeds = (
         entry
         for entry in parsed_feed_entries
-        if entry.link not in exist_urls
+        if entry.url not in exist_urls
     )
 
-    return unique_parsed_feed_entries
+    return unique_feeds
+
+
+def filter_old_feed_entries(
+        entries: List[parser.EntryProxy]
+        ) -> Generator[parser.EntryProxy, None, None]:
+    for entry in entries:
+        threshold_timestamp = utils.feed_entries_threshold_timestamp()
+
+        if entry.published_date and entry.published_date < threshold_timestamp:
+            continue
+
+        yield entry
 
 
 async def prepare_feed_entries(
@@ -60,23 +78,17 @@ async def prepare_feed_entries(
     feed_entries = []
 
     for entry in new_parsed_entries:
-        published_timestamp = time.mktime(
-            entry.get('published_parsed')
-            or entry.get('updated_parsed')
-            or time.localtime()
-        )
+        published_timestamp = entry.published_date or time.time()
 
         # TODO: Fix parsing
-        published_summary = (
-            '' if feed.skip_summary else entry.get('summary', '')
-        )
+        published_summary = '' if feed.skip_summary else entry.summary
 
         valid = await classify(entry.title, feed.language)
 
         feed_entries.append(
             FeedEntry(
                 title=entry.title,
-                url=entry.link,
+                url=entry.url,
                 published_timestamp=published_timestamp,
                 feed=feed.title,
                 summary=utils.trim_text(published_summary),
@@ -92,6 +104,32 @@ async def clean_feed_entries_db():
 
     if removed:
         logging.info('Feed entries DB cleaned. Removed %d entries', removed)
+
+
+async def get_feed_page(feed_type: str, last_hours: int) -> str:
+    weather = await get_current_weather()
+
+    label = utils.label_by_feed_type(feed_type)
+    feed_to_entries: Dict[Feed, list] = {f: [] for f in FEEDS}
+
+    news_entries = await feed_entries_db.fetch_last_entries(
+        feeds=REGISTRY.keys(),
+        valid=label,
+        hours_delta=last_hours
+    )
+
+    for entry in news_entries:
+        feed = REGISTRY[entry.feed]
+        feed_to_entries[feed].append(entry)
+
+    html_page = await render_html_page(
+        feed_to_entries,
+        feed_type,
+        last_hours,
+        weather
+    )
+
+    return html_page
 
 
 async def get_current_weather() -> str:
@@ -117,37 +155,12 @@ async def get_current_weather() -> str:
     return weather
 
 
-async def get_feed_page(feed_type: str, last_hours: int) -> str:
-    weather = await get_current_weather()
-
-    label = utils.label_by_feed_type(feed_type)
-
-    feed_to_entries: Dict[Feed, list] = {f: [] for f in FEEDS}
-
-    news_entries = await feed_entries_db.fetch_last_entries(
-        feeds=(f.title for f in FEEDS),
-        valid=label,
-        hours_delta=last_hours
-    )
-
-    for entry in news_entries:
-        feed = REGISTRY[entry.feed]
-        feed_to_entries[feed].append(entry)
-
-    html_page = await render_html_page(
-        feed_to_entries,
-        feed_type,
-        last_hours,
-        weather
-    )
-
-    return html_page
-
-
 async def update_feed_classifier(feedback) -> Optional[bool]:
     entry_classified = await feed_entries_db.is_classified(feedback.entry_url)
 
     if entry_classified is None:
+        logging.warning('URL doesn\'t exist %s', feedback.entry_url)
+
         return
 
     if entry_classified:
