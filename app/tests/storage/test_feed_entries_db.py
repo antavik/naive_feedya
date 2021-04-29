@@ -63,22 +63,22 @@ async def test_fetch_last_entries_command__true_label__fetch_recent_news(
         fake_seq_feed_entries
         ):
     fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries
-    tracking_datetime = (
+    tracking_timestamp = (
         datetime.datetime.now() -
         datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
-    )
+    ).timestamp()
     feeds = (e.feed for e in fake_seq_feed_entries)
 
-    recent_news = await fake_db.fetch_last_entries(
+    recent_entries = await fake_db.fetch_last_entries(
         feeds=feeds,
         valid=True,
         hours_delta=settings.RECENT_FEED_ENTRIES_HOURS
     )
 
     assert all(
-        n.valid
-        for n in recent_news
-        if n.published_datetime > tracking_datetime
+        e.valid
+        for e in recent_entries
+        if e.published_timestamp > tracking_timestamp
     )
 
 
@@ -88,22 +88,22 @@ async def test_fetch_last_entries_command__false_label__fetch_recent_spam(
         fake_seq_feed_entries
         ):
     fake_db = fake_feed_entries_db_with_random_data_with_recent_feed_entries
-    tracking_datetime = (
+    tracking_timestamp = (
         datetime.datetime.now() -
         datetime.timedelta(hours=settings.RECENT_FEED_ENTRIES_HOURS)
-    )
+    ).timestamp()
     feeds = (e.feed for e in fake_seq_feed_entries)
 
-    recent_news = await fake_db.fetch_last_entries(
+    recent_entries = await fake_db.fetch_last_entries(
         feeds=feeds,
         valid=False,
         hours_delta=settings.RECENT_FEED_ENTRIES_HOURS
     )
 
     assert all(
-        not n.valid
-        for n in recent_news
-        if n.published_datetime > tracking_datetime
+        not e.valid
+        for e in recent_entries
+        if e.published_timestamp > tracking_timestamp
     )
 
 
