@@ -96,3 +96,11 @@ def reverse_empty_feeds(
         key=lambda x: bool(x[1]),
         reverse=True
     )
+
+
+def feed_entries_threshold_timestamp(
+        days: int = settings.FEED_ENTRIES_DAYS_THRESHOLD
+        ) -> float:
+    threshold_datetime = datetime.datetime.now() - datetime.timedelta(days=days)  # noqa
+
+    return threshold_datetime.timestamp()
