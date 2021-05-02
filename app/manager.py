@@ -12,9 +12,9 @@ from feedparser import FeedParserDict
 
 from feeds import Feed, REGISTRY, FEEDS
 from storage import feed_entries_db
+from web import render_html_page
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
-from web.rendering import render_html_page
 
 
 async def process_feed(feed: Feed) -> None:
@@ -35,40 +35,24 @@ async def process_feed(feed: Feed) -> None:
     await feed_entries_db.save_many(entries_to_save)
 
 
-async def filter_feed_entries(feed_entries: List[parser.EntryProxy]):
-    filtered_entries = await filter_uniqie_feed_entries(
-        filter_old_feed_entries(feed_entries)
-    )
-
-    return filtered_entries
-
-
-async def filter_uniqie_feed_entries(
-        parsed_feed_entries: Generator[parser.EntryProxy, None, None]
+async def filter_feed_entries(
+        parsed_feed_entries: List[parser.EntryProxy]
         ) -> Generator[parser.EntryProxy, None, None]:
-    exist_urls = await feed_entries_db.compare_urls(
-        (entry.url for entry in parsed_feed_entries)
+    fresh_urls = tuple(
+        entry.url
+        for entry in parsed_feed_entries
+        if utils.under_date_threshold(entry)
     )
 
-    unique_feeds = (
+    exist_urls = await feed_entries_db.filter_exist_urls(fresh_urls)
+
+    new_entries = (
         entry
         for entry in parsed_feed_entries
-        if entry.url not in exist_urls
+        if entry.url in fresh_urls and entry.url not in exist_urls
     )
 
-    return unique_feeds
-
-
-def filter_old_feed_entries(
-        entries: List[parser.EntryProxy]
-        ) -> Generator[parser.EntryProxy, None, None]:
-    for entry in entries:
-        threshold_timestamp = utils.feed_entries_threshold_timestamp()
-
-        if entry.published_date and entry.published_date < threshold_timestamp:
-            continue
-
-        yield entry
+    return new_entries
 
 
 async def prepare_feed_entries(
