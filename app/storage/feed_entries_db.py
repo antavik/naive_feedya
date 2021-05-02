@@ -65,7 +65,7 @@ async def exists(url: str) -> bool:
     return result is not None
 
 
-async def compare_urls(urls: Iterable[str]) -> Tuple[str, ...]:
+async def filter_exist_urls(urls: Iterable[str]) -> Tuple[str, ...]:
     quoted_urls = (f"'{url}'" for url in urls)
 
     command = f"""
@@ -106,7 +106,7 @@ async def fetch_last_entries(
         FROM {FEED_ENTRIES_TABLE}
         WHERE
             valid = {int(valid)} AND
-            feed in ({", ".join(quoted_titles)}) AND
+            feed IN ({", ".join(quoted_titles)}) AND
             published_date >
             CAST(
                 strftime('%s', date('now', '-{hours_delta} hours')) as integer
