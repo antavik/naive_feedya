@@ -3,6 +3,7 @@ import random
 import datetime
 
 import settings
+import parser
 
 from itertools import count
 from typing import Tuple, Dict, List
@@ -104,3 +105,16 @@ def feed_entries_threshold_timestamp(
     threshold_datetime = datetime.datetime.now() - datetime.timedelta(days=days)  # noqa
 
     return threshold_datetime.timestamp()
+
+
+def under_date_threshold(
+        entry: parser.EntryProxy
+        ) -> bool:
+    threshold_timestamp = feed_entries_threshold_timestamp()
+
+    if entry.published_date and entry.published_date < threshold_timestamp:
+        result = False
+    else:
+        result = True
+
+    return result
