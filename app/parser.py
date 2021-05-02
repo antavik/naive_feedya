@@ -50,6 +50,14 @@ class EntryProxy:
 
         return published_date
 
+    def __repr__(self):
+        return (
+            f'{self.__class__.__name__}('
+            f'title={self.title}, '
+            f'url={self.url}, '
+            f'published_date={self.published_date})'
+        )
+
 
 async def get_feed(feed: Feed) -> bytes:
     async with httpx.AsyncClient() as http_client:
