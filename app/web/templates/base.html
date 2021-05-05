@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+{%- set EVENING_HOURS = 17 %}
+<html>
+  <head>
+    <title>📰 Feed {{ feed_datetime.strftime('%d %b %Y') }}</title>
+    <meta http-equiv="Content-Type" content="text/html, charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Load HTMX from unpkg -->
+    <script src="https://unpkg.com/htmx.org@1.2.0"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <!-- End load HTMX from unpkg -->
+    <style type="text/css">
+      body {
+        font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+        background-color: #e3e3e3d7;
+      }
+      table {
+        border: 0px;
+        width: 100%;
+        table-layout: fixed;
+        border-collapse: collapse;
+      }
+      tr {
+        border-bottom: 10px solid #ffffff
+      }
+      td {
+        vertical-align: top;
+        border-right: 10px solid #ffffff;
+      }
+      .common {
+        width: 1000px;
+        margin: auto;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .title-border {
+        text-align: center;
+        background: {{ title_bg_color }};
+        color: {{ title_font_color }};
+      }
+      .title-text {
+        font-size: 32px;
+      }
+      .title-date-weather {
+        font-size: 14px;
+      }
+      .entry-border {
+        background: #ffffff;
+      }
+      .feed-title {
+        font-weight: bold;
+        font-size: 25px;
+        padding-top: 9px;
+        padding-bottom: 7px;
+        text-align: center;
+      }
+      .feed-title-link {
+        color: #000000;
+      }
+      .entry-title {
+        font-weight: bold;
+        font-size: 16px;
+        padding-bottom: 4px;
+      }
+      .entry-link {
+        color: #000000;
+      }
+      .entry-summary {
+        font-size: 15px;
+        margin-top: 1px;
+        margin-bottom: 1px;
+      }
+      .entry-meta {
+        text-align:left;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        margin-right: 5px;
+      }
+      .entry-pub-date {
+        font-style: italic;
+        font-size: 12px;
+        color: #797684;
+      }
+      .footer {
+        font-size: 18px;
+        font-style: italic;
+        text-align: center;
+        color: #606060;
+      }
+      .footer-logo {
+        font-size: 12px;
+        font-style: normal;
+        text-align: center;
+      }
+      .tab-list {
+        background-color:#ffffff;
+        text-align: left;
+        cursor: pointer;
+        border-bottom: 1px solid #000000;
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+      .selected {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="common title-border">
+      <div class="title-text">{{ entry_type.capitalize() }}</div>
+      <div class="title-date-weather">
+        {{ feed_datetime.strftime('%d %B %Y, %a') }}
+        {% if weather %}
+        <br>
+        {{ weather }}
+        {% endif %}
+      </div>
+    </div>
+    <div id="tabs" hx-get="/feed/{{ entry_type }}/tab/?last_hours=6" hx-trigger="load after:100ms" hx-target="#tabs"></div>
+
+    <!-- Tab content will be here -->
+
+    {% if feed_datetime.hour >= EVENING_HOURS %}
+    <p class="footer">Good night!</p>
+    {% else %}
+    <p class="footer">Have a great day!</p>
+    {% endif %}
+    <p class="footer footer-logo">© {{ feed_datetime.year }} Naive Feedya</p>
+  </body>
+</html>
