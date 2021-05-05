@@ -12,7 +12,7 @@ from feedparser import FeedParserDict
 
 from feeds import Feed, REGISTRY, FEEDS
 from storage import feed_entries_db
-from web import render_html_page
+from web import render_base_page, render_tab_sub_page
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 
@@ -64,7 +64,6 @@ async def prepare_feed_entries(
     for entry in new_parsed_entries:
         published_timestamp = entry.published_date or time.time()
 
-        # TODO: Fix parsing
         published_summary = '' if feed.skip_summary else entry.summary
 
         valid = await classify(entry.title, feed.language)
@@ -90,9 +89,15 @@ async def clean_feed_entries_db():
         logging.info('Feed entries DB cleaned. Removed %d entries', removed)
 
 
-async def get_feed_page(feed_type: str, last_hours: int) -> str:
+async def get_base_page(feed_type: str) -> str:
     weather = await get_current_weather()
 
+    html_page = await render_base_page(feed_type, weather)
+
+    return html_page
+
+
+async def get_tab_sub_page(feed_type: str, last_hours: int) -> str:
     label = utils.label_by_feed_type(feed_type)
     feed_to_entries: Dict[Feed, list] = {f: [] for f in FEEDS}
 
@@ -106,11 +111,10 @@ async def get_feed_page(feed_type: str, last_hours: int) -> str:
         feed = REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
 
-    html_page = await render_html_page(
-        feed_to_entries,
+    html_page = await render_tab_sub_page(
         feed_type,
         last_hours,
-        weather
+        feed_to_entries
     )
 
     return html_page
