@@ -6,7 +6,6 @@ import utils
 from typing import List, Dict
 
 from jinja2 import Environment, FileSystemLoader
-from jinja2.environment import Template
 
 from feeds import Feed
 from storage.entities import FeedEntry
