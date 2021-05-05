@@ -11,39 +11,45 @@ from jinja2.environment import Template
 from feeds import Feed
 from storage.entities import FeedEntry
 
-
-def _get_html_template() -> Template:
-    environment = Environment(
-        loader=FileSystemLoader(settings.TEMPLATES_PATH),
-        autoescape=True,
-        enable_async=True
-    )
-
-    environment.filters['format_datetime'] = utils.format_datetime
-    environment.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
-
-    return environment.get_template(settings.TEMPLATE_FILENAME)
+ENVIRONMENT = Environment(
+    loader=FileSystemLoader(settings.TEMPLATES_PATH),
+    autoescape=True,
+    enable_async=True
+)
+ENVIRONMENT.filters['format_datetime'] = utils.format_datetime
+ENVIRONMENT.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
 
 
-TEMPLATE = _get_html_template()
-
-
-async def render_html_page(
-        feeds: Dict[Feed, List[FeedEntry]],
+async def render_base_page(
         entry_type: str,
-        recent_hours: int,
         weather: str
         ) -> str:
+    tamplate = ENVIRONMENT.get_template(settings.BASE_TEMPLATE_FILENAME)
+
     title_bg_color, title_font_color = utils.color_pairs_randomizer()
 
-    html_page = await TEMPLATE.render_async(
+    html_page = await tamplate.render_async(
         title_bg_color=title_bg_color,
         title_font_color=title_font_color,
         feed_datetime=datetime.datetime.now(),
-        feeds=feeds,
         entry_type=entry_type,
-        recent_hours=recent_hours,
         weather=weather
+    )
+
+    return html_page
+
+
+async def render_tab_sub_page(
+        entry_type: str,
+        last_hours: int,
+        feeds: Dict[Feed, List[FeedEntry]]
+        ) -> str:
+    tamplate = ENVIRONMENT.get_template(settings.TAB_TEMPLATE_FILENAME)
+
+    html_page = await tamplate.render_async(
+        entry_type=entry_type,
+        last_hours=last_hours,
+        feeds=feeds
     )
 
     return html_page
