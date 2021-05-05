@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.9.3-slim
 
 ARG USER=app
 ARG APP_NAME=naive_feedya
