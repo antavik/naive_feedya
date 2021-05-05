@@ -4,7 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
-from manager import get_feed_page, update_feed_classifier
+from manager import get_base_page, get_tab_sub_page, update_feed_classifier
 
 app = FastAPI(title='Naive Feedya')
 
@@ -21,8 +21,19 @@ class UserFeedback(BaseModel):
     response_class=HTMLResponse,
     summary='Get rendered news html page',
 )
-async def get_news(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
-    response = await get_feed_page(settings.NEWS, last_hours)
+async def get_news_page():
+    response = await get_base_page(settings.NEWS)
+
+    return response
+
+
+@app.get(
+    '/feed/news/tab/',
+    response_class=HTMLResponse,
+    summary='News sub-page for main feed page',
+)
+async def get_news_tab_sub_page(last_hours: int):
+    response = await get_tab_sub_page(settings.NEWS, last_hours)
 
     return response
 
@@ -32,8 +43,19 @@ async def get_news(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
     response_class=HTMLResponse,
     summary='Get rendered spam html page',
 )
-async def get_spam(last_hours: int = settings.RECENT_FEED_ENTRIES_HOURS):
-    response = await get_feed_page(settings.SPAM, last_hours)
+async def get_spam_page():
+    response = await get_base_page(settings.SPAM)
+
+    return response
+
+
+@app.get(
+    '/feed/spam/tab/',
+    response_class=HTMLResponse,
+    summary='Spam sub-page for main feed page',
+)
+async def get_spam_tab_sub_page(last_hours: int):
+    response = await get_tab_sub_page(settings.SPAM, last_hours)
 
     return response
 
