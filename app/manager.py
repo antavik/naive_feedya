@@ -12,7 +12,7 @@ from feedparser import FeedParserDict
 
 from feeds import Feed, REGISTRY, FEEDS
 from storage import feed_entries_db
-from web import render_base_page, render_tab_sub_page
+from web import render_base_page, render_tab_sub_page, render_login_sub_page
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 
@@ -41,7 +41,7 @@ async def filter_feed_entries(
     fresh_urls = tuple(
         entry.url
         for entry in parsed_feed_entries
-        if utils.under_date_threshold(entry)
+        if entry.under_date_threshold
     )
 
     exist_urls = await feed_entries_db.filter_exist_urls(fresh_urls)
@@ -90,9 +90,7 @@ async def clean_feed_entries_db():
 
 
 async def get_base_page(feed_type: str) -> str:
-    weather = await get_current_weather()
-
-    html_page = await render_base_page(feed_type, weather)
+    html_page = await render_base_page(feed_type)
 
     return html_page
 
@@ -120,27 +118,10 @@ async def get_tab_sub_page(feed_type: str, last_hours: int) -> str:
     return html_page
 
 
-async def get_current_weather() -> str:
-    weather_service_url = (
-        'https://wttr.in/Minsk?'
-        'format=%l:+%c+%t+(feels+like+%f),+wind+%w,+%p+%P'
-    )
+async def get_login_sub_page() -> str:
+    html_page = await render_login_sub_page()
 
-    async with httpx.AsyncClient() as http_client:
-        response = await http_client.get(weather_service_url)
-
-    try:
-        response.raise_for_status()
-    except httpx.HTTPStatusError as exc:
-        logging.error('Error while getting weather: %s', exc)
-
-        weather = ''
-    else:
-        logging.info('Weather data recieved')
-
-        weather = response.text
-
-    return weather
+    return html_page
 
 
 async def update_feed_classifier(feedback) -> Optional[bool]:
