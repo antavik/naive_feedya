@@ -16,11 +16,11 @@ class Feed:
 
 FEEDS = (
     Feed('The Verge', 'https://www.theverge.com/rss/index.xml', ENGLISH_LANGUAGE, skip_summary=True, base_url='https://www.theverge.com'),  # noqa
-    Feed('TNW', 'https://thenextweb.com/feed/', ENGLISH_LANGUAGE, skip_summary=True, base_url='https://thenextweb.com'),  # noqa
-    Feed('ARS Technica', 'http://feeds.arstechnica.com/arstechnica/index', ENGLISH_LANGUAGE, base_url='https://arstechnica.com'),  # noqa
     Feed('Wired', 'https://www.wired.com/feed/rss', ENGLISH_LANGUAGE, base_url='https://www.wired.com'),  # noqa
     Feed('Hacker News', 'https://news.ycombinator.com/rss', ENGLISH_LANGUAGE, base_url='https://news.ycombinator.com'),  # noqa
     Feed('Lobsters', 'https://lobste.rs/rss', ENGLISH_LANGUAGE, base_url='https://lobste.rs'),  # noqa
+    Feed('ARS Technica', 'http://feeds.arstechnica.com/arstechnica/index', ENGLISH_LANGUAGE, base_url='https://arstechnica.com'),  # noqa
+    Feed('TNW', 'https://thenextweb.com/feed/', ENGLISH_LANGUAGE, skip_summary=True, base_url='https://thenextweb.com'),  # noqa
     Feed('Spectrum IEEE', 'https://spectrum.ieee.org/rss/fulltext', ENGLISH_LANGUAGE, base_url='https://spectrum.ieee.org'),  # noqa
     Feed('Business insider Tech', 'https://www.businessinsider.com/sai/rss', ENGLISH_LANGUAGE, skip_summary=True, base_url='https://www.businessinsider.com'),  # noqa
     Feed('Engadged', 'https://www.engadget.com/rss.xml', ENGLISH_LANGUAGE, base_url='https://www.engadget.com'),  # noqa
