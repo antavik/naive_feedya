@@ -4,6 +4,8 @@ import time
 import httpx
 import feedparser as fp
 
+import utils
+
 from typing import List, Optional
 
 from feedparser import FeedParserDict
@@ -30,13 +32,24 @@ class EntryProxy:
         self.entry = entry
         self.title = entry.title
         self.url = entry.link
-        self.summary = entry.summary
+        self.summary = entry.get('summary', '')
         self.published_parsed = entry.get('published_parsed')
         self.update_parsed = entry.get('update_parsed')
         self.published_date = self._define_published_date(
             self.published_parsed,
             self.update_parsed
         )
+
+    @property
+    def under_date_threshold(self) -> bool:
+        threshold_timestamp = utils.feed_entries_threshold_timestamp()
+
+        if self.published_date and self.published_date < threshold_timestamp:
+            result = False
+        else:
+            result = True
+
+        return result
 
     @staticmethod
     def _define_published_date(
