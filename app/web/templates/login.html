@@ -1,0 +1,16 @@
+<center>
+  <form class="ouath-login" hx-put="/oauth/token" hx-target="this" hx-swap="outerHTML" hx-ext="oauth-token-save">
+    <div>
+      <label>Username</label>
+      <input type="text" name="username">
+    </div>
+    <div>
+      <label>Password</label>
+      <input type="password" name="password">
+    </div>
+    <dvi>
+      <input type="hidden" name="grant_type" value="password">
+    </dvi>
+    <button>Submit</button>
+  </form>
+</center>
