@@ -17,7 +17,7 @@ def test_trim_text__text_less_than_summary_limit__same_text(
         ):
     text = trim_text(fake_text_less_than_summary_limit)
 
-    assert len(text) <= settings.SUMMARY_LIMIT and text[-1] == '.'
+    assert len(text) <= settings.SUMMARY_TEXT_LIMIT and text[-1] == '.'
 
 
 def test_trim_text__text_more_than_summary_limit__trimmed_text(
@@ -25,7 +25,7 @@ def test_trim_text__text_more_than_summary_limit__trimmed_text(
         ):
     text = trim_text(fake_text_more_than_summary_limit)
 
-    assert len(text) <= settings.SUMMARY_LIMIT and text[-1] == '.'
+    assert len(text) <= settings.SUMMARY_TEXT_LIMIT and text[-1] == '.'
 
 
 def test_escape_single_quote__string__string(fake_string):
