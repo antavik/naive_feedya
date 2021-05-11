@@ -10,7 +10,7 @@ from manager import (
     process_feed,
     clean_feed_entries_db,
 )
-from web.app import app
+from web.app import APP
 from utils import configure_logging
 
 try:
@@ -31,7 +31,7 @@ async def main():
 
 async def serve():
     config = Config(
-        app=app,
+        app=APP,
         host=settings.SERVER_HOST,
         port=settings.SERVER_PORT
     )
