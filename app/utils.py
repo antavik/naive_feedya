@@ -28,13 +28,13 @@ def configure_logging():
 
 
 def trim_text(text: str) -> str:
-    if len(text) <= settings.SUMMARY_LIMIT:
+    if len(text) <= settings.SUMMARY_TEXT_LIMIT:
         return text
 
     end_index = None
 
     ending = '...'
-    limit_index = settings.SUMMARY_LIMIT - 1
+    limit_index = settings.SUMMARY_TEXT_LIMIT - 1
     trimmed_limit_index = limit_index - len(ending)
 
     for line, i in zip(text[limit_index::-1], count(limit_index, -1)):
@@ -59,7 +59,6 @@ def color_pairs_randomizer() -> Tuple[str, str]:
         ('#25b8a9', '#b82534',),
         ('#b6ff1c', '#651cff',),
         ('#19f76d', '#f719a3',),
-        ('#aec575', '#8c75c5',),
         ('#8dcf83', '#c583cf',),
         ('#6dd81b', '#861bd8',),
         ('#96ca98', '#814c7f',),
@@ -105,16 +104,3 @@ def feed_entries_threshold_timestamp(
     threshold_datetime = datetime.datetime.now() - datetime.timedelta(days=days)  # noqa
 
     return threshold_datetime.timestamp()
-
-
-def under_date_threshold(
-        entry: parser.EntryProxy
-        ) -> bool:
-    threshold_timestamp = feed_entries_threshold_timestamp()
-
-    if entry.published_date and entry.published_date < threshold_timestamp:
-        result = False
-    else:
-        result = True
-
-    return result
