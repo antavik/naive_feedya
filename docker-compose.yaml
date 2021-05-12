@@ -1,0 +1,38 @@
+version: '3.7'
+services:
+
+  reproxy:
+    image: umputun/reproxy:master
+    container_name: reproxy
+    hostname: reproxy
+    ports:
+      - "80:8080"
+      - "443:8443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./web:/web
+    environment:
+      - TZ=Belarus/Minsk
+      - DOCKER_ENABLED=true
+      - SSL_TYPE=auto
+      - SSL_ACME_FQDN=svechnikau.page
+      - LOGGER_ENABLED=true
+      - LOGGER_FILE=/var/log/reproxy.log
+      - HEADER=
+          X-Frame-Options:SAMEORIGIN,
+          X-XSS-Protection:1; mode=block;,
+          Content-Security-Policy:default-src 'self'; style-src 'self' 'unsafe-inline';
+
+  naive_feedya:
+    image: naive_feedya
+    container_name: naive_feedya
+    host_name: naive-feedya
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    command: python main.py
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./cache/:/var/lib/naive_feedya/
