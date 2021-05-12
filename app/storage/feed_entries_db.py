@@ -177,3 +177,4 @@ async def _setup_db():
     """
 
     await execute(DB_FILEPATH, command)
+    print('Feed entries DB created')

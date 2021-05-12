@@ -64,15 +64,8 @@ async def parse():
 async def setup_dbs():
     from . import feed_entries_db, stats_db
 
-    if not settings.FEED_ENTRIES_DB_FILEPATH.exists():
-        await feed_entries_db._setup_db()
-
-        print('Feed entries DB created')
-
-    if not settings.STATS_DB_FILEPATH.exists():
-        await stats_db._setup_db()
-
-        print('Stats DB created')
+    await feed_entries_db._setup_db()
+    await stats_db._setup_db()
 
 
 if __name__ == '__main__':
