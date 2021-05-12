@@ -212,3 +212,5 @@ async def _setup_db():
         )
 
         await db.commit()
+    
+    print('Stats DB created')
