@@ -66,7 +66,7 @@ async def exists(url: str) -> bool:
 
 
 async def filter_exist_urls(urls: Iterable[str]) -> Tuple[str, ...]:
-    quoted_urls = (f"'{url}'" for url in urls)
+    quoted_urls = (f"'{escape_single_quote(url)}'" for url in urls)
 
     command = f"""
         SELECT url
