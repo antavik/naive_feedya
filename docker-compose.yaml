@@ -26,7 +26,7 @@ services:
   naive_feedya:
     image: naive_feedya
     container_name: naive_feedya
-    host_name: naive-feedya
+    hostname: naive-feedya
     build:
       context: .
       dockerfile: Dockerfile
