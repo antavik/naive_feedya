@@ -25,6 +25,9 @@ configure_logging()
 
 
 async def main():
+    if not settings.FEED_ENTRIES_DB_FILEPATH.exists() or not settings.STATS_DB_FILEPATH.exists():  # noqa
+        asyncio.create_task(setup_dbs())
+
     asyncio.create_task(serve())
     asyncio.create_task(parse())
 
@@ -56,6 +59,20 @@ async def parse():
         )
 
         await asyncio.sleep(settings.FEED_REFRESH_TIME_SECONDS)
+
+
+async def setup_dbs():
+    from . import feed_entries_db, stats_db
+
+    if not settings.FEED_ENTRIES_DB_FILEPATH.exists():
+        await feed_entries_db._setup_db()
+
+        print('Feed entries DB created')
+
+    if not settings.STATS_DB_FILEPATH.exists():
+        await stats_db._setup_db()
+
+        print('Stats DB created')
 
 
 if __name__ == '__main__':
