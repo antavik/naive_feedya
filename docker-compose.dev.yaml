@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+
+  nf:
+    image: naive_feedya_dev
+    container_name: naive_feedya
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      USERNAME: "admin"
+      PASSWORD: "pass"
+    restart: always
+    # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
+    command: python main.py
+    ports:
+      # - "8888:8888"
+      - "8008:8008"
+    volumes:
+      - ./app/:/home/app/app/
+      - ./notebooks/:/mnt/notebooks/
+      - ./cache/:/var/lib/naive_feedya/
