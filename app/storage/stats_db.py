@@ -6,13 +6,14 @@ import settings
 
 from typing import TypeVar, Tuple, Optional
 
+from constants import ENGLISH
 from .base import execute, fetch_one
 from .entities import TokenStats, DocCounter
 
 _Number = TypeVar('_Number', int, float)
 
 DB_FILEPATH = settings.STATS_DB_FILEPATH
-ENG_STATS_TABLE = f'{settings.ENGLISH_LANGUAGE}_token_stats'
+ENG_STATS_TABLE = f'{ENGLISH}_token_stats'
 DOC_STATS_TABLE = 'doc_stats'
 
 
@@ -212,5 +213,3 @@ async def _setup_db():
         )
 
         await db.commit()
-    
-    print('Stats DB created')
