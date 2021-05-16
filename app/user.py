@@ -47,5 +47,5 @@ def _set_expiration_date() -> datetime.datetime:
 
     days_delta = datetime.timedelta(days=settings.TOKEN_EXPIRATION_DELTA_DAYS)
     _expiration = datetime.datetime.now() + days_delta
-        
+
     return _expiration
