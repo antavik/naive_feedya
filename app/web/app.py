@@ -19,10 +19,15 @@ from manager import (
     update_feed_classifier,
     get_login_sub_page,
 )
+from constants import NEWS, SPAM
 from .exceptions import InvalidCredentialsException, EntryURLNotFoundException
 
 APP = FastAPI(title=settings.API_NAME)
-APP.mount('/feed/static', StaticFiles(directory=str(settings.STATIC_PATH)), name='static')
+APP.mount(
+    '/feed/static',
+    StaticFiles(directory=str(settings.STATIC_PATH)),
+    name='static'
+)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/oauth/token', auto_error=False)
 
@@ -35,7 +40,7 @@ class UserFeedback(BaseModel):
 
 
 @APP.get(
-    '/oauth/login',
+    '/oauth/login/',
     response_class=HTMLResponse,
     summary='Get login sub-page'
 )
@@ -46,13 +51,13 @@ async def get_login_page():
 
 
 @APP.put(
-    '/oauth/token',
+    '/oauth/token/',
     summary='Put credentials'
 )
 async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
     if not user.is_valid_credentials(form_data.username, form_data.password):
         raise InvalidCredentialsException
-    
+
     token, _ = user.generate_token()
     response = {'access_token': str(token), 'token_type': 'bearer'}
 
@@ -65,7 +70,7 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
     summary='Get rendered news html page'
 )
 async def get_news_page():
-    response = await get_base_page(settings.NEWS)
+    response = await get_base_page(feed_type=NEWS)
 
     return response
 
@@ -76,11 +81,11 @@ async def get_news_page():
     summary='Get news sub-page for main feed page or redirect login sub-page'
 )
 async def get_news_tab_sub_page(
-        last_hours: int, 
+        last_hours: int,
         token: Optional[str] = Depends(oauth2_scheme)
         ):
     if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(settings.NEWS, last_hours)
+        content = await get_tab_sub_page(NEWS, last_hours)
         response = HTMLResponse(
             content=content,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -101,7 +106,7 @@ async def get_news_tab_sub_page(
     summary='Get rendered spam html page'
 )
 async def get_spam_page():
-    response = await get_base_page(settings.SPAM)
+    response = await get_base_page(feed_type=SPAM)
 
     return response
 
@@ -112,11 +117,11 @@ async def get_spam_page():
     summary='Get spam sub-page for main feed page or redirect login sub-page'
 )
 async def get_spam_tab_sub_page(
-        last_hours: int, 
+        last_hours: int,
         token: Optional[str] = Depends(oauth2_scheme)
         ):
     if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(settings.SPAM, last_hours)
+        content = await get_tab_sub_page(SPAM, last_hours)
         response = HTMLResponse(
             content=content,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -134,7 +139,7 @@ async def get_spam_tab_sub_page(
 
 
 @APP.put(
-    '/feed/update',
+    '/feed/update/',
     response_class=HTMLResponse,
     summary='Update feed classificator and entry label'
 )
