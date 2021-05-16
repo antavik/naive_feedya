@@ -1,17 +1,16 @@
 import time
 import logging
 
-import httpx
-
 import parser
 import utils
+import settings
 
 from typing import Generator, Iterable, List, Dict, Optional
 
 from feedparser import FeedParserDict
 
 from feeds import Feed, REGISTRY, FEEDS
-from storage import feed_entries_db
+from storage import feed_entries_db, stats_db
 from web import render_base_page, render_tab_sub_page, render_login_sub_page
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
@@ -74,7 +73,10 @@ async def prepare_feed_entries(
                 url=entry.url,
                 published_timestamp=published_timestamp,
                 feed=feed.title,
-                summary=utils.trim_text(published_summary),
+                summary=utils.trim_text(
+                    text=published_summary,
+                    limit=settings.SUMMARY_TEXT_LIMIT
+                    ),
                 valid=valid,
             )
         )
@@ -156,3 +158,8 @@ async def update_feed_classifier(feedback) -> Optional[bool]:
         )
 
     return updated
+
+
+async def setup_all_dbs():
+    await feed_entries_db._setup_db()
+    await stats_db._setup_db()
