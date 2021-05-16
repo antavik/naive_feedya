@@ -3,7 +3,7 @@ import math
 
 import pytest
 
-import settings
+from constants import ENGLISH
 
 
 @pytest.mark.asyncio
@@ -65,13 +65,12 @@ async def test_increment_doc_counter_command__increment_counters__success(
         fake_stats_db
         ):
     docs_qty = 1
-    language = settings.ENGLISH_LANGUAGE
 
     for _ in range(docs_qty):
-        await fake_stats_db.increment_doc_counter(language, 'news')
-        await fake_stats_db.increment_doc_counter(language, 'spam')
+        await fake_stats_db.increment_doc_counter(ENGLISH, 'news')
+        await fake_stats_db.increment_doc_counter(ENGLISH, 'spam')
 
-    doc_count = await fake_stats_db.get_doc_counter(language)
+    doc_count = await fake_stats_db.get_doc_counter(ENGLISH)
 
     assert doc_count.news == 1 and doc_count.spam == 1
 
