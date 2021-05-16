@@ -1,10 +1,11 @@
 import logging
 import time
+import datetime
 
 import httpx
 import feedparser as fp
 
-import utils
+import settings
 
 from typing import List, Optional
 
@@ -42,7 +43,11 @@ class EntryProxy:
 
     @property
     def under_date_threshold(self) -> bool:
-        threshold_timestamp = utils.feed_entries_threshold_timestamp()
+        threshold_datetime = (
+            datetime.datetime.now() -
+            datetime.timedelta(days=settings.FEED_ENTRIES_DAYS_THRESHOLD)
+        )
+        threshold_timestamp = threshold_datetime.timestamp()
 
         if self.published_date and self.published_date < threshold_timestamp:
             result = False
