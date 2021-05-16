@@ -4,11 +4,12 @@ from pathlib import Path
 
 from starlette.datastructures import Secret
 
+from constants import ENGLISH
+from utils import str2bool
+
 # User
 USERNAME = Secret(os.environ['USERNAME'])
 PASSWORD = Secret(os.environ['PASSWORD'])
-
-TOKEN_EXPIRATION_DELTA_DAYS = 7
 
 # Paths
 CWD = Path.cwd()
@@ -35,16 +36,17 @@ STATIC_FOLDER = 'web/static'
 STATIC_PATH = CWD / STATIC_FOLDER
 
 # Languages
-ENGLISH_LANGUAGE = 'english'
-SUPPORTED_LANGUAGES = (ENGLISH_LANGUAGE,)
+SUPPORTED_LANGUAGES = (ENGLISH,)
 
 # Thresholds
 FEED_REFRESH_TIME_SECONDS = 60 * 5
 FEED_ENTRIES_DAYS_THRESHOLD = 7
 RECENT_FEED_ENTRIES_HOURS = 6
+TOKEN_EXPIRATION_DELTA_DAYS = 7
+SUMMARY_TEXT_LIMIT = 200
 
 # Web server
-API_NAME = 'Naive Feedya'
+API_NAME = 'naive_feedya'
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 8008
 
@@ -52,11 +54,6 @@ SERVER_PORT = 8008
 DT_TEMPLATE = '%b %d, %Y, %H:%M'
 
 # Logging
+LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', ''))
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
-
-SUMMARY_TEXT_LIMIT = 200
-
-# Vars
-NEWS = 'news'
-SPAM = 'spam'
