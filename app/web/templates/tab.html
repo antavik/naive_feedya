@@ -7,7 +7,7 @@
   <div class="common entry-border">
     {% for feed, entries in feeds|reverse_empty_feeds %}
     <div class="feed-title">
-      <a class="feed-title-link" href="{{ feed.base_url }}">{{ feed.title }}</a>
+      <a class="feed-title-link" href="{{ feed.base_url }}" target="_blank" rel="noopener noreferrer">{{ feed.title }}</a>
     </div>
     {% if entries %}
     {% if entries|length > 9 %}
