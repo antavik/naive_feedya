@@ -2,8 +2,10 @@ FROM python:3.9.3-slim
 
 ARG USER=app
 ARG APP_NAME=naive_feedya
+ARG DEV_MODE=false
 
 ENV PYTHONUNBUFFERED 1
+ENV PIPENV_DEV=$DEV_MODE
 
 RUN apt-get update && apt-get install -y \
     apt-utils && \
@@ -13,12 +15,12 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 # Setup python env
-COPY ./pipfiles/Pipfile /etc/pipfiles/
+COPY ./pipfiles/ /etc/pipfiles/
 
 WORKDIR /etc/pipfiles/
 
 RUN pip install --no-cache-dir pipenv==2020.8.13 && \
-    pipenv install --system --dev --skip-lock
+    pipenv install --system --ignore-pipfile
 
 # Setup app env and create cache folder
 RUN useradd -m -U -s /bin/bash $USER && \
