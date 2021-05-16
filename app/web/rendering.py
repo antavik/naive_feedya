@@ -3,7 +3,7 @@ import datetime
 import settings
 import utils
 
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -15,8 +15,24 @@ ENVIRONMENT = Environment(
     autoescape=True,
     enable_async=True
 )
-ENVIRONMENT.filters['format_datetime'] = utils.format_datetime
-ENVIRONMENT.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
+
+
+def _format_datetime(dt: datetime.datetime) -> str:
+    return dt.strftime(settings.DT_TEMPLATE)
+
+
+def _reverse_empty_feeds(
+        feeds: Dict[Feed, List[FeedEntry]]
+        ) -> List[Tuple[Feed, List[FeedEntry]]]:
+    return sorted(
+        feeds.items(),
+        key=lambda x: bool(x[1]),
+        reverse=True
+    )
+
+
+ENVIRONMENT.filters['format_datetime'] = _format_datetime
+ENVIRONMENT.filters['reverse_empty_feeds'] = _reverse_empty_feeds
 
 
 async def render_base_page(entry_type: str) -> str:
