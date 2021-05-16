@@ -1,5 +1,7 @@
 import asyncio
 import logging
+import datetime
+import sys
 
 import settings
 
@@ -9,9 +11,9 @@ from feeds import FEEDS
 from manager import (
     process_feed,
     clean_feed_entries_db,
+    setup_all_dbs,
 )
 from web.app import APP
-from utils import configure_logging
 
 try:
     import uvloop
@@ -19,9 +21,6 @@ try:
     uvloop.install()
 except:  # noqa
     pass
-
-
-configure_logging()
 
 
 async def main():
@@ -58,17 +57,42 @@ async def parse():
         await asyncio.sleep(settings.FEED_REFRESH_TIME_SECONDS)
 
 
-async def setup_dbs():
-    from storage import feed_entries_db, stats_db
+async def prepare_dbs():
+    if not settings.FEED_ENTRIES_DB_FILEPATH.exists() or not settings.STATS_DB_FILEPATH.exists():  # noqa
+        await setup_all_dbs()
 
-    await feed_entries_db._setup_db()
-    await stats_db._setup_db()
+
+def configure_logging():
+    from logging import (
+        Formatter, getLogger, INFO, DEBUG, StreamHandler, FileHandler
+    )
+
+    logger = getLogger()
+    logger.setLevel(DEBUG)
+
+    formatter = Formatter(settings.LOGGING_FORMAT, settings.LOGGING_DT_FORMAT)
+
+    stream_handler = StreamHandler(sys.stdout)
+    stream_handler.setLevel(INFO)
+    stream_handler.setFormatter(formatter)
+
+    logger.addHandler(stream_handler)
+
+    if settings.LOGGING_FILE_ENABLE:
+        datetime_now = datetime.datetime.now()
+        datetime_str = datetime_now.strftime("%Y-%m-%d_%H:%M:%S")
+
+        file_handler = FileHandler(settings.CACHE_PATH / f'{datetime_str}.log')
+        file_handler.setLevel(INFO)
+        file_handler.setFormatter(formatter)
+
+        logger.addHandler(file_handler)
 
 
 if __name__ == '__main__':
-    if not settings.FEED_ENTRIES_DB_FILEPATH.exists() or not settings.STATS_DB_FILEPATH.exists():  # noqa
-        asyncio.run(setup_dbs())
+    configure_logging()
 
     loop = asyncio.get_event_loop()
+    loop.run_until_complete(prepare_dbs())
     loop.run_until_complete(main())
     loop.run_forever()
