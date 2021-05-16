@@ -1,40 +1,19 @@
-import sys
 import random
-import datetime
-
-import settings
-import parser
 
 from itertools import count
-from typing import Tuple, Dict, List
+from typing import Tuple
 
-from feeds import Feed
-from storage.entities import FeedEntry
-
-
-def configure_logging():
-    from logging import Formatter, getLogger, INFO, DEBUG, StreamHandler
-
-    logger = getLogger()
-
-    handler = StreamHandler(sys.stdout)
-    formatter = Formatter(settings.LOGGING_FORMAT, settings.LOGGING_DT_FORMAT)
-
-    handler.setLevel(INFO)
-    handler.setFormatter(formatter)
-
-    logger.setLevel(DEBUG)
-    logger.addHandler(handler)
+from constants import NEWS, SPAM, TRUE_BOOL_STRINGS, FALSE_BOOL_STRINGS
 
 
-def trim_text(text: str) -> str:
-    if len(text) <= settings.SUMMARY_TEXT_LIMIT:
+def trim_text(text: str, limit: int) -> str:
+    if len(text) <= limit:
         return text
 
     end_index = None
 
     ending = '...'
-    limit_index = settings.SUMMARY_TEXT_LIMIT - 1
+    limit_index = limit - 1
     trimmed_limit_index = limit_index - len(ending)
 
     for line, i in zip(text[limit_index::-1], count(limit_index, -1)):
@@ -70,37 +49,21 @@ def color_pairs_randomizer() -> Tuple[str, str]:
     return random.choice(_support_color_pairs)
 
 
-def format_datetime(
-        dt: datetime.datetime,
-        format: str = settings.DT_TEMPLATE
-        ) -> str:
-    return dt.strftime(format)
-
-
 def label_by_feed_type(feed_type: str) -> bool:
-    if feed_type == settings.NEWS:
+    if feed_type == NEWS:
         label = True
-    elif feed_type == settings.SPAM:
+    elif feed_type == SPAM:
         label = False
     else:
-        raise Exception
+        raise ValueError('Unsupported value for feed type')
 
     return label
 
 
-def reverse_empty_feeds(
-        feeds: Dict[Feed, List[FeedEntry]]
-        ) -> List[Tuple[Feed, List[FeedEntry]]]:
-    return sorted(
-        feeds.items(),
-        key=lambda x: bool(x[1]),
-        reverse=True
-    )
-
-
-def feed_entries_threshold_timestamp(
-        days: int = settings.FEED_ENTRIES_DAYS_THRESHOLD
-        ) -> float:
-    threshold_datetime = datetime.datetime.now() - datetime.timedelta(days=days)  # noqa
-
-    return threshold_datetime.timestamp()
+def str2bool(string: str) -> bool:
+    if string.lower() in TRUE_BOOL_STRINGS:
+        return True
+    elif string.lower() in FALSE_BOOL_STRINGS:
+        return False
+    else:
+        raise ValueError('Unsupported value for boolean parameter')
