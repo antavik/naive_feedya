@@ -29,6 +29,9 @@ services:
       context: .
       dockerfile: Dockerfile
     command: python main.py
+    environment:
+      - USERNAME=${USERNAME}
+      - PASSWORD=${PASSWORD}
     labels:
       reproxy.server: '*'
       reproxy.route: '^/(.*)'
