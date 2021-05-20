@@ -40,7 +40,7 @@ class UserFeedback(BaseModel):
 
 
 @APP.get(
-    '/oauth/login/',
+    '/oauth/login',
     response_class=HTMLResponse,
     summary='Get login sub-page'
 )
@@ -51,7 +51,7 @@ async def get_login_page():
 
 
 @APP.put(
-    '/oauth/token/',
+    '/oauth/token',
     summary='Put credentials'
 )
 async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
@@ -65,7 +65,7 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
 
 
 @APP.get(
-    '/feed/news/',
+    '/feed/news',
     response_class=HTMLResponse,
     summary='Get rendered news html page'
 )
@@ -101,7 +101,7 @@ async def get_news_tab_sub_page(
 
 
 @APP.get(
-    '/feed/spam/',
+    '/feed/spam',
     response_class=HTMLResponse,
     summary='Get rendered spam html page'
 )
@@ -139,7 +139,7 @@ async def get_spam_tab_sub_page(
 
 
 @APP.put(
-    '/feed/update/',
+    '/feed/update',
     response_class=HTMLResponse,
     summary='Update feed classificator and entry label'
 )
