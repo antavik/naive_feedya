@@ -29,8 +29,6 @@ services:
       context: .
       dockerfile: Dockerfile
     command: python main.py
-    depends_on:
-      - reproxy
     labels:
       reproxy.server: '*'
       reproxy.route: '^/(.*)'
