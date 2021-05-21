@@ -7,9 +7,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      USERNAME: "admin"
-      PASSWORD: "pass"
+      args:
+        - DEV_MODE=true
     restart: always
     # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
     command: python main.py
