@@ -66,4 +66,7 @@ def str2bool(string: str) -> bool:
     elif string.lower() in FALSE_BOOL_STRINGS:
         return False
     else:
-        raise ValueError('Unsupported value for boolean parameter')
+        raise ValueError(
+            f'Unsupported value for boolean parameter: '
+            f'{type(string)} - {string}'
+        )
