@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build image
-      run: docker build . --build-arg PIPENV_DEV=true -t naive_feedya_checker_buld
+      run: docker build . --build-arg DEV_MODE=true -t naive_feedya_checker_buld
 
     - name: Run tests
       run: docker run -i naive_feedya_checker_buld pytest
