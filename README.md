@@ -5,28 +5,30 @@
 Naive Feedya is a small news feed with simple web UI and filtering algorithm based on Naive Bayes classifier.
 
 
-### Warning:
-Currently application doesn't have login mechanism.
+## How to run:
 
-
-### TODO:
-- [ ] Login system
-- [ ] Preperations to publish in web
-
-
-### How to run:
+### Prod environment
+1. Prepare ```naive_feedya/.env``` file and set ```USERNAME``` and ```PASSWORD``` vars there.
+2. Run project using docker-compose:
 ```
-docker-compose -f docker-compose-dev.yml up
+docker-compose -f docker-compose.prod.yml up
 ```
-Check localhost ```127.0.0.1:8008/feed/news```
+Check localhost path (default port 8008) ```/feed/news```
+
+### Env environment
+1. Run project using docker-compose:
+```
+docker-compose -f docker-compose.dev.yml up
+```
+Check localhost path (default port 8008) ```/feed/news```
 
 
-### How to run tests and code style check:
+## How to run tests and code style check:
 1. Run tests
 ```
-docker-compose -f docker-compose-dev.yml run naive_feedya pytest
+docker-compose -f docker-compose.dev.yml run nf pytest
 ```
 2. Check code style
 ```
-docker-compose -f docker-compose-dev.yml run naive_feedya flake8
+docker-compose -f docker-compose.dev.yml run nf flake8
 ```
