@@ -7,9 +7,15 @@ from starlette.datastructures import Secret
 from constants import ENGLISH
 from utils import str2bool
 
+DEV_MODE = str2bool(os.getenv('DEV_MODE', ''))
+
 # User
-USERNAME = Secret(os.environ['USERNAME'])
-PASSWORD = Secret(os.environ['PASSWORD'])
+if not DEV_MODE:
+    USERNAME = Secret(os.environ['USERNAME'])
+    PASSWORD = Secret(os.environ['PASSWORD'])
+else:
+    USERNAME = Secret(os.getenv('USERNAME', 'admin'))
+    PASSWORD = Secret(os.getenv('PASSWORD', 'pass'))
 
 # Paths
 CWD = Path.cwd()
