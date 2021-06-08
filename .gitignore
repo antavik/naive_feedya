@@ -141,3 +141,6 @@ dmypy.json
 cache/
 .DS_Store
 .Trash-1000/
+
+# VS Code configs
+.vscode/
