@@ -26,7 +26,7 @@ RUN pip install --no-cache-dir pipenv==2020.8.13 && \
 COPY ./app/ /home/$USER/app/
 
 # Setup app env and create cache folder
-RUN useradd -m -U -s /bin/bash $USER && \
+RUN useradd -U -s /bin/bash $USER && \
     chown -R $USER:$USER /home/$USER/ && \
     mkdir /var/lib/$APP_NAME && \
     chown -R $USER:$USER /var/lib/$APP_NAME
