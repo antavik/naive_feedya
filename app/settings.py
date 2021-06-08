@@ -63,3 +63,5 @@ DT_TEMPLATE = '%b %d, %Y, %H:%M'
 LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', ''))
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
+
+os.environ.clear()
