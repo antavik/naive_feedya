@@ -93,7 +93,7 @@ async def get_news_tab_sub_page(
             headers={'WWW-Authenticate': 'Bearer'}
         )
     else:
-        login_page_url = urllib.parse.join(
+        login_page_url = urllib.parse.urljoin(
             '/feed', APP.url_path_for('get_login_page')
         )
         response = RedirectResponse(
@@ -131,7 +131,7 @@ async def get_spam_tab_sub_page(
             headers={'WWW-Authenticate': 'Bearer'}
         )
     else:
-        login_page_url = urllib.parse.join(
+        login_page_url = urllib.parse.urljoin(
             '/feed', APP.url_path_for('get_login_page')
         )
         response = RedirectResponse(
