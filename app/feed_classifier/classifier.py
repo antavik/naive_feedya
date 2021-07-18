@@ -50,7 +50,7 @@ async def update_stats(document: str, label: bool, language: str) -> bool:
     return updated_tokens, updated_docs
 
 
-async def reverse_stats(document: str, label: bool, language: str):
+async def reverse_stats(document: str, label: bool, language: str) -> int:
     tokens = tokenize_document(document, language)
 
     updated_tokens = await _reverse_tokens_stats(tokens, label)
