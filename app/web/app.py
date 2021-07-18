@@ -24,7 +24,7 @@ from .exceptions import InvalidCredentialsException, EntryURLNotFoundException
 
 APP = FastAPI(title=settings.API_NAME)
 APP.mount(
-    '/feed/static',
+    '/static',
     StaticFiles(directory=str(settings.STATIC_PATH)),
     name='static'
 )
@@ -65,7 +65,7 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
 
 
 @APP.get(
-    '/feed/news',
+    '/news',
     response_class=HTMLResponse,
     summary='Get rendered news html page'
 )
@@ -76,7 +76,7 @@ async def get_news_page():
 
 
 @APP.get(
-    '/feed/news/tab/',
+    '/news/tab/',
     response_class=Union[HTMLResponse, RedirectResponse],
     summary='Get news sub-page for main feed page or redirect login sub-page'
 )
@@ -101,7 +101,7 @@ async def get_news_tab_sub_page(
 
 
 @APP.get(
-    '/feed/spam',
+    '/spam',
     response_class=HTMLResponse,
     summary='Get rendered spam html page'
 )
@@ -112,7 +112,7 @@ async def get_spam_page():
 
 
 @APP.get(
-    '/feed/spam/tab/',
+    '/spam/tab/',
     response_class=HTMLResponse,
     summary='Get spam sub-page for main feed page or redirect login sub-page'
 )
@@ -139,7 +139,7 @@ async def get_spam_tab_sub_page(
 
 
 @APP.put(
-    '/feed/update',
+    '/update',
     response_class=HTMLResponse,
     summary='Update feed classificator and entry label'
 )
