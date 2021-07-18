@@ -1,3 +1,5 @@
+import urllib
+
 import settings
 import user
 
@@ -91,9 +93,11 @@ async def get_news_tab_sub_page(
             headers={'WWW-Authenticate': 'Bearer'}
         )
     else:
-        get_login_page_url = APP.url_path_for('get_login_page')
+        login_page_url = urllib.parse.join(
+            '/feed', APP.url_path_for('get_login_page')
+        )
         response = RedirectResponse(
-            url=get_login_page_url,
+            url=login_page_url,
             headers={'WWW-Authenticate': 'Bearer'}
         )
 
@@ -127,9 +131,11 @@ async def get_spam_tab_sub_page(
             headers={'WWW-Authenticate': 'Bearer'}
         )
     else:
-        get_login_page_url = APP.url_path_for('get_login_page')
+        login_page_url = urllib.parse.join(
+            '/feed', APP.url_path_for('get_login_page')
+        )
         response = RedirectResponse(
-            url=get_login_page_url,
+            url=login_page_url,
             headers={
                 'WWW-Authenticate': 'Bearer',
             }
