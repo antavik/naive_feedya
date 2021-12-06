@@ -1,6 +1,6 @@
 import datetime
 
-from dataclasses import dataclass, field, astuple
+from dataclasses import dataclass, astuple
 from typing import Tuple, Any
 
 
@@ -28,29 +28,33 @@ class FeedEntry:
     url: str
     summary: str
     published_timestamp: float
-    valid: bool
-    classified: bool = field(default=False)
+    valid: int
+    classified: int = 0
 
-    def __post_init__(self):
-        self.valid = bool(self.valid)
-        self.classified = bool(self.classified)
+    @property
+    def is_valid(self):
+        return bool(self.valid)
+
+    @property
+    def is_classified(self):
+        return bool(self.is_classified)
 
     @property
     def published_datetime(self) -> datetime.datetime:
         return datetime.datetime.fromtimestamp(self.published_timestamp)
 
 
-def feed_entry_tuple_factory(feed_entry_list: list) -> Tuple[Any, ...]:
+def feed_entry_to_tuple_factory(feed_entry_list: list) -> Tuple[Any, ...]:
     return (
         feed_entry_list[0],
         feed_entry_list[1],
         feed_entry_list[2],
         feed_entry_list[3],
         feed_entry_list[4],
-        int(feed_entry_list[5]),
-        int(feed_entry_list[6]),
+        feed_entry_list[5],
+        feed_entry_list[6],
     )
 
 
 def feed_entry_as_tuple(entry: FeedEntry) -> Tuple[Any, ...]:
-    return astuple(entry, tuple_factory=feed_entry_tuple_factory)
+    return astuple(entry, tuple_factory=feed_entry_to_tuple_factory)

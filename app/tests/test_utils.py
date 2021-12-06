@@ -16,7 +16,7 @@ from constants import NEWS, SPAM, TRUE_BOOL_STRINGS, FALSE_BOOL_STRINGS
 
 def test_trim_text__text_less_than_summary_limit__same_text(
         fake_text_less_than_summary_limit
-        ):
+):
     text = trim_text(
         fake_text_less_than_summary_limit,
         settings.SUMMARY_TEXT_LIMIT
@@ -27,7 +27,7 @@ def test_trim_text__text_less_than_summary_limit__same_text(
 
 def test_trim_text__text_more_than_summary_limit__trimmed_text(
         fake_text_more_than_summary_limit
-        ):
+):
     text = trim_text(
         fake_text_more_than_summary_limit,
         settings.SUMMARY_TEXT_LIMIT

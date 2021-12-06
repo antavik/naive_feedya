@@ -46,14 +46,14 @@ def fake_feed_entry():
 
 @pytest.fixture
 def fake_news_entry(fake_feed_entry):
-    fake_feed_entry.valid = True
+    fake_feed_entry.valid = 1
 
     return fake_feed_entry
 
 
 @pytest.fixture
 def fake_spam_entry(fake_feed_entry):
-    fake_feed_entry.valid = False
+    fake_feed_entry.valid = 0
 
     return fake_feed_entry
 
@@ -107,7 +107,7 @@ async def fake_feed_entries_db():
 async def fake_feed_entries_db_with_random_data(
         fake_feed_entries_db,
         fake_seq_feed_entries
-        ):
+):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -132,7 +132,7 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
         fake_feed_entries_db,
         fake_seq_feed_entries,
         datetime_now
-        ):
+):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -165,7 +165,7 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
         fake_feed_entries_db,
         fake_seq_feed_entries,
         datetime_now
-        ):
+):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
         VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -178,10 +178,10 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
     for i in range(TEST_DB_ROWS_COUNT):
         if i < half_row_count:
             fake_seq_feed_entries[i].published_timestamp = recent_feed_entries_timestamp  # noqa
-            fake_seq_feed_entries[i].valid = True
+            fake_seq_feed_entries[i].valid = 1
         else:
             fake_seq_feed_entries[i].published_timestamp = recent_feed_entries_timestamp  # noqa
-            fake_seq_feed_entries[i].valid = False
+            fake_seq_feed_entries[i].valid = 0
 
     fake_seq_feed_entries_data = (
         feed_entry_as_tuple(f)
@@ -250,7 +250,7 @@ async def fake_stats_db():
 async def fake_stats_db_with_random_doc_data(
         fake_stats_db,
         fake_eng_doc_counter
-        ):
+):
     command = f"""
         UPDATE {fake_stats_db.DOC_STATS_TABLE}
         SET news={fake_eng_doc_counter.news}, spam={fake_eng_doc_counter.spam}
@@ -266,7 +266,7 @@ async def fake_stats_db_with_random_doc_data(
 async def fake_stats_db_with_random_doc_and_token_data(
         fake_stats_db,
         fake_seq_token_stats
-        ):
+):
     command = f"""
         INSERT INTO {fake_stats_db.ENG_STATS_TABLE}
         VALUES (?, ?, ?)

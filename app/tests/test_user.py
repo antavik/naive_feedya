@@ -12,7 +12,7 @@ def test_generate_token__no_input__token_exp(import_user):
 
 def test_is_valid_credentials__valid_credentials__true(
         import_user_with_credential
-        ):
+):
     import_user, username, password = import_user_with_credential
 
     assert (
@@ -21,11 +21,9 @@ def test_is_valid_credentials__valid_credentials__true(
 
 
 def test_is_valid_credentials__invalid_credentials__false(
-        import_user_with_credential,
+        import_user,
         fake_string
-        ):
-    import_user, _, _ = import_user_with_credential
-
+):
     assert (
         import_user.is_valid_credentials(fake_string, fake_string) is False
     )
@@ -38,10 +36,9 @@ def test_is_valid_token__valid_token__true(import_user_with_token):
 
 
 def test_is_valid_token__invalid_token__false(
-        import_user_with_credential,
+        import_user,
         fake_token
-        ):
-    import_user, _, _ = import_user_with_credential
+):
 
     assert import_user.is_valid_token(fake_token) is False
 
@@ -52,12 +49,9 @@ def test_is_valid_token__expired_token__false(import_user_with_expired_token):
     assert import_user.is_valid_token(token) is False
 
 
-def test_set_expiration_date__no_input__set_expiration_date(
-        import_user_with_credential
-        ):
-    import_user, _, _ = import_user_with_credential
+def test_get_expiration_date__no_input__expiration_date(
+        import_user
+):
+    expiration = import_user._get_expiration_date()
 
-    import_user._set_expiration_date()
-
-    assert import_user._expiration is not None
-    assert isinstance(import_user._expiration, datetime.datetime)
+    assert isinstance(expiration, datetime.datetime)

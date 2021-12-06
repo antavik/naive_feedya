@@ -10,7 +10,7 @@ from jinja2 import Environment, FileSystemLoader
 from feeds import Feed
 from storage.entities import FeedEntry
 
-ENVIRONMENT = Environment(
+_ENVIRONMENT = Environment(
     loader=FileSystemLoader(settings.TEMPLATES_PATH),
     autoescape=True,
     enable_async=True
@@ -31,12 +31,12 @@ def _reverse_empty_feeds(
     )
 
 
-ENVIRONMENT.filters['format_datetime'] = _format_datetime
-ENVIRONMENT.filters['reverse_empty_feeds'] = _reverse_empty_feeds
+_ENVIRONMENT.filters['format_datetime'] = _format_datetime
+_ENVIRONMENT.filters['reverse_empty_feeds'] = _reverse_empty_feeds
 
 
 async def render_base_page(entry_type: str) -> str:
-    tamplate = ENVIRONMENT.get_template(settings.BASE_TEMPLATE_FILENAME)
+    tamplate = _ENVIRONMENT.get_template(settings.BASE_TEMPLATE_FILENAME)
 
     title_bg_color, title_font_color = utils.color_pairs_randomizer()
 
@@ -55,7 +55,7 @@ async def render_tab_sub_page(
         last_hours: int,
         feeds: Dict[Feed, List[FeedEntry]]
         ) -> str:
-    tamplate = ENVIRONMENT.get_template(settings.TAB_TEMPLATE_FILENAME)
+    tamplate = _ENVIRONMENT.get_template(settings.TAB_TEMPLATE_FILENAME)
 
     html_page = await tamplate.render_async(
         entry_type=entry_type,
@@ -67,7 +67,7 @@ async def render_tab_sub_page(
 
 
 async def render_login_sub_page() -> str:
-    template = ENVIRONMENT.get_template(settings.LOGIN_TEMPLATE_FILENAME)
+    template = _ENVIRONMENT.get_template(settings.LOGIN_TEMPLATE_FILENAME)
 
     html_page = await template.render_async()
 

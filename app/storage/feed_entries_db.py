@@ -43,8 +43,8 @@ async def save(feed_entry: FeedEntry) -> int:
             '{feed_entry.url}',
             '{escape_single_quote(feed_entry.summary)}',
             {feed_entry.published_timestamp},
-            {int(feed_entry.valid)},
-            {int(feed_entry.classified)}
+            {feed_entry.valid},
+            {feed_entry.classified}
         )
     """
 
@@ -81,7 +81,7 @@ async def filter_exist_urls(urls: Iterable[str]) -> Tuple[str, ...]:
 
 async def remove_old(
         days_delta: int = settings.FEED_ENTRIES_DAYS_THRESHOLD
-        ) -> int:
+) -> int:
     command = f"""
         DELETE FROM {FEED_ENTRIES_TABLE}
         WHERE
@@ -98,7 +98,7 @@ async def fetch_last_entries(
         valid: bool,
         hours_delta: int,
         feeds: Iterable[str]
-        ) -> Tuple[FeedEntry, ...]:
+) -> Tuple[FeedEntry, ...]:
     quoted_titles = (f"'{f}'" for f in feeds)
 
     command = f"""
@@ -122,7 +122,7 @@ async def fetch_last_entries(
 async def update_validity(url: str, label: bool) -> int:
     command = f"""
         UPDATE {FEED_ENTRIES_TABLE}
-        SET valid = {int(label)}, classified = 1
+        SET valid = {label}, classified = 1
         WHERE url = '{url}'
     """
 
@@ -149,10 +149,7 @@ async def save_many(feeds: Iterable[FeedEntry]) -> int:
         VALUES (?, ?, ?, ?, ?, ?, ?)
     """
 
-    seq_feed_entries_data = (
-        feed_entry_as_tuple(f)
-        for f in feeds
-    )
+    seq_feed_entries_data = (feed_entry_as_tuple(f) for f in feeds)
 
     result = await execute_many(
         DB_FILEPATH,

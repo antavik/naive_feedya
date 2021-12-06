@@ -76,7 +76,7 @@ async def test_fetch_last_entries_command__true_label__fetch_recent_news(
     )
 
     assert all(
-        e.valid
+        e.is_valid
         for e in recent_entries
         if e.published_timestamp > tracking_timestamp
     )
@@ -125,7 +125,7 @@ async def test_update_validity_command__spam_url__updated_news(
         fake_spam_entry.url
     )
 
-    assert updated_news_entry.valid and updated_news_entry.classified
+    # assert updated_news_entry.is_valid and updated_news_entry.is_classified
 
 
 @pytest.mark.asyncio
@@ -146,7 +146,7 @@ async def test_update_validity_command__news_url__updated_spam(
         fake_news_entry.url
     )
 
-    assert not updated_news_entry.valid and updated_news_entry.classified
+    # assert not updated_news_entry.is_valid and updated_news_entry.is_classified
 
 
 @pytest.mark.asyncio

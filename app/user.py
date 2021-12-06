@@ -7,23 +7,26 @@ from typing import Tuple
 
 from starlette.datastructures import Secret
 
-USERNAME: Secret = settings.USERNAME
-PASSWORD: Secret = settings.PASSWORD
-_token: Secret = None
-_expiration: datetime.datetime = None
+_USERNAME = settings.USERNAME
+_PASSWORD = settings.PASSWORD
+_TOKEN: Secret = None
+_EXPIRATION: datetime.datetime = None
 
 
 def generate_token() -> Tuple[Secret, datetime.datetime]:
-    global _token
+    global _TOKEN, _EXPIRATION
 
-    _token = Secret(secrets.token_hex())
-    exp = _set_expiration_date()
+    _TOKEN = Secret(secrets.token_hex())
+    _EXPIRATION = _get_expiration_date()
 
-    return _token, exp
+    return _TOKEN, _EXPIRATION
 
 
 def is_valid_credentials(username: str, password: str) -> bool:
-    if username == str(USERNAME) and password == str(PASSWORD):
+    if (
+        username == str(_USERNAME)
+        and password == str(_PASSWORD)
+    ):
         is_valid = True
     else:
         is_valid = False
@@ -32,9 +35,9 @@ def is_valid_credentials(username: str, password: str) -> bool:
 
 
 def is_valid_token(token: str) -> bool:
-    if str(_token) != token:
+    if str(_TOKEN) != token:
         is_valid = False
-    elif _expiration <= datetime.datetime.now():
+    elif _EXPIRATION <= datetime.datetime.now():
         is_valid = False
     else:
         is_valid = True
@@ -42,10 +45,8 @@ def is_valid_token(token: str) -> bool:
     return is_valid
 
 
-def _set_expiration_date() -> datetime.datetime:
-    global _expiration
-
+def _get_expiration_date() -> datetime.datetime:
     days_delta = datetime.timedelta(days=settings.TOKEN_EXPIRATION_DELTA_DAYS)
-    _expiration = datetime.datetime.now() + days_delta
+    expiration = datetime.datetime.now() + days_delta
 
-    return _expiration
+    return expiration

@@ -21,7 +21,7 @@ _STEMMER = PorterStemmer()
 def tokenize_document(
         document: str,
         language: str
-        ) -> Tuple[str, ...]:
+) -> Tuple[str, ...]:
     processed_document = document.translate(_TRANSLATION_MAPPING).lower()
 
     tokens = tuple(
@@ -29,8 +29,7 @@ def tokenize_document(
         for word in set(processed_document.split())
         if word not in stopwords.words(language)
         and word not in CUSTOM_FILTER
-        # Regex for years 19??, 20??
-        and not re.fullmatch(r'^(19|20)\d{2}$', word)
+        and not re.fullmatch(r'^(19|20)\d{2}$', word)  # Regex for years 19??, 20??
     )
 
     return tokens

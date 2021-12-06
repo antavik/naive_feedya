@@ -62,8 +62,8 @@ def fake_credentials():
 def import_user_with_credential(import_user, fake_credentials):
     username, password = fake_credentials
 
-    import_user.USERNAME = username
-    import_user.PASSWORD = password
+    import_user._USERNAME = username
+    import_user._PASSWORD = password
 
     return import_user, username, password
 
@@ -95,33 +95,31 @@ def fake_text_more_than_summary_limit():
 
 @pytest.fixture
 def import_user_with_token(
-        import_user_with_credential,
+        import_user,
         fake_token,
         datetime_now
         ):
-    import_user, _, _ = import_user_with_credential
     token = fake_token
     exp = (
         datetime_now + datetime.timedelta(settings.TOKEN_EXPIRATION_DELTA_DAYS)
     )
 
-    import_user._token = token
-    import_user._expiration = exp
+    import_user._TOKEN = token
+    import_user._EXPIRATION = exp
 
     return import_user, token, exp
 
 
 @pytest.fixture
 def import_user_with_expired_token(
-        import_user_with_credential,
+        import_user,
         fake_token,
         past_datetime
         ):
-    import_user, _, _ = import_user_with_credential
     token = fake_token
     exp = past_datetime
 
-    import_user._token = token
-    import_user._expiration = exp
+    import_user._TOKEN = token
+    import_user._EXPIRATION = exp
 
     return import_user, token, exp

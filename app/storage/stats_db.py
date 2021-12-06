@@ -68,7 +68,7 @@ async def save_or_increment_spam_token(token: str) -> int:
 async def increment_doc_counter(
         language: str,
         counter_type: str
-        ) -> int:
+) -> int:
     command = f"""
         UPDATE {DOC_STATS_TABLE}
         SET {counter_type} = {counter_type} + 1
@@ -81,7 +81,8 @@ async def increment_doc_counter(
 
 
 async def get_docs_p_values(
-        language: str) -> Tuple[Optional[_Number], Optional[_Number]]:
+        language: str
+) -> Tuple[Optional[_Number], Optional[_Number]]:
     command = f"""
         SELECT news_p, spam_p
         FROM
@@ -172,7 +173,7 @@ async def reverse_token_stats(
         token: str,
         new_label: str,
         old_label: str
-        ) -> int:
+) -> int:
     command = f"""
         UPDATE {ENG_STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1

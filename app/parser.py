@@ -60,7 +60,7 @@ class EntryProxy:
     def _define_published_date(
             published: time.struct_time,
             updated: time.struct_time
-            ) -> Optional[float]:
+    ) -> Optional[float]:
         if published or updated:
             published_date = time.mktime(published or updated)
         else:
