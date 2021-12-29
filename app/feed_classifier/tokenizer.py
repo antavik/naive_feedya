@@ -11,7 +11,7 @@ from nltk.stem.porter import PorterStemmer
 nltk.download('punkt')
 nltk.download('stopwords')
 
-CUSTOM_FILTER = ('cnet',)
+CUSTOM_FILTER = {'cnet', }
 _TRANSLATION_MAPPING = str.maketrans(
     dict.fromkeys(string.punctuation + "’‘–")
 )
