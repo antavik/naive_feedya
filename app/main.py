@@ -73,7 +73,7 @@ def configure_logging():
     formatter = Formatter(settings.LOGGING_FORMAT, settings.LOGGING_DT_FORMAT)
 
     stream_handler = StreamHandler(sys.stdout)
-    stream_handler.setLevel(INFO)
+    stream_handler.setLevel(DEBUG if settings.DEV_MODE else INFO)
     stream_handler.setFormatter(formatter)
 
     logger.addHandler(stream_handler)
