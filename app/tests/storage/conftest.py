@@ -65,7 +65,7 @@ def fake_feed_entry_unclassified(fake_feed_entry):
 
 @pytest.fixture
 def fake_feed_entry_classified(fake_feed_entry):
-    fake_feed_entry.classified = True
+    fake_feed_entry.classified = 1
 
     return fake_feed_entry
 
