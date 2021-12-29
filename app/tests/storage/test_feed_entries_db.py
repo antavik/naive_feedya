@@ -125,7 +125,7 @@ async def test_update_validity_command__spam_url__updated_news(
         fake_spam_entry.url
     )
 
-    # assert updated_news_entry.is_valid and updated_news_entry.is_classified
+    assert updated_news_entry.is_valid and updated_news_entry.is_classified
 
 
 @pytest.mark.asyncio
@@ -146,7 +146,7 @@ async def test_update_validity_command__news_url__updated_spam(
         fake_news_entry.url
     )
 
-    # assert not updated_news_entry.is_valid and updated_news_entry.is_classified
+    assert not updated_news_entry.is_valid and updated_news_entry.is_classified
 
 
 @pytest.mark.asyncio

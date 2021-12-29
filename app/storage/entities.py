@@ -37,7 +37,7 @@ class FeedEntry:
 
     @property
     def is_classified(self):
-        return bool(self.is_classified)
+        return bool(self.classified)
 
     @property
     def published_datetime(self) -> datetime.datetime:

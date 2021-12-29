@@ -29,7 +29,7 @@ def tokenize_document(
         for word in set(processed_document.split())
         if word not in stopwords.words(language)
         and word not in CUSTOM_FILTER
-        and not re.fullmatch(r'^(19|20)\d{2}$', word)  # Regex for years 19??, 20??
+        and not re.fullmatch(r'^(19|20)\d{2}$', word)  # Regex for years 19??, 20??  # noqa
     )
 
     return tokens
