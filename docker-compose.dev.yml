@@ -4,6 +4,7 @@ services:
   nf:
     image: naive_feedya_dev
     container_name: naive_feedya
+    # user: root
     build:
       context: .
       dockerfile: Dockerfile

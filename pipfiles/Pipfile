@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-notebook = "==6.3.0"
+notebook = "==6.4.1"
 pytest = "==6.2.4"
 pytest-asyncio = "==0.15.1"
 Faker = "==6.6.3"
@@ -15,12 +15,12 @@ mypy = "*"
 
 [packages]
 feedparser = "==6.0.2"
-nltk = "==3.6.2"
+nltk = "==3.6.4"
 aiosqlite = "==0.17"
 httpx = "==0.18.1"
 fastapi = "==0.64"
 uvicorn = "==0.13.4"
-uvloop = "==0.15.2"   
+uvloop = "==0.15.2"
 Jinja2 = "==2.11.3"
 python-multipart = "0.0.5"
 aiofiles = "==0.6.0"
