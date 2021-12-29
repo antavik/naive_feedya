@@ -3,7 +3,7 @@ import random
 from itertools import count
 from typing import Tuple
 
-from constants import NEWS, SPAM, TRUE_BOOL_STRINGS, FALSE_BOOL_STRINGS
+from constants import NEWS, SPAM
 
 
 def trim_text(text: str, limit: int) -> str:
@@ -61,9 +61,12 @@ def label_by_feed_type(feed_type: str) -> bool:
 
 
 def str2bool(string: str) -> bool:
-    if string.lower() in TRUE_BOOL_STRINGS:
+    true_bool_strings = {'yes', 'y', '1', 'true', 't'}
+    false_bool_strings = {'no', 'n', '0', 'false', 'f', ''}
+
+    if string.lower() in true_bool_strings:
         return True
-    elif string.lower() in FALSE_BOOL_STRINGS:
+    elif string.lower() in false_bool_strings:
         return False
     else:
         raise ValueError(

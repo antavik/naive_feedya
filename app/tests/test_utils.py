@@ -11,7 +11,7 @@ from utils import (
     label_by_feed_type,
     str2bool,
 )
-from constants import NEWS, SPAM, TRUE_BOOL_STRINGS, FALSE_BOOL_STRINGS
+from constants import NEWS, SPAM
 
 
 def test_trim_text__text_less_than_summary_limit__same_text(
@@ -68,22 +68,18 @@ def test_label_by_feed_type__invalid_type__exception(fake_feed_type):
 
 
 def test_str2bool__valid_true_str__bool_true():
-    test_strs = []
+    true_bool_strings = ['yes', 'y', '1', 'true', 't']
+    upper_true_bool_strings = [s.upper() for s in true_bool_strings]
 
-    test_strs.extend(TRUE_BOOL_STRINGS)
-    test_strs.extend(s.upper() for s in TRUE_BOOL_STRINGS)
-
-    for bool_str in test_strs:
+    for bool_str in true_bool_strings + upper_true_bool_strings:
         assert str2bool(bool_str) is True
 
 
 def test_str2bool__valid_false_str__bool_false():
-    test_strs = []
+    false_bool_strings = ['no', 'n', '0', 'false', 'f', '']
+    upper_false_bool_strings = [s.upper() for s in false_bool_strings]
 
-    test_strs.extend(FALSE_BOOL_STRINGS)
-    test_strs.extend(s.upper() for s in FALSE_BOOL_STRINGS)
-
-    for bool_str in test_strs:
+    for bool_str in false_bool_strings + upper_false_bool_strings:
         assert str2bool(bool_str) is False
 
 
