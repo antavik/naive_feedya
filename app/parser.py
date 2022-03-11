@@ -78,7 +78,7 @@ class EntryProxy:
 
 
 async def get_feed(feed: Feed) -> bytes:
-    async with httpx.AsyncClient() as http_client:
+    async with httpx.AsyncClient(headers={'user-agent': 'nf'}) as http_client:
         response = await http_client.get(feed.url)
 
     try:
