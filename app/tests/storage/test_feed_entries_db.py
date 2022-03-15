@@ -48,13 +48,14 @@ async def test_exists_command__invalid_url__not_exists(
 async def test_remove_old_command__valid_date_delta__removed_old(
         fake_feed_entries_db_with_random_data_older_than_days_threshold
         ):
-    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold
+    fake_db, fake_data = fake_feed_entries_db_with_random_data_older_than_days_threshold
+    classified_entities = [e for e in fake_data if e.is_classified]
 
     await fake_db.remove_old()
 
     test_feed_entries = await fake_db.fetch_all_entries()
 
-    assert not test_feed_entries
+    assert len(test_feed_entries) == len(classified_entities)
 
 
 @pytest.mark.asyncio
