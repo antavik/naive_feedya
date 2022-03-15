@@ -15,7 +15,7 @@ docker-compose -f docker-compose.prod.yml up
 ```
 Check localhost path (default port 8008) ```/feed/news```
 
-### Env environment
+### Dev environment
 1. Run project using docker-compose:
 ```
 docker-compose -f docker-compose.dev.yml up
