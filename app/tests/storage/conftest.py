@@ -157,7 +157,7 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
         fake_seq_feed_entries_data
     )
 
-    return fake_feed_entries_db
+    return fake_feed_entries_db, fake_seq_feed_entries
 
 
 @pytest.fixture
