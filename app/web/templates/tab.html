@@ -1,7 +1,8 @@
 <div class="tab-list common">
   <a hx-get="/feed/{{ entry_type }}/tab/?last_hours=6" {% if last_hours == 6 %}class="selected"{% endif %}>last 6 hous</a> /
   <a hx-get="/feed/{{ entry_type }}/tab/?last_hours=12" {% if last_hours == 12 %}class="selected"{% endif %}>last 12 hous</a> /
-  <a hx-get="/feed/{{ entry_type }}/tab/?last_hours=24" {% if last_hours == 24 %}class="selected"{% endif %}>last 24 hous</a>
+  <a hx-get="/feed/{{ entry_type }}/tab/?last_hours=24" {% if last_hours == 24 %}class="selected"{% endif %}>last 24 hous</a> /
+  <a hx-get="/feed/{{ entry_type }}/tab/?last_hours=48" {% if last_hours == 48 %}class="selected"{% endif %}>last 48 hous</a>
 </div>
 <div class="tab-content">
   <div class="common entry-border">
