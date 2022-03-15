@@ -18,10 +18,10 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Build image
-      run: docker build . --build-arg DEV_MODE=true -t naive_feedya_checker_buld
+      run: docker build . --build-arg DEV_MODE=true -t naive_feedya_checker_build
 
     - name: Run tests
-      run: docker run -i naive_feedya_checker_buld pytest
+      run: docker run -i naive_feedya_checker_build pytest
 
     - name: Check code style
-      run: docker run -i naive_feedya_checker_buld flake8
+      run: docker run -i naive_feedya_checker_build flake8
