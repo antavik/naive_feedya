@@ -85,8 +85,8 @@ async def remove_old(
     command = f"""
         DELETE FROM {FEED_ENTRIES_TABLE}
         WHERE
-            published_date <
-            CAST(strftime('%s', date('now', '-{days_delta} days')) as integer)
+            published_date < CAST(strftime('%s', date('now', '-{days_delta} days')) as integer) AND
+            classified != 1
     """
 
     result = await execute(DB_FILEPATH, command)
