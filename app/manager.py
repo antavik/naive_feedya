@@ -19,7 +19,7 @@ from feed_classifier.classifier import classify, update_stats, reverse_stats
 
 
 async def process_feed(feed: Feed) -> None:
-    await asyncio.sleep(random.randint(1, 5) * 60)  # Jitter
+    await asyncio.sleep(random.randint(*settings.FEED_REFRESH_JITTER_TIME_MINUTES) * 60)  # noqa
 
     parsed_feed_entries = await parser.parse(feed)
 
