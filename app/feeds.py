@@ -23,14 +23,13 @@ FEEDS = (
     Feed('ARS Technica', 'http://feeds.arstechnica.com/arstechnica/index', ENGLISH, base_url='https://arstechnica.com'),  # noqa
     Feed('TNW', 'https://thenextweb.com/feed/', ENGLISH, skip_summary=True, base_url='https://thenextweb.com'),  # noqa
     Feed('Spectrum IEEE', 'https://spectrum.ieee.org/rss/fulltext', ENGLISH, base_url='https://spectrum.ieee.org'),  # noqa
-    # Feed('Business insider Tech', 'https://www.businessinsider.com/sai/rss', ENGLISH, skip_summary=True, base_url='https://www.businessinsider.com'),  # noqa
     Feed('Engadged', 'https://www.engadget.com/rss.xml', ENGLISH, base_url='https://www.engadget.com'),  # noqa
     Feed('Slashdot', 'http://rss.slashdot.org/Slashdot/slashdotMain', ENGLISH, base_url='https://slashdot.org'),  # noqa
     Feed('MIT Tech Review', 'https://www.technologyreview.com/topnews.rss', ENGLISH, base_url='https://www.technologyreview.com'),  # noqa
     Feed('Bleeping Computer', 'https://www.bleepingcomputer.com/feed/', ENGLISH, base_url='https://www.bleepingcomputer.com'),  # noqa
     Feed('The Register', 'https://www.theregister.com/headlines.atom', ENGLISH, skip_summary=True, base_url='https://www.theregister.com'),  # noqa
     Feed('CNet', 'https://www.cnet.com/rss/all/', ENGLISH, base_url='https://www.cnet.com'),  # noqa
-    Feed('Venture Beat', 'https://venturebeat.com/feed/', ENGLISH, base_url='https://venturebeat.com'),  # noqa
+    # Feed('Venture Beat', 'https://venturebeat.com/feed/', ENGLISH, base_url='https://venturebeat.com'),  # noqa
     Feed('Science Daily', 'https://www.sciencedaily.com/rss/all.xml', ENGLISH, base_url='https://www.sciencedaily.com/'),  # noqa
     Feed('ArXive CS', 'https://export.arxiv.org/rss/cs', ENGLISH, base_url='https://arxiv.org/list/cs/recent'),  # noqa
     Feed('ArXive Economics', 'https://export.arxiv.org/rss/econ', ENGLISH, base_url='https://arxiv.org/list/econ/recent'),  # noqa

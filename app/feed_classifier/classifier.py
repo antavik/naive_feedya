@@ -1,6 +1,6 @@
 import logging
 
-from typing import Callable, List, Tuple, Union
+from typing import Callable, Union
 
 from storage import stats_db
 from constants import NEWS, SPAM
@@ -8,7 +8,7 @@ from .tokenizer import tokenize_document
 
 
 async def train(
-        labeled_documents: List[Tuple[int, str]],
+        labeled_documents: list[tuple[int, str]],
         label_func: Callable[[Union[int, bool]], bool],
         language: str,
 ):
@@ -38,7 +38,10 @@ async def classify(document: str, language: str) -> bool:
     return total_p_news > total_p_spam
 
 
-async def update_stats(document: str, label: bool, language: str) -> bool:
+async def update_stats(
+        document: str,
+        label: bool, language: str
+) -> tuple[int, int]:
     tokens = tokenize_document(document, language)
 
     updated_tokens, updated_docs = await _update_tokens_and_docs_stats(
@@ -59,10 +62,10 @@ async def reverse_stats(document: str, label: bool, language: str) -> int:
 
 
 async def _update_tokens_and_docs_stats(
-        document_tokens: Tuple[str, ...],
+        document_tokens: tuple[str, ...],
         is_valid: bool,
         language: str
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     updated_tokens = 0
     updated_docs = 0
 
@@ -82,11 +85,11 @@ async def _update_tokens_and_docs_stats(
 
 
 async def _reverse_tokens_stats(
-        document_tokens: Tuple[str, ...],
+        document_tokens: tuple[str, ...],
         is_valid: bool
 ) -> int:
     updated_tokens = 0
-    new_label, old_label = NEWS, SPAM if is_valid else SPAM, NEWS
+    new_label, old_label = (NEWS, SPAM) if is_valid else (SPAM, NEWS)
 
     for token in document_tokens:
         updated_tokens += await stats_db.reverse_token_stats(
