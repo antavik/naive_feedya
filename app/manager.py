@@ -1,5 +1,7 @@
 import time
 import logging
+import asyncio
+import random
 
 import parser
 import utils
@@ -17,6 +19,8 @@ from feed_classifier.classifier import classify, update_stats, reverse_stats
 
 
 async def process_feed(feed: Feed) -> None:
+    await asyncio.sleep(random.randint(1, 5) * 60)  # Jitter
+
     parsed_feed_entries = await parser.parse(feed)
 
     if not parsed_feed_entries:
