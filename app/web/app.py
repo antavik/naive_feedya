@@ -1,3 +1,5 @@
+import json
+
 import settings
 import user
 
@@ -154,11 +156,11 @@ async def update(
         if feedback.entry_is_valid:
             response = '''
                 <span>✅</span>
-                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
+                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
             '''  # noqa
         else:
             response = '''
-                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
+                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
                 <span>🚫</span>
             '''  # noqa
     else:
