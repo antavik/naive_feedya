@@ -1,6 +1,24 @@
 version: '3.7'
 services:
 
+  reproxy:
+    image: umputun/reproxy:master
+    container_name: reproxy
+    hostname: reproxy
+    ports:
+      - "80:8080"
+      - "443:8443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=Belarus/Minsk
+      - DOCKER_ENABLED=true
+      - LOGGER_ENABLED=true
+      - HEADER=
+          X-Frame-Options:SAMEORIGIN,
+          X-XSS-Protection:1; mode=block;,
+          Content-Security-Policy:default-src 'self'; style-src 'self' 'unsafe-inline';
+
   nf:
     image: naive_feedya_dev
     container_name: naive_feedya
@@ -13,9 +31,13 @@ services:
     restart: always
     # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
     command: python main.py
-    ports:
+    labels:
+      reproxy.server: '*'
+      reproxy.route: '^/feed/(.*)'
+      reproxy.dest: '/$$1'
+    # ports:
       # - "8888:8888"
-      - "8008:8008"
+      # - "8008:8008"
     volumes:
       - ./app/:/home/app/app/
       - ./notebooks/:/mnt/notebooks/

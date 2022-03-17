@@ -24,18 +24,20 @@
             <div class="entry-title">
               <a class="entry-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{- entry.title }}</a>
               <br>
-              {% if not entry.is_classified %}
-              <button hx-put="/feed/update" hx-swap="outerHTML" hx-target="this" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
-              <button hx-put="/feed/update" hx-swap="outerHTML" hx-target="this" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
-              {% else %}
-                {% if entry.is_valid %}
-                ✅
-                <button hx-put="/feed/update" hx-swap="outerHTML" hx-target="this" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
+              <div id="feedback-buttons">
+                {% if not entry.is_classified %}
+                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
+                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
                 {% else %}
-                <button hx-put="/feed/update" hx-swap="outerHTML" hx-target="this" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
-                🚫
+                  {% if entry.is_valid %}
+                  <span>✅</span>
+                  <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
+                  {% else %}
+                  <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
+                  <span>🚫</span>
+                  {% endif %}
                 {% endif %}
-              {% endif %}
+              </div>
             </div>
             {% autoescape False %}
             <p class="entry-summary">{{- entry.summary }}</p>

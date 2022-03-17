@@ -151,8 +151,16 @@ async def update(
         if await update_feed_classifier(feedback) is None:
             raise EntryURLNotFoundException
 
-        content = '✅' if feedback.entry_is_valid else '🚫'
-        response = f'<span>{content}</span>'
+        if feedback.entry_is_valid:
+            response = '''
+                <span>✅</span>
+                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": false}'>👎</button>
+            '''  # noqa
+        else:
+            response = '''
+                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext='json-enc' hx-vals='{"entry_title": "{{ entry.title }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}", "entry_is_valid": true}'>👍</button>
+                <span>🚫</span>
+            '''  # noqa
     else:
         get_login_page_url = APP.url_path_for('get_login_page')
         response = RedirectResponse(
