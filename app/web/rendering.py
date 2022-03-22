@@ -32,7 +32,7 @@ def _reverse_empty_feeds(
 
 
 def _escape_double_quotes(s: str) -> str:
-    return s.replace('"', '\"')
+    return s.replace('"', r'\"')
 
 
 _ENVIRONMENT.filters['format_datetime'] = _format_datetime
