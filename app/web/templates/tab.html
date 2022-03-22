@@ -24,7 +24,7 @@
             <div class="entry-title">
               <a class="entry-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{- entry.title }}</a>
               <br>
-              <div id="feedback-buttons" hx-vals='{"entry_title": {% autoescape False %}"{{ entry.title|escape_double_quotes }}"{% endautoescape %}, "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}"}'>
+              <div id="feedback-buttons" hx-vals='{"entry_title": "{{ entry.title|escape_double_quotes }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}"}'>
                 {% if not entry.is_classified %}
                 <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
                 <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
