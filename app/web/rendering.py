@@ -15,7 +15,15 @@ _ENVIRONMENT = Environment(
     enable_async=True
 )
 
-_ENVIRONMENT.filters['format_datetime'] = utils.format_datetime
+
+def _format_datetime(
+        dt: datetime.datetime,
+        template: str = settings.DT_TEMPLATE
+) -> str:
+    return dt.strftime(template)
+
+
+_ENVIRONMENT.filters['format_datetime'] = _format_datetime
 _ENVIRONMENT.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
 _ENVIRONMENT.filters['escape_double_quotes'] = utils.escape_double_quotes
 

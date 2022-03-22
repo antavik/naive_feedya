@@ -87,14 +87,6 @@ def reverse_empty_feeds(
 
 
 @lru_cache(maxsize=256)
-def format_datetime(
-        dt: datetime.datetime,
-        template: str = settings.DT_TEMPLATE
-) -> str:
-    return dt.strftime(template)
-
-
-@lru_cache(maxsize=256)
 def escape_single_quote(s: str) -> str:
     return s.replace('\'', '\'\'')
 
