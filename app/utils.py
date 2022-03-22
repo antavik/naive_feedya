@@ -1,6 +1,8 @@
 import random
 import datetime
 
+import settings
+
 from itertools import count
 from functools import lru_cache
 
@@ -85,7 +87,10 @@ def reverse_empty_feeds(
 
 
 @lru_cache(maxsize=256)
-def format_datetime(dt: datetime.datetime, template: str) -> str:
+def format_datetime(
+        dt: datetime.datetime,
+        template: str = settings.DT_TEMPLATE
+) -> str:
     return dt.strftime(template)
 
 
