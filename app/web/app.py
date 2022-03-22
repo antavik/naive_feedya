@@ -1,5 +1,3 @@
-import json
-
 import settings
 import user
 
