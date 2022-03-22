@@ -31,8 +31,13 @@ def _reverse_empty_feeds(
     )
 
 
+def _escape_double_quotes(s: str) -> str:
+    return s.replace('"', '\"')
+
+
 _ENVIRONMENT.filters['format_datetime'] = _format_datetime
 _ENVIRONMENT.filters['reverse_empty_feeds'] = _reverse_empty_feeds
+_ENVIRONMENT.filters['escape_double_quotes'] = _escape_double_quotes
 
 
 async def render_base_page(entry_type: str) -> str:
