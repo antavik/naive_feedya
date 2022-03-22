@@ -4,6 +4,7 @@ import datetime
 import sys
 
 import settings
+import utils
 
 from uvicorn import Config, Server
 
@@ -43,6 +44,10 @@ async def parse():
     logging.info('Start fetching feeds')
 
     while True:
+        utils.format_datetime.cache_clear()
+        utils.escape_single_quote.cache_clear()
+        utils.escape_double_quotes.cache_clear()
+
         for feed in FEEDS:
             asyncio.create_task(
                 process_feed(feed),

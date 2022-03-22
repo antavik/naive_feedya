@@ -10,6 +10,7 @@ from utils import (
     color_pairs_randomizer,
     label_by_feed_type,
     str2bool,
+    format_datetime,
 )
 from constants import NEWS, SPAM
 
@@ -88,3 +89,9 @@ def test_str2bool__valid_invalid_str__exception():
 
     with pytest.raises(ValueError):
         str2bool(invalid_bool_str)
+
+
+def test_format_datetime__datetime__string(datetime_now):
+    datetime_str = format_datetime(datetime_now)
+
+    assert isinstance(datetime_str, str)

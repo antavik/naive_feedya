@@ -1,9 +1,12 @@
 import random
+import datetime
 
 from itertools import count
-from typing import Tuple
+from functools import lru_cache
 
 from constants import NEWS, SPAM
+from feeds import Feed
+from storage.entities import FeedEntry
 
 
 def trim_text(text: str, limit: int) -> str:
@@ -27,11 +30,7 @@ def trim_text(text: str, limit: int) -> str:
     return text
 
 
-def escape_single_quote(string: str) -> str:
-    return string.replace('\'', '\'\'')
-
-
-def color_pairs_randomizer() -> Tuple[str, str]:
+def color_pairs_randomizer() -> tuple[str, str]:
     _support_color_pairs = (
         # background color, font color
         ('#fff3b0', '#586acb',),
@@ -73,3 +72,28 @@ def str2bool(string: str) -> bool:
             f'Unsupported value for boolean parameter: '
             f'{type(string)} - {string}'
         )
+
+
+def reverse_empty_feeds(
+        feeds: dict[Feed, list[FeedEntry]]
+) -> list[tuple[Feed, list[FeedEntry]]]:
+    return sorted(
+        feeds.items(),
+        key=lambda x: bool(x[1]),
+        reverse=True
+    )
+
+
+@lru_cache(maxsize=256)
+def format_datetime(dt: datetime.datetime, template: str) -> str:
+    return dt.strftime(template)
+
+
+@lru_cache(maxsize=256)
+def escape_single_quote(s: str) -> str:
+    return s.replace('\'', '\'\'')
+
+
+@lru_cache(maxsize=256)
+def escape_double_quotes(s: str) -> str:
+    return s.replace('"', r'\"')
