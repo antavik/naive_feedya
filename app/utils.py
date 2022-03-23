@@ -1,7 +1,4 @@
 import random
-import datetime
-
-import settings
 
 from itertools import count
 from functools import lru_cache
@@ -27,9 +24,7 @@ def trim_text(text: str, limit: int) -> str:
 
             break
 
-    text = text[:end_index] + ending
-
-    return text
+    return text[:end_index] + ending
 
 
 def color_pairs_randomizer() -> tuple[str, str]:
@@ -86,11 +81,11 @@ def reverse_empty_feeds(
     )
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=1024)
 def escape_single_quote(s: str) -> str:
     return s.replace('\'', '\'\'')
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=1024)
 def escape_double_quotes(s: str) -> str:
     return s.replace('"', r'\"')

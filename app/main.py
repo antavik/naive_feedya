@@ -44,7 +44,6 @@ async def parse():
     logging.info('Start fetching feeds')
 
     while True:
-        utils.format_datetime.cache_clear()
         utils.escape_single_quote.cache_clear()
         utils.escape_double_quotes.cache_clear()
 
