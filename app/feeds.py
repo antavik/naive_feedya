@@ -29,8 +29,9 @@ FEEDS = (
     Feed('Engadged', 'https://www.engadget.com/rss.xml', ENGLISH, base_url='https://www.engadget.com'),  # noqa
     Feed('The Register', 'https://www.theregister.com/headlines.atom', ENGLISH, skip_summary=True, base_url='https://www.theregister.com'),  # noqa
     Feed('CNet', 'https://www.cnet.com/rss/all/', ENGLISH, base_url='https://www.cnet.com'),  # noqa
-    Feed('Venture Beat', 'https://venturebeat.com/feed/', ENGLISH, base_url='https://venturebeat.com'),  # noqa
+    Feed('Science Alert', 'http://feeds.feedburner.com/sciencealert-latestnews?format=xml', ENGLISH, base_url='https://www.sciencealert.com'),  # noqa
     Feed('Science Daily', 'https://www.sciencedaily.com/rss/all.xml', ENGLISH, base_url='https://www.sciencedaily.com/'),  # noqa
+    Feed('Venture Beat', 'https://venturebeat.com/feed/', ENGLISH, base_url='https://venturebeat.com'),  # noqa
     Feed('ArXive CS', 'https://export.arxiv.org/rss/cs', ENGLISH, base_url='https://arxiv.org/list/cs/recent'),  # noqa
     Feed('ArXive Economics', 'https://export.arxiv.org/rss/econ', ENGLISH, base_url='https://arxiv.org/list/econ/recent'),  # noqa
     Feed('ArXive Statistics', 'https://export.arxiv.org/rss/stat', ENGLISH, base_url='https://arxiv.org/list/stat/recent'),  # noqa
