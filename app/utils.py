@@ -56,18 +56,23 @@ def label_by_feed_type(feed_type: str) -> bool:
     return label
 
 
-def str2bool(string: str) -> bool:
+gidef str2bool(value: str) -> bool:
+    if not isinstance(value, str):
+        raise ValueError(f'Unsupported input data type - {type(value)}')
+
     true_bool_strings = {'yes', 'y', '1', 'true', 't'}
     false_bool_strings = {'no', 'n', '0', 'false', 'f', ''}
 
-    if string.lower() in true_bool_strings:
+    string_lower = value.lower()
+
+    if string_lower in true_bool_strings:
         return True
-    elif string.lower() in false_bool_strings:
+    elif string_lower in false_bool_strings:
         return False
     else:
         raise ValueError(
             f'Unsupported value for boolean parameter: '
-            f'{type(string)} - {string}'
+            f'{type(value)} - {value}'
         )
 
 
