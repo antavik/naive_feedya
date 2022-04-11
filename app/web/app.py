@@ -11,6 +11,7 @@ from fastapi.security import (
     OAuth2PasswordBearer,
     OAuth2PasswordRequestFormStrict,
 )
+from fastapi.middleware.gzip import GZipMiddleware
 from starlette.responses import RedirectResponse
 
 from manager import (
@@ -28,6 +29,8 @@ APP.mount(
     StaticFiles(directory=str(settings.STATIC_PATH)),
     name='static'
 )
+
+APP.add_middleware(GZipMiddleware, minimum_size=300)
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/oauth/token', auto_error=False)
 
