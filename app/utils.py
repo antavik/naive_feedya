@@ -56,7 +56,7 @@ def label_by_feed_type(feed_type: str) -> bool:
     return label
 
 
-gidef str2bool(value: str) -> bool:
+def str2bool(value: str) -> bool:
     if not isinstance(value, str):
         raise ValueError(f'Unsupported input data type - {type(value)}')
 
