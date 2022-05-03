@@ -5,7 +5,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import (
     OAuth2PasswordBearer,
@@ -172,3 +172,12 @@ async def update(
         )
 
     return response
+
+
+@APP.get(
+    '/ping',
+    response_class=PlainTextResponse,
+    summary='Ping'
+)
+async def ping():
+    return 'Pong'
