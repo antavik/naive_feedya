@@ -13,14 +13,14 @@ async def train(
         language: str,
 ):
     for label, document in labeled_documents:
-        tokens = tokenize_document(document, language)
+        tokens = tokenize_document(document)
         is_valid = label_func(label)
 
         await _update_tokens_and_docs_stats(tokens, is_valid, language)
 
 
 async def classify(document: str, language: str) -> bool:
-    tokens = tokenize_document(document, language)
+    tokens = tokenize_document(document)
 
     total_p_news, total_p_spam = await stats_db.get_docs_p_values(language)
 
@@ -40,9 +40,10 @@ async def classify(document: str, language: str) -> bool:
 
 async def update_stats(
         document: str,
-        label: bool, language: str
+        label: bool,
+        language: str
 ) -> tuple[int, int]:
-    tokens = tokenize_document(document, language)
+    tokens = tokenize_document(document)
 
     updated_tokens, updated_docs = await _update_tokens_and_docs_stats(
         tokens,
@@ -53,12 +54,12 @@ async def update_stats(
     return updated_tokens, updated_docs
 
 
-async def reverse_stats(document: str, label: bool, language: str) -> int:
-    tokens = tokenize_document(document, language)
+async def reverse_stats(document: str, label: bool) -> int:
+    tokens = tokenize_document(document)
 
-    updated_tokens = await _reverse_tokens_stats(tokens, label)
+    updated_tokens, updated_docs = await _reverse_stats(tokens, label)
 
-    return updated_tokens
+    return updated_tokens, updated_docs
 
 
 async def _update_tokens_and_docs_stats(
@@ -84,11 +85,12 @@ async def _update_tokens_and_docs_stats(
     return updated_tokens, updated_docs
 
 
-async def _reverse_tokens_stats(
+async def _reverse_stats(
         document_tokens: tuple[str, ...],
         is_valid: bool
-) -> int:
+) -> tuple[int, int]:
     updated_tokens = 0
+    updated_docs = 0
     new_label, old_label = (NEWS, SPAM) if is_valid else (SPAM, NEWS)
 
     for token in document_tokens:
@@ -98,4 +100,7 @@ async def _reverse_tokens_stats(
             old_label
         )
 
-    return updated_tokens
+    if updated_tokens:
+        updated_docs = await stats_db.reverse_docs_stats(new_label, old_label)
+
+    return updated_tokens, updated_docs

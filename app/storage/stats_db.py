@@ -6,20 +6,18 @@ import settings
 
 from typing import TypeVar, Tuple, Optional
 
-from constants import ENGLISH
 from .base import execute, fetch_one
 from .entities import TokenStats, DocCounter
 
 _Number = TypeVar('_Number', int, float)
 
 DB_FILEPATH = settings.STATS_DB_FILEPATH
-ENG_STATS_TABLE = f'{ENGLISH}_token_stats'
 DOC_STATS_TABLE = 'doc_stats'
 
 
 async def get_token_stats(token: str) -> TokenStats:
     command = f"""
-        SELECT * FROM {ENG_STATS_TABLE}
+        SELECT * FROM {settings.STATS_TABLE}
         WHERE token = '{token}'
     """
 
@@ -41,7 +39,7 @@ async def get_doc_counter(language: str) -> DocCounter:
 
 async def save_or_increment_news_token(token: str) -> int:
     command = f"""
-        INSERT INTO {ENG_STATS_TABLE}(token, news, spam)
+        INSERT INTO {settings.STATS_TABLE}(token, news, spam)
         VALUES("{token}", 1, 0)
         ON CONFLICT(token)
         DO UPDATE SET news = news + 1
@@ -54,7 +52,7 @@ async def save_or_increment_news_token(token: str) -> int:
 
 async def save_or_increment_spam_token(token: str) -> int:
     command = f"""
-        INSERT INTO {ENG_STATS_TABLE}(token, news, spam)
+        INSERT INTO {settings.STATS_TABLE}(token, news, spam)
         VALUES("{token}", 0, 1)
         ON CONFLICT(token)
         DO UPDATE SET spam = spam + 1
@@ -125,15 +123,15 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT CASE WHEN count(*) > 0
                 THEN news ELSE 0 END AS token_frequency
-                FROM {ENG_STATS_TABLE} WHERE token = '{token}'
+                FROM {settings.STATS_TABLE} WHERE token = '{token}'
             ) T1
             JOIN
             (
                 SELECT sum(c) as tokens_sum
                 FROM (
-                    SELECT count(*) AS c FROM {ENG_STATS_TABLE} WHERE news > 0
+                    SELECT count(*) AS c FROM {settings.STATS_TABLE} WHERE news > 0
                     UNION ALL
-                    SELECT count(*) AS c FROM {ENG_STATS_TABLE}
+                    SELECT count(*) AS c FROM {settings.STATS_TABLE}
                 )
             ) T2
 
@@ -144,15 +142,15 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT CASE WHEN count(*) > 0
                 THEN spam ELSE 0 END AS token_frequency
-                FROM {ENG_STATS_TABLE} WHERE token = '{token}'
+                FROM {settings.STATS_TABLE} WHERE token = '{token}'
             ) T1
             JOIN
             (
                 SELECT sum(c) as tokens_sum
                 FROM (
-                    SELECT count(*) AS c FROM {ENG_STATS_TABLE} WHERE spam > 0
+                    SELECT count(*) AS c FROM {settings.STATS_TABLE} WHERE spam > 0
                     UNION ALL
-                    SELECT count(*) AS c FROM {ENG_STATS_TABLE}
+                    SELECT count(*) AS c FROM {settings.STATS_TABLE}
                 )
             ) T2
         )
@@ -175,7 +173,7 @@ async def reverse_token_stats(
         old_label: str
 ) -> int:
     command = f"""
-        UPDATE {ENG_STATS_TABLE}
+        UPDATE {settings.STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
         WHERE token = '{token}'
     """
@@ -185,9 +183,21 @@ async def reverse_token_stats(
     return result.rowcount
 
 
+async def reverse_docs_stats(new_label: str, old_label: str) -> int:
+    command = f"""
+        UPDATE {DOC_STATS_TABLE}
+        SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
+        WHERE language = '{settings.APP_LANG}'
+    """
+
+    result = await execute(DB_FILEPATH, command)
+
+    return result.rowcount
+
+
 async def _setup_db():
     create_table_command = f"""
-        CREATE TABLE IF NOT EXISTS {ENG_STATS_TABLE}(
+        CREATE TABLE IF NOT EXISTS {settings.STATS_TABLE}(
             token TEXT PRIMARY KEY,
             news INTEGER DEFAULT 0,
             spam INTEGER DEFAULT 0
@@ -196,10 +206,10 @@ async def _setup_db():
             language TEXT PRIMARY KEY,
             news INTEGER DEFAULT 0,
             spam INTEGER DEFAULT 0
-        )
+        );
     """
 
-    insert_requred_values_command = f"""
+    insert_required_values_command = f"""
         INSERT OR IGNORE INTO {DOC_STATS_TABLE}
         (language)
         VALUES(?)
@@ -208,9 +218,6 @@ async def _setup_db():
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.executescript(create_table_command)
 
-        await db.executemany(
-            insert_requred_values_command,
-            ((lang,) for lang in settings.SUPPORTED_LANGUAGES)
-        )
+        await db.execute(insert_required_values_command, (settings.APP_LANG,))
 
         await db.commit()

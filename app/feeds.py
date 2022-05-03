@@ -1,7 +1,10 @@
+import logging
+import configparser
+
 from dataclasses import dataclass
 from typing import Optional
-
-from constants import ENGLISH
+from urllib.parse import urlparse
+from pathlib import Path
 
 
 @dataclass(frozen=True)
@@ -9,37 +12,50 @@ class Feed:
     title: str
     url: str
     language: str
-    classify: bool = True
+    # classify: bool = True
     skip_summary: bool = False
     base_url: Optional[str] = None
 
+    def __post_init__(self):
+        if not self.url.startswith('https://'):
+            raise ValueError(f'Invalid url scheme for feed {self.title}, should be https')
 
-FEEDS = (
-    Feed('The Verge', 'https://www.theverge.com/rss/index.xml', ENGLISH, skip_summary=True, base_url='https://www.theverge.com'),  # noqa
-    Feed('Wired', 'https://www.wired.com/feed/rss', ENGLISH, base_url='https://www.wired.com'),  # noqa
-    Feed('Hacker News', 'https://news.ycombinator.com/rss', ENGLISH, base_url='https://news.ycombinator.com'),  # noqa
-    Feed('Lobsters', 'https://lobste.rs/rss', ENGLISH, base_url='https://lobste.rs'),  # noqa
-    Feed('Bleeping Computer', 'https://www.bleepingcomputer.com/feed/', ENGLISH, base_url='https://www.bleepingcomputer.com'),  # noqa
-    Feed('Slashdot', 'http://rss.slashdot.org/Slashdot/slashdotMain', ENGLISH, base_url='https://slashdot.org'),  # noqa
-    Feed('MIT Tech Review', 'https://www.technologyreview.com/topnews.rss', ENGLISH, base_url='https://www.technologyreview.com'),  # noqa
-    Feed('LWN', 'https://lwn.net/headlines/rss', ENGLISH, base_url='https://lwn.net'),  # noqa
-    Feed('ARS Technica', 'http://feeds.arstechnica.com/arstechnica/index', ENGLISH, base_url='https://arstechnica.com'),  # noqa
-    Feed('TNW', 'https://thenextweb.com/feed/', ENGLISH, skip_summary=True, base_url='https://thenextweb.com'),  # noqa
-    Feed('Spectrum IEEE', 'https://spectrum.ieee.org/rss/fulltext', ENGLISH, base_url='https://spectrum.ieee.org'),  # noqa
-    Feed('Engadged', 'https://www.engadget.com/rss.xml', ENGLISH, base_url='https://www.engadget.com'),  # noqa
-    Feed('The Register', 'https://www.theregister.com/headlines.atom', ENGLISH, skip_summary=True, base_url='https://www.theregister.com'),  # noqa
-    Feed('CNet', 'https://www.cnet.com/rss/all/', ENGLISH, base_url='https://www.cnet.com'),  # noqa
-    Feed('Science Alert', 'http://feeds.feedburner.com/sciencealert-latestnews?format=xml', ENGLISH, base_url='https://www.sciencealert.com'),  # noqa
-    Feed('Science Daily', 'https://www.sciencedaily.com/rss/all.xml', ENGLISH, base_url='https://www.sciencedaily.com/'),  # noqa
-    Feed('Venture Beat', 'https://venturebeat.com/feed/', ENGLISH, base_url='https://venturebeat.com'),  # noqa
-    Feed('ArXive CS', 'https://export.arxiv.org/rss/cs', ENGLISH, base_url='https://arxiv.org/list/cs/recent'),  # noqa
-    Feed('ArXive Economics', 'https://export.arxiv.org/rss/econ', ENGLISH, base_url='https://arxiv.org/list/econ/recent'),  # noqa
-    Feed('ArXive Statistics', 'https://export.arxiv.org/rss/stat', ENGLISH, base_url='https://arxiv.org/list/stat/recent'),  # noqa
-    Feed('ArXive Mathematics', 'https://export.arxiv.org/rss/math', ENGLISH, base_url='https://arxiv.org/list/math/recent'),  # noqa
-    Feed('python PEP', 'https://www.python.org/dev/peps/peps.rss', ENGLISH),  # noqa
-    # Feed('The Atlantic', 'https://www.theatlantic.com/feed/all/.rss', ENGLISH),  # noqa
-)
+        if self.base_url is None:
+            parsed_url = urlparse(self.url)
 
-REGISTRY = {
-    f.title: f for f in FEEDS
-}
+            # black magic
+            object.__setattr__(self, 'base_url', f'{parsed_url.scheme}://{parsed_url.netloc}')
+
+        if not self.base_url.startswith('https://'):
+            raise ValueError(f'Invalid base_url scheme for feed {self.title}, should be https')
+
+
+def read_feeds_config(filepath: Path, language: str) -> list[Feed, ...]:
+    logging.info('Reading config file %s', filepath)
+
+    with filepath.open(encoding='utf-8') as f:
+        cp =  configparser.ConfigParser(default_section=None)
+        cp.read_file(f)
+
+    feeds = []
+    for section, config in cp.items():
+        if section is None:
+            continue
+
+        if config['language'] != language:
+            logging.warning(
+                'Section %s skipped because of invalid language for app configuration',
+                config['language']
+            )
+
+            continue
+
+        feeds.append(Feed(
+            title=section,
+            url=config['url'],
+            language=config['language'],
+            skip_summary=config.getboolean('skip_summary', fallback=False),
+            base_url=config.get('base_url')
+        ))
+
+    return feeds
