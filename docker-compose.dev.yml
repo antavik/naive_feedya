@@ -18,6 +18,11 @@ services:
           X-Frame-Options:SAMEORIGIN,
           X-XSS-Protection:1; mode=block;,
           Content-Security-Policy:default-src 'self'; style-src 'self' 'unsafe-inline';
+    logging:
+      driver: json-file
+      options:
+          max-size: "10m"
+          max-file: "5"
 
   nf:
     image: naive_feedya_dev
@@ -28,17 +33,25 @@ services:
       dockerfile: Dockerfile
       args:
         - DEV_MODE=true
+    environment:
+      - APP_LANG=russian
+      - CONFIG_NAME=rus_news.ini
     restart: always
     # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
-    command: python main.py
+    command: /usr/share/python3/app/bin/python3.9 main.py
     labels:
       reproxy.server: '*'
       reproxy.route: '^/feed/(.*)'
       reproxy.dest: '/$$1'
     # ports:
-      # - "8888:8888"
-      # - "8008:8008"
+    #   - "8888:8888"
+    #   - "8008:8008"
     volumes:
       - ./app/:/home/app/app/
       - ./notebooks/:/mnt/notebooks/
       - ./cache/:/var/lib/naive_feedya/
+    logging:
+        driver: json-file
+        options:
+            max-size: "10m"
+            max-file: "5"

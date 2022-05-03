@@ -1,28 +1,42 @@
-FROM python:3.9.3-slim
+#################################################################
+####################### BUILD STAGE #############################
+#################################################################
+FROM snakepacker/python:all as builder
 
-ARG USER=app
-ARG APP_NAME=naive_feedya
 ARG DEV_MODE=false
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV DEV_MODE=$DEV_MODE
 ENV PIPENV_DEV=$DEV_MODE
 
-RUN apt-get update && apt-get install -y \
-    apt-utils && \
-    apt-get clean && \
-    apt-get autoclean && \
-    rm -rf /var/cache/* && \
-    rm -rf /var/lib/apt/lists/*
+RUN python3.9 -m venv /usr/share/python3/app
 
 # Setup python env
 COPY ./pipfiles/ /etc/pipfiles/
 
 WORKDIR /etc/pipfiles/
 
-RUN pip install --no-cache-dir pipenv==2020.8.13 && \
-    pipenv install --system --ignore-pipfile
+RUN /usr/share/python3/app/bin/pip install -U pip setuptools wheel && \
+    /usr/share/python3/app/bin/pip install --no-cache-dir pipenv==2022.4.30 && \
+    /usr/share/python3/app/bin/pipenv install --system --skip-lock && \
+    /usr/share/python3/app/bin/python3.9 -m spacy download ru_core_news_sm
+
+RUN find-libdeps /usr/share/python3/app > /usr/share/python3/app/pkgdeps.txt
+
+#################################################################
+####################### TARGET STAGE ############################
+#################################################################
+FROM snakepacker/python:3.9
+
+ARG DEV_MODE=false
+ARG USER=app
+ARG APP_NAME=naive_feedya
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV DEV_MODE=$DEV_MODE
+
+COPY --from=builder /usr/share/python3/app /usr/share/python3/app
+
+RUN cat /usr/share/python3/app/pkgdeps.txt | xargs apt-install
 
 COPY ./app/ /home/$USER/app/
 
