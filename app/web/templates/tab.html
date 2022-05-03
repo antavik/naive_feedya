@@ -40,7 +40,9 @@
               </div>
             </div>
             {% autoescape False %}
-            <p class="entry-summary">{{- entry.summary }}</p>
+            <p class="entry-summary">
+              {% if not feed.skip_summary %}{{- entry.summary }}{% endif %}
+            </p>
             {% endautoescape %}
             <p class="entry-meta">
               <span class="entry-pub-date">{{ entry.published_datetime|format_datetime }}</span>
