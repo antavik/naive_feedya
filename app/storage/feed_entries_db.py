@@ -65,7 +65,7 @@ async def exists(url: str) -> bool:
     return result is not None
 
 
-async def filter_exist_urls(urls: Iterable[str]) -> Tuple[str, ...]:
+async def filter_exist_urls(urls: Iterable[str]) -> set[str]:
     quoted_urls = (f"'{escape_single_quote(url)}'" for url in urls)
 
     command = f"""
@@ -76,7 +76,7 @@ async def filter_exist_urls(urls: Iterable[str]) -> Tuple[str, ...]:
 
     result = await fetch_all(DB_FILEPATH, command)
 
-    return tuple(url[0] for url in result)
+    return {url[0] for url in result}
 
 
 async def remove_old(
