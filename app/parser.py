@@ -92,7 +92,7 @@ async def get_feed(feed: Feed) -> bytes:
 
         feed_data = None
     else:
-        logging.debug('Feed %s recieved', feed.title)
+        logging.debug('Feed %s received', feed.title)
 
         feed_data = await response.aread()
 

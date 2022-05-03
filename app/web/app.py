@@ -86,7 +86,7 @@ async def get_news_page():
 async def get_news_tab_sub_page(
         last_hours: int,
         token: Optional[str] = Depends(oauth2_scheme)
-        ):
+):
     if token is not None and user.is_valid_token(token):
         content = await get_tab_sub_page(NEWS, last_hours)
         response = HTMLResponse(
@@ -122,7 +122,7 @@ async def get_spam_page():
 async def get_spam_tab_sub_page(
         last_hours: int,
         token: Optional[str] = Depends(oauth2_scheme)
-        ):
+):
     if token is not None and user.is_valid_token(token):
         content = await get_tab_sub_page(SPAM, last_hours)
         response = HTMLResponse(
@@ -149,7 +149,7 @@ async def get_spam_tab_sub_page(
 async def update(
         feedback: UserFeedback,
         token: Optional[str] = Depends(oauth2_scheme)
-        ):
+):
     if token is not None and user.is_valid_token(token):
         if await update_feed_classifier(feedback) is None:
             raise EntryURLNotFoundException
