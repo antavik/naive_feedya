@@ -4,8 +4,9 @@ from pathlib import Path
 
 from starlette.datastructures import Secret
 
-from constants import ENGLISH
+from constants import ENGLISH, RUSSIAN, STATS_TABLES_MAPPING
 from utils import str2bool
+from feeds import read_feeds_config
 
 DEV_MODE = str2bool(os.getenv('DEV_MODE', ''))
 
@@ -17,19 +18,31 @@ else:
     USERNAME = Secret(os.getenv('USERNAME', 'admin'))
     PASSWORD = Secret(os.getenv('PASSWORD', 'pass'))
 
+# Languages
+SUPPORTED_LANGUAGES = (ENGLISH, RUSSIAN)
+
+APP_LANG = os.getenv('APP_LANG', ENGLISH)
+if APP_LANG not in SUPPORTED_LANGUAGES:
+    raise ValueError('APP_LANG env var has not supported value %s', APP_LANG)
+
+STATS_TABLE = STATS_TABLES_MAPPING[APP_LANG]
+
 # Paths
 CWD = Path.cwd()
 
 CACHE_PATH = Path(os.getenv('CACHE_PATH', '/var/lib/naive_feedya/'))
 CACHE_PATH.mkdir(exist_ok=True)
 
+CONFIG_NAME = Path(os.environ['CONFIG_NAME'])
+CONFIG_FILEPATH = CACHE_PATH / CONFIG_NAME
+
 DB_PATH = CACHE_PATH / 'dbs'
 DB_PATH.mkdir(exist_ok=True)
 
 FEED_ENTRIES_DB_FILENAME = 'feed_entries.sqlite'
-FEED_ENTRIES_DB_FILEPATH = DB_PATH / FEED_ENTRIES_DB_FILENAME
+FEED_ENTRIES_DB_FILEPATH = DB_PATH / APP_LANG / FEED_ENTRIES_DB_FILENAME
 STATS_DB_FILENAME = 'classifier.sqlite'
-STATS_DB_FILEPATH = DB_PATH / STATS_DB_FILENAME
+STATS_DB_FILEPATH = DB_PATH / APP_LANG / STATS_DB_FILENAME
 
 # Templates paths
 TEMPLATES_FOLDER = 'web/templates'
@@ -41,12 +54,9 @@ LOGIN_TEMPLATE_FILENAME = 'login.html'
 STATIC_FOLDER = 'web/static'
 STATIC_PATH = CWD / STATIC_FOLDER
 
-# Languages
-SUPPORTED_LANGUAGES = (ENGLISH,)
-
 # Thresholds
 FEED_REFRESH_TIME_SECONDS = 60 * 15
-FEED_REFRESH_JITTER_TIME_MINUTES = (1, 6)  # Period from to
+FEED_REFRESH_JITTER_TIME_MINUTES = (1, 6)  # Period from-to
 FEED_ENTRIES_DAYS_THRESHOLD = 7
 RECENT_FEED_ENTRIES_HOURS = 6
 TOKEN_EXPIRATION_DELTA_DAYS = 7
@@ -61,8 +71,11 @@ SERVER_PORT = 8008
 DT_TEMPLATE = '%b %d, %Y, %H:%M'
 
 # Logging
-LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', ''))
+LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', 'false'))
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
+
+FEEDS = read_feeds_config(CONFIG_FILEPATH, APP_LANG)
+FEEDS_REGESTRY = {f.title: f for f in FEEDS}
 
 os.environ.clear()

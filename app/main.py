@@ -8,7 +8,6 @@ import utils
 
 from uvicorn import Config, Server
 
-from feeds import FEEDS
 from manager import (
     process_feed,
     clean_feed_entries_db,
@@ -47,7 +46,7 @@ async def parse():
         utils.escape_single_quote.cache_clear()
         utils.escape_double_quotes.cache_clear()
 
-        for feed in FEEDS:
+        for feed in settings.FEEDS:
             asyncio.create_task(
                 process_feed(feed),
                 name=f'{feed.title.capitalize()} feed procession task'
