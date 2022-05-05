@@ -3,14 +3,14 @@ import math
 
 import pytest
 
-from constants import ENGLISH
+import settings
 
 
 @pytest.mark.asyncio
 async def test_save_or_increment_news_token_command__new_token__success_insert(  # noqa
         fake_stats_db,
         fake_token
-        ):
+):
     await fake_stats_db.save_or_increment_news_token(fake_token)
 
     token_stats = await fake_stats_db.get_token_stats(fake_token)
@@ -22,7 +22,7 @@ async def test_save_or_increment_news_token_command__new_token__success_insert( 
 async def test_save_or_increment_news_token_command__existing_token__success_insert(  # noqa
         fake_stats_db,
         fake_token
-        ):
+):
     new_token_count = 2
 
     for _ in range(new_token_count):
@@ -37,7 +37,7 @@ async def test_save_or_increment_news_token_command__existing_token__success_ins
 async def test_save_or_increment_spam_token_command__new_token__success_insert(  # noqa
         fake_stats_db,
         fake_token
-        ):
+):
     await fake_stats_db.save_or_increment_spam_token(fake_token)
 
     token_stats = await fake_stats_db.get_token_stats(fake_token)
@@ -49,7 +49,7 @@ async def test_save_or_increment_spam_token_command__new_token__success_insert( 
 async def test_save_or_increment_spam_token_command__existing_token__success_insert(  # noqa
         fake_stats_db,
         fake_token
-        ):
+):
     new_token_count = 2
 
     for _ in range(new_token_count):
@@ -63,14 +63,14 @@ async def test_save_or_increment_spam_token_command__existing_token__success_ins
 @pytest.mark.asyncio
 async def test_increment_doc_counter_command__increment_counters__success(
         fake_stats_db
-        ):
+):
     docs_qty = 1
 
     for _ in range(docs_qty):
-        await fake_stats_db.increment_doc_counter(ENGLISH, 'news')
-        await fake_stats_db.increment_doc_counter(ENGLISH, 'spam')
+        await fake_stats_db.increment_doc_counter(settings.APP_LANG, 'news')
+        await fake_stats_db.increment_doc_counter(settings.APP_LANG, 'spam')
 
-    doc_count = await fake_stats_db.get_doc_counter(ENGLISH)
+    doc_count = await fake_stats_db.get_doc_counter(settings.APP_LANG)
 
     assert doc_count.news == 1 and doc_count.spam == 1
 
@@ -79,7 +79,7 @@ async def test_increment_doc_counter_command__increment_counters__success(
 async def test_get_docs_p_values_command__valid_db__success(
         fake_stats_db_with_random_doc_data,
         fake_eng_doc_counter
-        ):
+):
     doc_count = fake_eng_doc_counter
     expected_p_values = (
         math.log(doc_count.news / (doc_count.news + doc_count.spam)),
@@ -97,7 +97,7 @@ async def test_get_docs_p_values_command__valid_db__success(
 async def test_get_docs_p_values_command__empty_db__success(
         fake_stats_db,
         fake_eng_doc_counter
-        ):
+):
     expected_p_values = (None, None)
 
     p_value = await fake_stats_db.get_docs_p_values(
@@ -111,7 +111,7 @@ async def test_get_docs_p_values_command__empty_db__success(
 async def test_get_token_p_values_command__valid_db__success(
         fake_stats_db_with_random_doc_and_token_data,
         fake_seq_token_stats
-        ):
+):
     fake_db = fake_stats_db_with_random_doc_and_token_data
 
     random_token = random.choice(fake_seq_token_stats)
@@ -135,7 +135,7 @@ async def test_get_token_p_values_command__valid_db__success(
 async def test_reverse_news_token_command__news_label__success(
         fake_stats_db_with_random_doc_and_token_data,
         fake_seq_token_stats
-        ):
+):
     fake_db = fake_stats_db_with_random_doc_and_token_data
 
     token_stats = random.choice(fake_seq_token_stats)

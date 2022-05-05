@@ -10,7 +10,6 @@ from dataclasses import astuple
 
 from faker import Faker
 
-from constants import ENGLISH
 from storage import (
     base,
     feed_entries_db,
@@ -223,7 +222,7 @@ async def fake_seq_token_stats():
 @pytest.fixture
 async def fake_eng_doc_counter():
     doc_counter = DocCounter(
-        language=ENGLISH,
+        language=settings.APP_LANG,
         news=fake.pyint(min_value=1),
         spam=fake.pyint(min_value=1)
     )
@@ -268,7 +267,7 @@ async def fake_stats_db_with_random_doc_and_token_data(
         fake_seq_token_stats
 ):
     command = f"""
-        INSERT INTO {fake_stats_db.ENG_STATS_TABLE}
+        INSERT INTO {settings.STATS_TABLE}
         VALUES (?, ?, ?)
     """
 
