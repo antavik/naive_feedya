@@ -15,17 +15,17 @@ mypy = "*"
 
 [packages]
 feedparser = "==6.0.2"
-nltk = "==3.6.4"
-MarkupSafe = "==2.0.1"
-spacy = "==3.3.0"
+nltk = "==3.6.6"
 aiosqlite = "==0.17"
-httpx = "==0.18.1"
+httpx = "==0.22.0"
 fastapi = "==0.64"
 uvicorn = "==0.13.4"
 uvloop = "==0.15.2"
 Jinja2 = "==2.11.3"
 python-multipart = "0.0.5"
 aiofiles = "==0.6.0"
+spacy = "==3.3.0"
+markupsafe = "==2.0.1"  # dep to download spacy models
 
 [requires]
 python_version = "3.9.3"
