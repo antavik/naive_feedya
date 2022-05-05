@@ -10,7 +10,6 @@ from utils import (
     color_pairs_randomizer,
     label_by_feed_type,
     str2bool,
-    format_datetime,
 )
 from constants import NEWS, SPAM
 
