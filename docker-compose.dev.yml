@@ -37,7 +37,7 @@ services:
       - APP_LANG=russian
       - CONFIG_NAME=rus_news.ini
     restart: always
-    # command: jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
+    # command:  /usr/share/python3/app/bin/jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
     command: /usr/share/python3/app/bin/python3.9 main.py
     labels:
       reproxy.server: '*'

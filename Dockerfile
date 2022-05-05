@@ -26,6 +26,8 @@ RUN find-libdeps /usr/share/python3/app > /usr/share/python3/app/pkgdeps.txt
 #################################################################
 FROM snakepacker/python:3.9
 
+ARG GIT_BRANCH
+ARG GITHUB_SHA
 ARG DEV_MODE=false
 ARG USER=app
 ARG APP_NAME=naive_feedya
@@ -33,6 +35,8 @@ ARG APP_NAME=naive_feedya
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV DEV_MODE=$DEV_MODE
+ENV GIT_BRANCH=$GIT_BRANCH
+ENV GITHUB_SHA=$GITHUB_SHA
 
 COPY --from=builder /usr/share/python3/app /usr/share/python3/app
 
