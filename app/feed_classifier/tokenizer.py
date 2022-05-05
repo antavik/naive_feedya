@@ -4,7 +4,7 @@ import re
 import settings
 import constants
 
-_translation_symbols = dict.fromkeys(string.punctuation + "’‘–«»")
+_translation_symbols = dict.fromkeys(string.punctuation + "’‘–«»—")
 _translation_symbols['\xa0'] = ' '
 _TRANSLATION_MAPPING = str.maketrans(_translation_symbols)
 
@@ -37,7 +37,7 @@ if settings.APP_LANG == constants.ENGLISH:
 
 elif settings.APP_LANG == constants.RUSSIAN:
     import spacy
-    
+
     _LEMMER = spacy.load("ru_core_news_sm")
 
     def tokenize_document(document: str) -> tuple[str, ...]:
