@@ -47,11 +47,11 @@ COPY --from=builder /usr/share/python3/app /usr/share/python3/app
 RUN cat /usr/share/python3/app/pkgdeps.txt | xargs apt-install
 
 COPY ./app/ /home/$USER/app/
+COPY ./cache/ /var/lib/naive_feedya/
 
 # Setup app env and create cache folder
 RUN useradd -U -s /bin/bash $USER && \
     chown -R $USER:$USER /home/$USER/ && \
-    mkdir /var/lib/$APP_NAME && \
     chown -R $USER:$USER /var/lib/$APP_NAME
 
 WORKDIR /home/$USER/app

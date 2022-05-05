@@ -33,7 +33,11 @@ CWD = Path.cwd()
 CACHE_PATH = Path(os.getenv('CACHE_PATH', '/var/lib/naive_feedya/'))
 CACHE_PATH.mkdir(exist_ok=True)
 
-CONFIG_NAME = Path(os.environ['CONFIG_NAME'])
+if DEV_MODE:
+    CONFIG_NAME = 'test.ini'
+else:
+    CONFIG_NAME = os.environ['CONFIG_NAME']
+
 CONFIG_FILEPATH = CACHE_PATH / CONFIG_NAME
 
 DB_PATH = CACHE_PATH / 'dbs'
