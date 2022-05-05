@@ -3,8 +3,12 @@
 #################################################################
 FROM snakepacker/python:all as builder
 
+ARG GIT_BRANCH
+ARG GITHUB_SHA
 ARG DEV_MODE=false
 
+ENV GIT_BRANCH=$GIT_BRANCH
+ENV GITHUB_SHA=$GITHUB_SHA
 ENV PIPENV_DEV=$DEV_MODE
 
 RUN python3.9 -m venv /usr/share/python3/app
@@ -34,9 +38,9 @@ ARG APP_NAME=naive_feedya
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV DEV_MODE=$DEV_MODE
 ENV GIT_BRANCH=$GIT_BRANCH
 ENV GITHUB_SHA=$GITHUB_SHA
+ENV DEV_MODE=$DEV_MODE
 
 COPY --from=builder /usr/share/python3/app /usr/share/python3/app
 
