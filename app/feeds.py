@@ -18,23 +18,29 @@ class Feed:
 
     def __post_init__(self):
         if not self.url.startswith('https://'):
-            raise ValueError(f'Invalid url scheme for feed {self.title}, should be https')
+            raise ValueError(
+                f'Invalid url scheme for feed {self.title}, should be https'
+            )
 
         if self.base_url is None:
             parsed_url = urlparse(self.url)
 
-            # black magic
-            object.__setattr__(self, 'base_url', f'{parsed_url.scheme}://{parsed_url.netloc}')
+            # black magic for frozen dataclass attr assignment
+            object.__setattr__(
+                self, 'base_url', f'{parsed_url.scheme}://{parsed_url.netloc}'
+            )
 
         if not self.base_url.startswith('https://'):
-            raise ValueError(f'Invalid base_url scheme for feed {self.title}, should be https')
+            raise ValueError(
+                f'Invalid base_url scheme for feed {self.title}, should be https'  # noqa
+            )
 
 
 def read_feeds_config(filepath: Path, language: str) -> list[Feed, ...]:
     logging.info('Reading config file %s', filepath)
 
     with filepath.open(encoding='utf-8') as f:
-        cp =  configparser.ConfigParser(default_section=None)
+        cp = configparser.ConfigParser(default_section=None)
         cp.read_file(f)
 
     feeds = []
@@ -44,7 +50,7 @@ def read_feeds_config(filepath: Path, language: str) -> list[Feed, ...]:
 
         if config['language'] != language:
             logging.warning(
-                'Section %s skipped because of invalid language for app configuration',
+                'Section %s skipped because of invalid language for app configuration',  # noqa
                 config['language']
             )
 

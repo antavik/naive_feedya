@@ -154,7 +154,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
                 )
             ) T2
         )
-    """
+    """  # noqa
 
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.create_function('log', 1, math.log, deterministic=True)
