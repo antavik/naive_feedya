@@ -78,8 +78,8 @@ def fake_seq_feed_entries():
             url=fake.uri(),
             summary=f'Test_summary-{i}',
             published_timestamp=fake.unix_time(),
-            valid=fake.pybool(),
-            classified=fake.pybool(),
+            valid=fake.pyint(max_value=1),
+            classified=fake.pyint(max_value=1),
         )
         for i in range(TEST_DB_ROWS_COUNT)
     ]
