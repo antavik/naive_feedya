@@ -34,8 +34,8 @@ services:
       args:
         - DEV_MODE=true
     environment:
-      - APP_LANG=russian
-      - CONFIG_NAME=rus_news.ini
+      - APP_LANG=english
+      - CONFIG_NAME=eng_news.ini
     restart: always
     # command:  /usr/share/python3/app/bin/jupyter-notebook --ip=0.0.0.0 --no-browser --notebook-dir="/"
     command: /usr/share/python3/app/bin/python3.9 main.py
@@ -43,9 +43,9 @@ services:
       reproxy.server: '*'
       reproxy.route: '^/feed/(.*)'
       reproxy.dest: '/$$1'
-    # ports:
+    ports:
     #   - "8888:8888"
-    #   - "8008:8008"
+      - "8008:8008"
     volumes:
       - ./app/:/home/app/app/
       - ./notebooks/:/mnt/notebooks/
