@@ -88,7 +88,7 @@ async def remove_old(
             published_date < CAST(
                 strftime('%s', date('now', '-{days_delta} days')) as integer
             ) AND
-            classified != 1
+            classified = 0 OR (classified = 1 AND valid = 0)
     """
 
     result = await execute(DB_FILEPATH, command)
