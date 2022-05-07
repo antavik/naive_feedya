@@ -1,18 +1,17 @@
 <!DOCTYPE html>
-<!-- {%- set EVENING_HOURS = 17 %} -->
 <html>
   <head>
     <title>Feed {{ feed_datetime.strftime('%d %b %Y') }}</title>
     <meta http-equiv="Content-Type" content="text/html, charset=UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" sizes="180x180" href="/feed/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/feed/static/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/feed/static/favicon-16x16.png">
-    <link rel="manifest" href="/feed/static/site.webmanifest">
-    <script type="text/javascript" src="/feed/static/htmx-min_1-7-0.js"></script>
-    <script ype="text/javascript" src="/feed/static/json-enc.js"></script>
-    <script type="text/javascript" src="/feed/static/oauth-header.js"></script>
-    <script type="text/javascript" src="/feed/static/oauth-token-save.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ path_prefix }}/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ path_prefix }}/static/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ path_prefix }}/static/favicon-16x16.png">
+    <link rel="manifest" href="{{ path_prefix }}/static/site.webmanifest">
+    <script type="text/javascript" src="{{ path_prefix }}/static/htmx-min_1-7-0.js"></script>
+    <script ype="text/javascript" src="{{ path_prefix }}/static/json-enc.js"></script>
+    <script type="text/javascript" src="{{ path_prefix }}/static/oauth-header.js"></script>
+    <script type="text/javascript" src="{{ path_prefix }}/static/oauth-token-save.js"></script>
     <style type="text/css">
       body {
         font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
@@ -116,7 +115,7 @@
       <div class="title-text">{{ entry_type.capitalize() }}</div>
       <div class="title-date">{{ feed_datetime.strftime('%d %B %Y, %a') }}</div>
     </div>
-    <div id="tabs" hx-get="/feed/{{ entry_type }}/tab/?last_hours=6" hx-trigger="load after:1ms" hx-target="#tabs" hx-ext="oauth-header"></div>
+    <div id="tabs" hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=6" hx-trigger="load after:1ms" hx-target="#tabs" hx-ext="oauth-header"></div>
 
     <!-- Tab content will be here -->
 

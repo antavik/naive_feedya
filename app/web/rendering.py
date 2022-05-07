@@ -26,6 +26,7 @@ def _format_datetime(
 _ENVIRONMENT.filters['format_datetime'] = _format_datetime
 _ENVIRONMENT.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
 _ENVIRONMENT.filters['escape_double_quotes'] = utils.escape_double_quotes
+_ENVIRONMENT.globals['path_prefix'] = settings.PATH_PREFIX
 
 
 async def render_base_page(entry_type: str) -> str:

@@ -23,7 +23,7 @@ from manager import (
 from constants import NEWS, SPAM
 from .exceptions import InvalidCredentialsException, EntryURLNotFoundException
 
-APP = FastAPI(title=settings.API_NAME)
+APP = FastAPI(title=settings.API_NAME, debug=settings.DEV_MODE)
 APP.mount(
     '/static',
     StaticFiles(directory=str(settings.STATIC_PATH)),
@@ -94,7 +94,9 @@ async def get_news_tab_sub_page(
             headers={'WWW-Authenticate': 'Bearer'}
         )
     else:
-        login_page_url = '/feed' + APP.url_path_for('get_login_page')
+        login_page_url = (
+            settings.PATH_PREFIX + APP.url_path_for('get_login_page')
+        )
         response = RedirectResponse(
             url=login_page_url,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -130,7 +132,9 @@ async def get_spam_tab_sub_page(
             headers={'WWW-Authenticate': 'Bearer'}
         )
     else:
-        login_page_url = '/feed' + APP.url_path_for('get_login_page')
+        login_page_url = (
+            settings.PATH_PREFIX + APP.url_path_for('get_login_page')
+        )
         response = RedirectResponse(
             url=login_page_url,
             headers={
@@ -155,15 +159,17 @@ async def update(
             raise EntryURLNotFoundException
 
         if feedback.entry_is_valid:
-            response = '''
-                <span>✅</span>
-                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
-            '''  # noqa
+            response = (
+                '<span>✅</span>'
+                '<button hx-put="%s/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>👎</button>'  # noqa
+                % settings.PATH_PREFIX
+            )
         else:
-            response = '''
-                <button hx-put="/feed/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
-                <span>🚫</span>
-            '''  # noqa
+            response = (
+                '<button hx-put="%s/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>👍</button>'  # noqa
+                '<span>🚫</span>'
+                % settings.PATH_PREFIX
+            )
     else:
         get_login_page_url = APP.url_path_for('get_login_page')
         response = RedirectResponse(
