@@ -1,5 +1,5 @@
 <center>
-  <form class="ouath-login" hx-put="/feed/oauth/token" hx-target="this" hx-swap="outerHTML" hx-ext="oauth-token-save">
+  <form class="ouath-login" hx-put="{{ path_prefix }}/oauth/token" hx-target="this" hx-swap="outerHTML" hx-ext="oauth-token-save">
     <div>
       <label>Username</label>
       <input type="text" name="username">
