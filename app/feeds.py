@@ -36,9 +36,7 @@ class Feed:
             )
 
 
-def read_feeds_config(filepath: Path, language: str) -> list[Feed, ...]:
-    logging.info('Reading config file %s', filepath)
-
+def read_feeds_config(filepath: Path, language: str) -> list[Feed]:
     with filepath.open(encoding='utf-8') as f:
         cp = configparser.ConfigParser(default_section=None)
         cp.read_file(f)
@@ -51,7 +49,7 @@ def read_feeds_config(filepath: Path, language: str) -> list[Feed, ...]:
         if config['language'] != language:
             logging.warning(
                 'Section %s skipped because of invalid language for app configuration',  # noqa
-                config['language']
+                section
             )
 
             continue
