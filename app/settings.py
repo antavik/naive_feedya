@@ -33,7 +33,7 @@ CWD = Path.cwd()
 CACHE_PATH = Path(os.getenv('CACHE_PATH', '/var/lib/naive_feedya/'))
 CACHE_PATH.mkdir(exist_ok=True)
 
-if DEV_MODE:
+if DEV_MODE and 'CONFIG_NAME' not in os.environ:
     CONFIG_NAME = 'test.ini'
 else:
     CONFIG_NAME = os.environ['CONFIG_NAME']
@@ -70,6 +70,7 @@ SUMMARY_TEXT_LIMIT = 200
 API_NAME = 'naive_feedya'
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 8008
+PATH_PREFIX = os.getenv('PATH_PREFIX', '')
 
 # Date time template
 DT_TEMPLATE = '%b %d, %Y, %H:%M'
