@@ -15,10 +15,10 @@ async def get(url: str) -> FeedEntry:
     command = f"""
         SELECT *
         FROM {FEED_ENTRIES_TABLE}
-        WHERE url = '{url}'
+        WHERE url = ?
     """
 
-    result = await fetch_one(DB_FILEPATH, command)
+    result = await fetch_one(DB_FILEPATH, command, url)
 
     return FeedEntry(*result)
 
@@ -57,10 +57,10 @@ async def exists(url: str) -> bool:
     command = f"""
         SELECT url
         FROM {FEED_ENTRIES_TABLE}
-        WHERE url = '{url}'
+        WHERE url = ?
     """
 
-    result = await fetch_one(DB_FILEPATH, command)
+    result = await fetch_one(DB_FILEPATH, command, url)
 
     return result is not None
 
@@ -124,11 +124,11 @@ async def fetch_last_entries(
 async def update_validity(url: str, label: bool) -> int:
     command = f"""
         UPDATE {FEED_ENTRIES_TABLE}
-        SET valid = {label}, classified = 1
-        WHERE url = '{url}'
+        SET valid = ?, classified = 1
+        WHERE url = ?
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(DB_FILEPATH, command, label, url)
 
     return result.rowcount
 
@@ -137,10 +137,10 @@ async def is_classified(url: str) -> Optional[bool]:
     command = f"""
         SELECT classified
         FROM {FEED_ENTRIES_TABLE}
-        WHERE url = '{url}'
+        WHERE url = ?
     """
 
-    result = await fetch_one(DB_FILEPATH, command)
+    result = await fetch_one(DB_FILEPATH, command, url)
 
     return result if result is None else bool(result[0])
 
@@ -156,7 +156,7 @@ async def save_many(feeds: Iterable[FeedEntry]) -> int:
     result = await execute_many(
         DB_FILEPATH,
         command,
-        seq_feed_entries_data
+        *seq_feed_entries_data
     )
 
     return result.rowcount
