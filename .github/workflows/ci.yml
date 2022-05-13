@@ -21,7 +21,7 @@ jobs:
       run: docker build . --build-arg DEV_MODE=true -t naive_feedya_test_build
 
     - name: Run tests
-      run: docker run -i naive_feedya_test_build /usr/share/python3/app/bin/pytest
+      run: docker run -i naive_feedya_test_build /usr/share/python3/app/bin/pytest --asyncio-mode=auto  
 
     - name: Run linter
       run: docker run -i naive_feedya_test_build /usr/share/python3/app/bin/flake8
