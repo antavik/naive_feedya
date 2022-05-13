@@ -11,7 +11,7 @@ ENV GIT_BRANCH=$GIT_BRANCH
 ENV GITHUB_SHA=$GITHUB_SHA
 ENV PIPENV_DEV=$DEV_MODE
 
-RUN python3.9 -m venv /usr/share/python3/app
+RUN python3.10 -m venv /usr/share/python3/app
 
 # Setup python env
 COPY ./pipfiles/ /etc/pipfiles/
@@ -20,15 +20,15 @@ WORKDIR /etc/pipfiles/
 
 RUN /usr/share/python3/app/bin/pip install -U pip setuptools wheel && \
     /usr/share/python3/app/bin/pip install --no-cache-dir pipenv==2022.4.30 && \
-    /usr/share/python3/app/bin/pipenv install --system --skip-lock && \
-    /usr/share/python3/app/bin/python3.9 -m spacy download ru_core_news_sm
+    /usr/share/python3/app/bin/pipenv install --system --ignore-pipfile && \
+    /usr/share/python3/app/bin/python3.10 -m spacy download ru_core_news_sm
 
 RUN find-libdeps /usr/share/python3/app > /usr/share/python3/app/pkgdeps.txt
 
 #################################################################
 ####################### TARGET STAGE ############################
 #################################################################
-FROM snakepacker/python:3.9
+FROM snakepacker/python:3.10
 
 ARG GIT_BRANCH
 ARG GITHUB_SHA

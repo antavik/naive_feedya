@@ -5,27 +5,27 @@ verify_ssl = true
 
 [dev-packages]
 notebook = "==6.4.1"
-pytest = "==6.2.4"
-pytest-asyncio = "==0.15.1"
-Faker = "==6.6.3"
+pytest = "==7.1.2"
+pytest-asyncio = "==0.18.3"
+Faker = "==13.11.0"
 flake8 = "*"
 pympler = "*"
 memray = "*"
 mypy = "*"
 
 [packages]
-feedparser = "==6.0.2"
-nltk = "==3.6.6"
+feedparser = "==6.0.8"
+nltk = "==3.7.0"
 aiosqlite = "==0.17"
 httpx = "==0.22.0"
-fastapi = "==0.64"
-uvicorn = "==0.13.4"
-uvloop = "==0.15.2"
-Jinja2 = "==2.11.3"
+fastapi = "==0.76"
+uvicorn = "==0.17.6"
+uvloop = "==0.16.0"
+Jinja2 = "==3.1.2"
 python-multipart = "0.0.5"
 aiofiles = "==0.6.0"
 spacy = "==3.3.0"
 markupsafe = "==2.0.1"  # dep to download spacy models
 
 [requires]
-python_version = "3.9.3"
+python_version = "3.10"
