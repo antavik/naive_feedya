@@ -2,19 +2,15 @@ import datetime
 import tempfile
 
 import pytest
+import pytest_asyncio
 
 import settings
 
-from pathlib import Path
 from dataclasses import astuple
 
 from faker import Faker
 
-from storage import (
-    base,
-    feed_entries_db,
-    stats_db,
-)
+from storage import base
 from storage.entities import (
     FeedEntry,
     DocCounter,
@@ -75,7 +71,7 @@ def fake_seq_feed_entries():
         FeedEntry(
             feed=fake.company(),
             title=f'Test_title-{i}',
-            url=fake.uri(),
+            url=fake.unique.uri(),
             summary=f'Test_summary-{i}',
             published_timestamp=fake.unix_time(),
             valid=fake.pyint(max_value=1),
@@ -87,22 +83,23 @@ def fake_seq_feed_entries():
     return fake_seq
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_feed_entries_db():
-    with tempfile.TemporaryDirectory() as temp_path:
-        temp_db_filepath = Path(temp_path) / TEST_DB_FILENAME
+    from storage import feed_entries_db
 
+    with tempfile.NamedTemporaryFile(suffix='.sqlite') as tf:
         original_db_filepath = feed_entries_db.DB_FILEPATH
-        feed_entries_db.DB_FILEPATH = temp_db_filepath
+        feed_entries_db.DB_FILEPATH = tf.name
 
         await feed_entries_db._setup_db()
 
         yield feed_entries_db
 
         feed_entries_db.DB_FILEPATH = original_db_filepath
+        del feed_entries_db
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_feed_entries_db_with_random_data(
         fake_feed_entries_db,
         fake_seq_feed_entries
@@ -120,13 +117,13 @@ async def fake_feed_entries_db_with_random_data(
     await base.execute_many(
         fake_feed_entries_db.DB_FILEPATH,
         command,
-        fake_seq_feed_entries_data
+        *fake_seq_feed_entries_data
     )
 
     return fake_feed_entries_db
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
         fake_feed_entries_db,
         fake_seq_feed_entries,
@@ -153,13 +150,13 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
     await base.execute_many(
         fake_feed_entries_db.DB_FILEPATH,
         command,
-        fake_seq_feed_entries_data
+        *fake_seq_feed_entries_data
     )
 
     return fake_feed_entries_db, fake_seq_feed_entries
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
         fake_feed_entries_db,
         fake_seq_feed_entries,
@@ -190,13 +187,13 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
     await base.execute_many(
         fake_feed_entries_db.DB_FILEPATH,
         command,
-        fake_seq_feed_entries_data
+        *fake_seq_feed_entries_data
     )
 
     return fake_feed_entries_db
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_token_stats(fake_token):
     return TokenStats(
         token=fake_token,
@@ -205,11 +202,11 @@ async def fake_token_stats(fake_token):
     )
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_seq_token_stats():
     token_stats = {
         TokenStats(
-            token=fake.word(),
+            token=fake.unique.word(),
             news=fake.pyint(),
             spam=fake.pyint(min_value=1)
         )
@@ -219,7 +216,7 @@ async def fake_seq_token_stats():
     return list(token_stats)
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_eng_doc_counter():
     doc_counter = DocCounter(
         language=settings.APP_LANG,
@@ -230,22 +227,23 @@ async def fake_eng_doc_counter():
     return doc_counter
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_stats_db():
-    with tempfile.TemporaryDirectory() as temp_path:
-        temp_db_filepath = Path(temp_path) / TEST_DB_FILENAME
+    from storage import stats_db
 
+    with tempfile.NamedTemporaryFile(suffix='.sqlite') as tf:
         original_db_filepath = stats_db.DB_FILEPATH
-        stats_db.DB_FILEPATH = temp_db_filepath
+        stats_db.DB_FILEPATH = tf.name
 
         await stats_db._setup_db()
 
         yield stats_db
 
         stats_db.DB_FILEPATH = original_db_filepath
+        del stats_db
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_stats_db_with_random_doc_data(
         fake_stats_db,
         fake_eng_doc_counter
@@ -261,7 +259,7 @@ async def fake_stats_db_with_random_doc_data(
     return fake_stats_db
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def fake_stats_db_with_random_doc_and_token_data(
         fake_stats_db,
         fake_seq_token_stats
@@ -271,12 +269,12 @@ async def fake_stats_db_with_random_doc_and_token_data(
         VALUES (?, ?, ?)
     """
 
-    fake_seq_token_stats_data = tuple(astuple(f) for f in fake_seq_token_stats)
+    fake_seq_token_stats_data = (astuple(f) for f in fake_seq_token_stats)
 
     await base.execute_many(
         fake_stats_db.DB_FILEPATH,
         command,
-        fake_seq_token_stats_data
+        *fake_seq_token_stats_data
     )
 
     return fake_stats_db

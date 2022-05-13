@@ -5,38 +5,34 @@ from typing import Optional, Iterable
 from pathlib import Path
 
 
-async def execute(db_filepath: Path, command: str) -> Cursor:
+async def execute(db_filepath: Path, command: str, *params) -> Cursor:
     async with aiosqlite.connect(db_filepath) as db:
-        result = await db.execute(command)
+        result = await db.execute(command, params)
 
         await db.commit()
 
     return result
 
 
-async def execute_many(
-        db_filepath: Path,
-        command: str,
-        iterable: Iterable
-        ) -> Cursor:
+async def execute_many(db_filepath: Path, command: str, *params) -> Cursor:
     async with aiosqlite.connect(db_filepath) as db:
-        result = await db.executemany(command, iterable)
+        result = await db.executemany(command, params)
 
         await db.commit()
 
     return result
 
 
-async def fetch_one(db_filepath: Path, command: str) -> Optional[Row]:
+async def fetch_one(db_filepath: Path, command: str, *params) -> Optional[Row]:
     async with aiosqlite.connect(db_filepath) as db:
-        async with db.execute(command) as cursor:
+        async with db.execute(command, params) as cursor:
             result = await cursor.fetchone()
 
     return result
 
 
-async def fetch_all(db_filepath: Path, command: str) -> Iterable[Row]:
+async def fetch_all(db_filepath: Path, command: str, *params) -> Iterable[Row]:
     async with aiosqlite.connect(db_filepath) as db:
-        result = await db.execute_fetchall(command)
+        result = await db.execute_fetchall(command, params)
 
     return result

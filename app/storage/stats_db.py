@@ -4,7 +4,7 @@ import aiosqlite
 
 import settings
 
-from typing import TypeVar, Tuple, Optional
+from typing import TypeVar, Tuple, Optional, Union
 
 from .base import execute, fetch_one
 from .entities import TokenStats, DocCounter
@@ -15,37 +15,37 @@ DB_FILEPATH = settings.STATS_DB_FILEPATH
 DOC_STATS_TABLE = 'doc_stats'
 
 
-async def get_token_stats(token: str) -> TokenStats:
+async def get_token_stats(token: str) -> Union[None, TokenStats]:
     command = f"""
         SELECT * FROM {settings.STATS_TABLE}
-        WHERE token = '{token}'
+        WHERE token = ?
     """
 
-    result = await fetch_one(DB_FILEPATH, command)
+    result = await fetch_one(DB_FILEPATH, command, token)
 
-    return TokenStats(*result)
+    return result and TokenStats(*result)
 
 
-async def get_doc_counter(language: str) -> DocCounter:
+async def get_doc_counter(language: str) -> Union[None, DocCounter]:
     command = f"""
         SELECT * FROM {DOC_STATS_TABLE}
-        WHERE language = '{language}'
+        WHERE language = ?
     """
 
-    result = await fetch_one(DB_FILEPATH, command)
+    result = await fetch_one(DB_FILEPATH, command, language)
 
-    return DocCounter(*result)
+    return result and DocCounter(*result)
 
 
 async def save_or_increment_news_token(token: str) -> int:
     command = f"""
         INSERT INTO {settings.STATS_TABLE}(token, news, spam)
-        VALUES("{token}", 1, 0)
+        VALUES(?, 1, 0)
         ON CONFLICT(token)
         DO UPDATE SET news = news + 1
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(DB_FILEPATH, command, token)
 
     return result.rowcount
 
@@ -53,12 +53,12 @@ async def save_or_increment_news_token(token: str) -> int:
 async def save_or_increment_spam_token(token: str) -> int:
     command = f"""
         INSERT INTO {settings.STATS_TABLE}(token, news, spam)
-        VALUES("{token}", 0, 1)
+        VALUES(?, 0, 1)
         ON CONFLICT(token)
         DO UPDATE SET spam = spam + 1
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(DB_FILEPATH, command, token)
 
     return result.rowcount
 
@@ -70,10 +70,10 @@ async def increment_doc_counter(
     command = f"""
         UPDATE {DOC_STATS_TABLE}
         SET {counter_type} = {counter_type} + 1
-        WHERE language = '{language}'
+        WHERE language = ?
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(DB_FILEPATH, command, language)
 
     return result.rowcount
 
@@ -91,7 +91,7 @@ async def get_docs_p_values(
             ELSE NULL
             END AS news_p
             FROM {DOC_STATS_TABLE}
-            WHERE language = '{language}'
+            WHERE language = ?
         ) NEWS_STATS
         JOIN
         (
@@ -101,14 +101,14 @@ async def get_docs_p_values(
             ELSE NULL
             END AS spam_p
             FROM {DOC_STATS_TABLE}
-            WHERE language = '{language}'
+            WHERE language = ?
         ) SPAM_STATS
     """
 
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.create_function('log', 1, math.log, deterministic=True)
 
-        async with db.execute(command) as cursor:
+        async with db.execute(command, (language, language)) as cursor:
             docs_p_news, docs_p_spam = await cursor.fetchone()
 
     return docs_p_news, docs_p_spam
@@ -123,7 +123,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT CASE WHEN count(*) > 0
                 THEN news ELSE 0 END AS token_frequency
-                FROM {settings.STATS_TABLE} WHERE token = '{token}'
+                FROM {settings.STATS_TABLE} WHERE token = ?
             ) T1
             JOIN
             (
@@ -142,7 +142,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
             (
                 SELECT CASE WHEN count(*) > 0
                 THEN spam ELSE 0 END AS token_frequency
-                FROM {settings.STATS_TABLE} WHERE token = '{token}'
+                FROM {settings.STATS_TABLE} WHERE token = ?
             ) T1
             JOIN
             (
@@ -159,7 +159,7 @@ async def get_token_p_values(token: str) -> Tuple[_Number, _Number]:
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.create_function('log', 1, math.log, deterministic=True)
 
-        async with db.execute(command) as cursor:
+        async with db.execute(command, (token, token)) as cursor:
             result = await cursor.fetchall()
 
     token_p_news, token_p_spam = (r[0] for r in result)
@@ -175,10 +175,10 @@ async def reverse_token_stats(
     command = f"""
         UPDATE {settings.STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
-        WHERE token = '{token}'
+        WHERE token = ?
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(DB_FILEPATH, command, token)
 
     return result.rowcount
 
@@ -187,10 +187,10 @@ async def reverse_docs_stats(new_label: str, old_label: str) -> int:
     command = f"""
         UPDATE {DOC_STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
-        WHERE language = '{settings.APP_LANG}'
+        WHERE language = ?
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(DB_FILEPATH, command, settings.APP_LANG)
 
     return result.rowcount
 

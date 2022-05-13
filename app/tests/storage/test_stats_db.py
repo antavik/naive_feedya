@@ -4,10 +4,59 @@ import math
 import pytest
 
 import settings
+import constants
 
 
 @pytest.mark.asyncio
-async def test_save_or_increment_news_token_command__new_token__success_insert(  # noqa
+async def test_get_token_stats__token__token(
+    fake_stats_db_with_random_doc_and_token_data,
+    fake_seq_token_stats
+):
+    fake_db = fake_stats_db_with_random_doc_and_token_data
+
+    test_token = random.choice(fake_seq_token_stats)
+
+    result = await fake_db.get_token_stats(test_token.token)
+
+    assert test_token == result
+
+
+@pytest.mark.asyncio
+async def test_get_token_stats__token__empty(
+    fake_stats_db,
+    fake_seq_token_stats
+):
+    fake_db = fake_stats_db
+
+    test_token = random.choice(fake_seq_token_stats)
+
+    result = await fake_db.get_token_stats(test_token.token)
+
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_get_doc_counter__language__counter(
+    fake_stats_db_with_random_doc_data
+):
+    fake_db = fake_stats_db_with_random_doc_data
+
+    result = await fake_db.get_doc_counter(settings.APP_LANG)
+
+    assert result
+
+
+@pytest.mark.asyncio
+async def test_get_doc_counter__empty_table__counter(fake_stats_db):
+    fake_db = fake_stats_db
+
+    result = await fake_db.get_doc_counter(settings.APP_LANG)
+
+    assert result.news == 0 and result.spam == 0
+
+
+@pytest.mark.asyncio
+async def test_save_or_increment_news_token__new_token__success_insert(
         fake_stats_db,
         fake_token
 ):
@@ -19,7 +68,7 @@ async def test_save_or_increment_news_token_command__new_token__success_insert( 
 
 
 @pytest.mark.asyncio
-async def test_save_or_increment_news_token_command__existing_token__success_insert(  # noqa
+async def test_save_or_increment_news_token__existing_token__success_insert(
         fake_stats_db,
         fake_token
 ):
@@ -34,7 +83,7 @@ async def test_save_or_increment_news_token_command__existing_token__success_ins
 
 
 @pytest.mark.asyncio
-async def test_save_or_increment_spam_token_command__new_token__success_insert(  # noqa
+async def test_save_or_increment_spam_token__new_token__success_insert(
         fake_stats_db,
         fake_token
 ):
@@ -46,7 +95,7 @@ async def test_save_or_increment_spam_token_command__new_token__success_insert( 
 
 
 @pytest.mark.asyncio
-async def test_save_or_increment_spam_token_command__existing_token__success_insert(  # noqa
+async def test_save_or_increment_spam_token__existing_token__success_insert(
         fake_stats_db,
         fake_token
 ):
@@ -61,7 +110,7 @@ async def test_save_or_increment_spam_token_command__existing_token__success_ins
 
 
 @pytest.mark.asyncio
-async def test_increment_doc_counter_command__increment_counters__success(
+async def test_increment_doc_counter__increment_counters__success(
         fake_stats_db
 ):
     docs_qty = 1
@@ -76,7 +125,7 @@ async def test_increment_doc_counter_command__increment_counters__success(
 
 
 @pytest.mark.asyncio
-async def test_get_docs_p_values_command__valid_db__success(
+async def test_get_docs_p_values__valid_db__success(
         fake_stats_db_with_random_doc_data,
         fake_eng_doc_counter
 ):
@@ -94,7 +143,7 @@ async def test_get_docs_p_values_command__valid_db__success(
 
 
 @pytest.mark.asyncio
-async def test_get_docs_p_values_command__empty_db__success(
+async def test_get_docs_p_values__empty_db__success(
         fake_stats_db,
         fake_eng_doc_counter
 ):
@@ -108,7 +157,7 @@ async def test_get_docs_p_values_command__empty_db__success(
 
 
 @pytest.mark.asyncio
-async def test_get_token_p_values_command__valid_db__success(
+async def test_get_token_p_values__valid_db__success(
         fake_stats_db_with_random_doc_and_token_data,
         fake_seq_token_stats
 ):
@@ -132,7 +181,7 @@ async def test_get_token_p_values_command__valid_db__success(
 
 
 @pytest.mark.asyncio
-async def test_reverse_news_token_command__news_label__success(
+async def test_reverse_news_token__news_label__success(
         fake_stats_db_with_random_doc_and_token_data,
         fake_seq_token_stats
 ):
@@ -142,10 +191,33 @@ async def test_reverse_news_token_command__news_label__success(
     token_stats.news += 1
     token_stats.spam -= 1
 
-    await fake_db.reverse_token_stats(token_stats.token, 'news', 'spam')
+    updated = await fake_db.reverse_token_stats(
+        token_stats.token, constants.NEWS, constants.SPAM
+    )
 
     result = await fake_db.get_token_stats(token_stats.token)
 
     assert (
+        updated and
         (result.news, result.spam) == (token_stats.news, token_stats.spam)
+    )
+
+
+@pytest.mark.asyncio
+async def test_reverse_docs_stats__docs_stats__success(
+        fake_stats_db_with_random_doc_data,
+        fake_eng_doc_counter
+):
+    fake_db = fake_stats_db_with_random_doc_data
+
+    fake_eng_doc_counter.news += 1
+    fake_eng_doc_counter.spam -= 1
+
+    updated = await fake_db.reverse_docs_stats(constants.NEWS, constants.SPAM)
+
+    result = await fake_db.get_doc_counter(settings.APP_LANG)
+
+    assert (
+        updated and
+        (result.news, result.spam) == (fake_eng_doc_counter.news, fake_eng_doc_counter.spam)  # noqa
     )
