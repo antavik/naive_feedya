@@ -1,16 +1,20 @@
 <center>
-  <form class="ouath-login" hx-put="{{ path_prefix }}/oauth/token" hx-target="this" hx-swap="outerHTML" hx-ext="oauth-token-save">
-    <div>
-      <label>Username</label>
-      <input type="text" name="username">
-    </div>
-    <div>
-      <label>Password</label>
-      <input type="password" name="password">
-    </div>
-    <dvi>
-      <input type="hidden" name="grant_type" value="password">
-    </dvi>
-    <button>Submit</button>
+  <form hx-put="{{ path_prefix }}/oauth/token" hx-target="this" hx-swap="outerHTML" hx-ext="oauth-token-save" style="padding-top: 7px;padding-bottom: 5px;">
+    <table cols="2">
+      <tbody>
+        <tr>
+          <td><label>Username</label></td><td><input type="text" name="username"></td>
+        </tr>
+        <tr>
+          <td><label>Password</label></td><td><input type="password" name="password"></td>
+        </tr>
+        <tr>
+          <td colspan="2" align="center">
+            <input type="hidden" name="grant_type" value="password">
+            <button type="submit">Submit</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </form>
 </center>

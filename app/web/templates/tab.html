@@ -1,64 +1,75 @@
-<div class="tab-list common">
-  <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=6" {% if last_hours == 6 %}class="selected"{% endif %}>last 6 hous</a> /
-  <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=12" {% if last_hours == 12 %}class="selected"{% endif %}>last 12 hous</a> /
-  <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=24" {% if last_hours == 24 %}class="selected"{% endif %}>last 24 hous</a> /
-  <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=48" {% if last_hours == 48 %}class="selected"{% endif %}>last 48 hous</a>
-</div>
-<div class="tab-content">
-  <div class="common entry-border">
-    {% for feed, entries in feeds|reverse_empty_feeds %}
-    <div class="feed-title">
-      <a class="feed-title-link" href="{{ feed.base_url }}" target="_blank" rel="noopener noreferrer">{{ feed.title }}</a>
-    </div>
-    {% if entries %}
-    {% if entries|length > 9 %}
-    <details>
-      <summary>{{ entries|length }} entries</summary>
-    {% endif %}
-    <table cols="3">
-      <tbody>
-        {% for entry_line in entries|batch(3) %}
-        <tr>
-          {% for entry in entry_line %}
-          <td>
-            <div class="entry-title">
-              <a class="entry-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{- entry.title }}</a>
-              <br>
-              <div id="feedback-buttons" hx-vals='{"entry_title": "{{ entry.title|escape_double_quotes }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}"}'>
-                {% if not entry.is_classified %}
-                <button hx-put="{{ path_prefix }}/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
-                <button hx-put="{{ path_prefix }}/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
-                {% else %}
-                  {% if entry.is_valid %}
-                  <span>✅</span>
-                  <button hx-put="{{ path_prefix }}/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
-                  {% else %}
-                  <button hx-put="{{ path_prefix }}/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
-                  <span>🚫</span>
-                  {% endif %}
-                {% endif %}
-              </div>
-            </div>
-            {% autoescape False %}
-            <p class="entry-summary">
-              {% if not feed.skip_summary %}{{- entry.summary }}{% endif %}
-            </p>
-            {% endautoescape %}
-            <p class="entry-meta">
-              <span class="entry-pub-date">{{ entry.published_datetime|format_datetime }}</span>
-            </p>
-          </td>
+<table>
+  <tbody>
+    <tr>
+      <td>
+        <div class="nav-table">
+          <div class="tab-list" hx-ext="oauth-header" hx-target="#content-td">
+            <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=6" class="tab-switcher {% if last_hours == 6 %}selected{% endif %}">last 6 hours</a> /
+            <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=12" class="tab-switcher {% if last_hours == 12 %}selected{% endif %}">last 12 hours</a> /
+            <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=24" class="tab-switcher {% if last_hours == 24 %}selected{% endif %}">last 24 hours</a> /
+            <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=48" class="tab-switcher {% if last_hours == 48 %}selected{% endif %}">last 48 hours</a>
+          </div>
+          <div class="page-list">
+            <a href="{{ path_prefix }}/{{ opposite_type }}" class="page-switcher">{{ opposite_type }}</a>
+          </div>
+        </div>
+        <div class="tab-content" hx-ext="oauth-header">
+          {% for feed, entries in feeds|reverse_empty_feeds %}
+          <div class="feed-title">
+            <a class="feed-title-link" href="{{ feed.base_url }}" target="_blank" rel="noopener noreferrer">{{ feed.title }}</a>
+          </div>
+          {% if entries %}
+          {% if entries|length > 9 %}
+          <details>
+            <summary>{{ entries|length }} entries</summary>
+          {% endif %}
+          <table cols="3" height="100%" width="100%" cellspacing="0" cellpadding="0" border="0">
+            <tbody>
+              {% for entry_line in entries|batch(3) %}
+              <tr>
+                {% for entry in entry_line %}
+                <td class="content-td entry-td" width="33%">
+                  <div class="entry-title">
+                    <a class="entry-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{- entry.title }}</a>
+                    <br>
+                    <div id="feedback-buttons" hx-vals='{"entry_title": "{{ entry.title|escape_double_quotes }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language }}"}' hx-swap="innerHTML" hx-target="closest #feedback-buttons">
+                      {% if not entry.is_classified %}
+                      <button hx-put="{{ path_prefix }}/update"  hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
+                      <button hx-put="{{ path_prefix }}/update" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
+                      {% else %}
+                        {% if entry.is_valid %}
+                        <span>✅</span>
+                        <button hx-put="{{ path_prefix }}/update" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>👎</button>
+                        {% else %}
+                        <button hx-put="{{ path_prefix }}/update" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>👍</button>
+                        <span>🚫</span>
+                        {% endif %}
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% autoescape False %}
+                  <p class="entry-summary">
+                  {% if not feed.skip_summary %}{{- entry.summary }}{% endif %}
+                  </p>
+                  {% endautoescape %}
+                  <p class="entry-meta">
+                    <span class="entry-pub-date">{{ entry.published_datetime|format_datetime }}</span>
+                  </p>
+                </td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if entries|length > 9 %}
+          </details>
+          {% endif %}
+          {% else %}
+            <center><p class="entry-summary">Feed is empty</p></center>
+          {% endif %}
           {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    {% if entries|length > 9 %}
-    </details>
-    {% endif %}
-    {% else %}
-    <center><p class="entry-summary">Feed is empty</p></center>
-    {% endif %}
-    {% endfor %}
-  </div>
-</div>
+        </div>
+      </td>
+    </tr>
+  </tbody>
+</table>

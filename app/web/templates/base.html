@@ -3,7 +3,14 @@
   <head>
     <title>Feed {{ feed_datetime.strftime('%d %b %Y') }}</title>
     <meta http-equiv="Content-Type" content="text/html, charset=UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#0088ff">
+    <!-- Windows Phone -->
+    <meta name="msapplication-navbutton-color" content="#0088ff">
+    <!-- iOS Safari -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="#0088ff">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="HandheldFriendly" content="True"/>
     <link rel="apple-touch-icon" sizes="180x180" href="{{ path_prefix }}/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ path_prefix }}/static/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ path_prefix }}/static/favicon-16x16.png">
@@ -13,112 +20,145 @@
     <script type="text/javascript" src="{{ path_prefix }}/static/oauth-header.js"></script>
     <script type="text/javascript" src="{{ path_prefix }}/static/oauth-token-save.js"></script>
     <style type="text/css">
-      body {
-        font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+    html {
+        height: 100%;
+    }
+    body {
+        height: 100%;
         background-color: #e3e3e3d7;
-      }
-      table {
-        border: 0px;
-        width: 100%;
-        table-layout: fixed;
-        border-collapse: collapse;
-      }
-      tr {
-        border-bottom: 10px solid #ffffff
-      }
-      td {
-        vertical-align: top;
-        border-right: 10px solid #ffffff;
-      }
-      .common {
-        width: 1000px;
-        margin: auto;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-      .title-border {
-        text-align: center;
-        background: {{ title_bg_color }};
-        color: {{ title_font_color }};
-      }
-      .title-text {
-        font-size: 32px;
-      }
-      .title-date {
-        font-size: 14px;
-      }
-      .entry-border {
-        background: #ffffff;
-      }
-      .feed-title {
-        font-weight: bold;
-        font-size: 25px;
-        padding-top: 9px;
-        padding-bottom: 7px;
-        text-align: center;
-      }
-      .feed-title-link {
-        color: #000000;
-      }
-      .entry-title {
-        font-weight: bold;
-        font-size: 16px;
-        padding-bottom: 4px;
-      }
-      .entry-link {
-        color: #000000;
-      }
-      .entry-summary {
-        font-size: 15px;
-        margin-top: 1px;
-        margin-bottom: 1px;
-      }
-      .entry-meta {
-        text-align:left;
-        margin-top: 2px;
-        margin-bottom: 2px;
-        margin-right: 5px;
-      }
-      .entry-pub-date {
-        font-style: italic;
-        font-size: 12px;
-        color: #797684;
-      }
-      .footer {
-        font-size: 18px;
-        font-style: italic;
-        text-align: center;
-        color: #606060;
-      }
-      .footer-logo {
-        font-size: 12px;
-        font-style: normal;
-        text-align: center;
-      }
-      .tab-list {
-        background-color:#ffffff;
-        text-align: left;
-        cursor: pointer;
-        border-bottom: 1px solid #000000;
-        padding-top: 5px;
-        padding-bottom: 5px;
-      }
-      .selected {
-        text-decoration: underline;
-      }
+        font-family: Palatino Linotype, Book Antiqua, Palatino, serif;
+    }
+    table {
+      table-layout: fixed;
+    }
+    .content-td {
+      vertical-align: top;
+    }
+    .entry-td {
+      padding-right: 5px;
+      padding-bottom: 3px;
+    }
+    .title-common {
+      text-align: center;
+      background: {{ title_bg_color }};
+      color: {{ title_font_color }};
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+    .title-text {
+      font-size: 32px;
+    }
+    .title-date {
+      font-size: 14px;
+    }
+    .content {
+      background-color: #ffffff;
+      padding-bottom: 5px;
+    }
+    .nav-table {
+      padding-top: 5px;
+      padding-bottom: 5px;
+      padding-left: 3px;
+      padding-right: 3px;
+      border-bottom: 1px solid #000000;
+      font-size: 16px;
+    }
+    .tab-list {
+      text-align: left;
+      display: inline-block; 
+    }
+    .tab-switcher {
+      cursor: pointer;
+      padding-top: .1rem;
+      padding-left: .2rem;
+      padding-right: .2rem;
+    }
+    .selected {
+      pointer-events: none;
+      cursor: default;
+      border-style: dotted;
+      border-width: 1px;
+      text-decoration: none;
+      border-radius: 4px;
+    }
+    .page-list {
+      float: right;
+    }
+    .page-switcher {
+      color: #000000
+    }
+    .tab-content {
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    .feed-title {
+      font-weight: bold;
+      font-size: 25px;
+      padding-top: 9px;
+      padding-bottom: 3px;
+      text-align: center;
+    }
+    .feed-title-link {
+      color: #000000;
+    }
+    .entry-title {
+      font-weight: bold;
+      font-size: 16px;
+      padding-bottom: 4px;
+    }
+    .entry-link {
+      color: #000000;
+    }
+    .entry-summary {
+      font-size: 15px;
+      margin-top: 1px;
+      margin-bottom: 1px;
+    }
+    .entry-meta {
+      text-align:left;
+      margin-top: 2px;
+      margin-bottom: 2px;
+      margin-right: 5px;
+    }
+    .entry-pub-date {
+      font-style: italic;
+      font-size: 12px;
+      color: #797684;
+    }
+    .footer {
+      font-size: 12px;
+      font-style: italic;
+      text-align: center;
+      color: #606060;
+    }
     </style>
   </head>
-  <body>
-    <div class="common title-border">
-      <div class="title-text">{{ entry_type.capitalize() }}</div>
-      <div class="title-date">{{ feed_datetime.strftime('%d %B %Y, %a') }}</div>
-    </div>
-    <div id="tabs" hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=6" hx-trigger="load after:1ms" hx-target="#tabs" hx-ext="oauth-header"></div>
-
-    <!-- Tab content will be here -->
-
-    <p class="footer footer-logo">© {{ feed_datetime.year }} Naive Feedya</p>
+  <body topmargin="0" bottommargin="0" leftmargin="0" rightmargin="0" text="#000000">
+    <table cols="3" height="0" width="100%" cellspacing="0" cellpadding="0" border="0">
+      <tbody>
+        <tr id="header-tr">
+          <td width="10%"></td>
+          <td class="content-td">
+            <div class="common title-common ">
+              <div class="title-text">{{ feed_type.capitalize() }}</div>
+              <div class="title-date">{{ feed_datetime.strftime('%d %B %Y, %a') }}</div>
+            </div>
+          </td>
+          <td width="10%"></td>
+        </tr>
+        <tr id="content-tr">
+          <td width="10%"></td>
+          <td id="content-td" class="content">
+            <div hx-get="{{ path_prefix }}/{{ feed_type }}/tab/?last_hours=6" hx-trigger="load after:1ms" hx-swap="outerHTML" hx-ext="oauth-header"></div>
+            <!-- Tab content will be here -->
+          </td>
+          <td width="10%"></td>
+        <tr id="footer-tr">
+          <td width="10%"></td>
+          <td><p class="footer footer-logo">© {{ feed_datetime.year }} Naive Feedya</p></td>
+          <td width="10%"></td>
+        </tr>
+      </tbody>
+    </table>
   </body>
 </html>
