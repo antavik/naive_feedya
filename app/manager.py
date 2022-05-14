@@ -12,6 +12,7 @@ from typing import Generator, Iterable, Optional
 from feedparser import FeedParserDict
 
 from feeds import Feed
+from constants import EntryType
 from storage import feed_entries_db, stats_db
 from web import render_base_page, render_tab_sub_page, render_login_sub_page
 from storage.entities import FeedEntry
@@ -40,7 +41,7 @@ async def process_feed(feed: Feed) -> None:
 
 async def filter_feed_entries(
         parsed_feed_entries: list[parser.EntryProxy]
-        ) -> Generator[parser.EntryProxy, None, None]:
+) -> Generator[parser.EntryProxy, None, None]:
     fresh_urls = tuple(
         entry.url
         for entry in parsed_feed_entries
@@ -61,7 +62,7 @@ async def filter_feed_entries(
 async def prepare_feed_entries(
         feed: Feed,
         new_parsed_entries: Iterable[FeedParserDict]
-        ) -> list[FeedEntry]:
+) -> list[FeedEntry]:
     feed_entries = []
 
     for entry in new_parsed_entries:
@@ -95,14 +96,14 @@ async def clean_feed_entries_db():
         logging.info('Feed entries DB cleaned. Removed %d entries', removed)
 
 
-async def get_base_page(feed_type: str) -> str:
+async def get_base_page(feed_type: EntryType) -> str:
     html_page = await render_base_page(feed_type)
 
     return html_page
 
 
-async def get_tab_sub_page(feed_type: str, last_hours: int) -> str:
-    label = utils.label_by_feed_type(feed_type)
+async def get_tab_sub_page(feed_type: EntryType, last_hours: int) -> str:
+    label = bool(feed_type)
     feed_to_entries: dict[Feed, list] = {f: [] for f in settings.FEEDS}
 
     news_entries = await feed_entries_db.fetch_last_entries(

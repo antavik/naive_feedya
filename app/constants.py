@@ -1,5 +1,10 @@
-NEWS = 'news'
-SPAM = 'spam'
+from enum import IntEnum
+
+
+class EntryType(IntEnum):
+    NEWS = True
+    SPAM = False
+
 
 ENGLISH = 'english'
 RUSSIAN = 'russian'

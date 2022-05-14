@@ -4,7 +4,8 @@ import math
 import pytest
 
 import settings
-import constants
+
+from constants import EntryType
 
 
 @pytest.mark.asyncio
@@ -116,8 +117,12 @@ async def test_increment_doc_counter__increment_counters__success(
     docs_qty = 1
 
     for _ in range(docs_qty):
-        await fake_stats_db.increment_doc_counter(settings.APP_LANG, 'news')
-        await fake_stats_db.increment_doc_counter(settings.APP_LANG, 'spam')
+        await fake_stats_db.increment_doc_counter(
+            settings.APP_LANG, EntryType.NEWS.name.lower()
+        )
+        await fake_stats_db.increment_doc_counter(
+            settings.APP_LANG, EntryType.SPAM.name.lower()
+        )
 
     doc_count = await fake_stats_db.get_doc_counter(settings.APP_LANG)
 
@@ -192,7 +197,9 @@ async def test_reverse_news_token__news_label__success(
     token_stats.spam -= 1
 
     updated = await fake_db.reverse_token_stats(
-        token_stats.token, constants.NEWS, constants.SPAM
+        token_stats.token,
+        EntryType.NEWS.name.lower(),
+        EntryType.SPAM.name.lower()
     )
 
     result = await fake_db.get_token_stats(token_stats.token)
@@ -213,7 +220,10 @@ async def test_reverse_docs_stats__docs_stats__success(
     fake_eng_doc_counter.news += 1
     fake_eng_doc_counter.spam -= 1
 
-    updated = await fake_db.reverse_docs_stats(constants.NEWS, constants.SPAM)
+    updated = await fake_db.reverse_docs_stats(
+        EntryType.NEWS.name.lower(),
+        EntryType.SPAM.name.lower()
+    )
 
     result = await fake_db.get_doc_counter(settings.APP_LANG)
 

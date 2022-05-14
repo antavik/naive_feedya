@@ -8,10 +8,8 @@ from utils import (
     trim_text,
     escape_single_quote,
     color_pairs_randomizer,
-    label_by_feed_type,
     str2bool,
 )
-from constants import NEWS, SPAM
 
 
 def test_trim_text__text_less_than_summary_limit__same_text(
@@ -52,19 +50,6 @@ def test_colot_randomizer__no_input__tuple_hex_color():
     background_color, font_color = colors
 
     assert pattern.match(background_color) and pattern.match(font_color)
-
-
-def test_label_by_feed_type__news__true():
-    assert label_by_feed_type(NEWS)
-
-
-def test_label_by_feed_type__spam__false():
-    assert not label_by_feed_type(SPAM)
-
-
-def test_label_by_feed_type__invalid_type__exception(fake_feed_type):
-    with pytest.raises(ValueError):
-        label_by_feed_type(fake_feed_type)
 
 
 def test_str2bool__valid_true_str__bool_true():

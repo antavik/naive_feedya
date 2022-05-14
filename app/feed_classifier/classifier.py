@@ -3,7 +3,7 @@ import logging
 from typing import Callable, Union
 
 from storage import stats_db
-from constants import NEWS, SPAM
+from constants import EntryType
 from .tokenizer import tokenize_document
 
 
@@ -79,7 +79,7 @@ async def _update_tokens_and_docs_stats(
     if updated_tokens:
         updated_docs = await stats_db.increment_doc_counter(
             language,
-            NEWS if is_valid else SPAM
+            EntryType(is_valid).name.lower()
         )
 
     return updated_tokens, updated_docs
@@ -91,7 +91,11 @@ async def _reverse_stats(
 ) -> tuple[int, int]:
     updated_tokens = 0
     updated_docs = 0
-    new_label, old_label = (NEWS, SPAM) if is_valid else (SPAM, NEWS)
+
+    if is_valid:
+        new_label, old_label = (EntryType.NEWS.name.lower(), EntryType.SPAM.name.lower())  # noqa
+    else:
+        new_label, old_label = (EntryType.SPAM.name.lower(), EntryType.NEWS.name.lower())  # noqa
 
     for token in document_tokens:
         updated_tokens += await stats_db.reverse_token_stats(

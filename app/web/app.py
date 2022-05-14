@@ -20,7 +20,7 @@ from manager import (
     update_feed_classifier,
     get_login_sub_page,
 )
-from constants import NEWS, SPAM
+from constants import EntryType
 from .exceptions import InvalidCredentialsException, EntryURLNotFoundException
 
 APP = FastAPI(title=settings.API_NAME, debug=settings.DEV_MODE)
@@ -73,7 +73,7 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
     summary='Get rendered news html page'
 )
 async def get_news_page():
-    response = await get_base_page(feed_type=NEWS)
+    response = await get_base_page(feed_type=EntryType.NEWS)
 
     return response
 
@@ -88,7 +88,7 @@ async def get_news_tab_sub_page(
         token: Optional[str] = Depends(oauth2_scheme)
 ):
     if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(NEWS, last_hours)
+        content = await get_tab_sub_page(EntryType.NEWS, last_hours)
         response = HTMLResponse(
             content=content,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -111,7 +111,7 @@ async def get_news_tab_sub_page(
     summary='Get rendered spam html page'
 )
 async def get_spam_page():
-    response = await get_base_page(feed_type=SPAM)
+    response = await get_base_page(feed_type=EntryType.SPAM)
 
     return response
 
@@ -126,7 +126,7 @@ async def get_spam_tab_sub_page(
         token: Optional[str] = Depends(oauth2_scheme)
 ):
     if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(SPAM, last_hours)
+        content = await get_tab_sub_page(EntryType.SPAM, last_hours)
         response = HTMLResponse(
             content=content,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -161,12 +161,12 @@ async def update(
         if feedback.entry_is_valid:
             response = (
                 '<span>✅</span>'
-                '<button hx-put="%s/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>👎</button>'  # noqa
+                '<button hx-put="%s/update" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>👎</button>'  # noqa
                 % settings.PATH_PREFIX
             )
         else:
             response = (
-                '<button hx-put="%s/update" hx-swap="innerHTML" hx-target="closest #feedback-buttons" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>👍</button>'  # noqa
+                '<button hx-put="%s/update" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>👍</button>'  # noqa
                 '<span>🚫</span>'
                 % settings.PATH_PREFIX
             )

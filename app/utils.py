@@ -3,7 +3,6 @@ import random
 from itertools import count
 from functools import lru_cache
 
-from constants import NEWS, SPAM
 from feeds import Feed
 from storage.entities import FeedEntry
 
@@ -43,17 +42,6 @@ def color_pairs_randomizer() -> tuple[str, str]:
     )
 
     return random.choice(_support_color_pairs)
-
-
-def label_by_feed_type(feed_type: str) -> bool:
-    if feed_type == NEWS:
-        label = True
-    elif feed_type == SPAM:
-        label = False
-    else:
-        raise ValueError('Unsupported value for feed type')
-
-    return label
 
 
 def str2bool(value: str) -> bool:
