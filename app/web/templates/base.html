@@ -9,7 +9,7 @@
     <meta name="msapplication-navbutton-color" content="#0088ff">
     <!-- iOS Safari -->
     <meta name="apple-mobile-web-app-status-bar-style" content="#0088ff">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=0.8 maximum-scale=1.0, user-scalable=0"/>
     <meta name="HandheldFriendly" content="True"/>
     <link rel="apple-touch-icon" sizes="180x180" href="{{ path_prefix }}/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ path_prefix }}/static/favicon-32x32.png">
@@ -35,7 +35,7 @@
       vertical-align: top;
     }
     .entry-td {
-      padding-right: 5px;
+      padding-right: 7px;
       padding-bottom: 3px;
     }
     .title-common {
@@ -82,7 +82,7 @@
       border-radius: 4px;
     }
     .page-list {
-      float: right;
+      text-align: right;
     }
     .page-switcher {
       color: #000000
@@ -137,26 +137,26 @@
     <table cols="3" height="0" width="100%" cellspacing="0" cellpadding="0" border="0">
       <tbody>
         <tr id="header-tr">
-          <td width="10%"></td>
-          <td class="content-td">
+          <td></td>
+          <td class="content-td" width="80%">
             <div class="common title-common ">
               <div class="title-text">{{ feed_type.capitalize() }}</div>
               <div class="title-date">{{ feed_datetime.strftime('%d %B %Y, %a') }}</div>
             </div>
           </td>
-          <td width="10%"></td>
+          <td></td>
         </tr>
         <tr id="content-tr">
-          <td width="10%"></td>
-          <td id="content-td" class="content">
+          <td></td>
+          <td id="content-td" class="content" width="80%">
             <div hx-get="{{ path_prefix }}/{{ feed_type }}/tab/?last_hours=6" hx-trigger="load after:1ms" hx-swap="outerHTML" hx-ext="oauth-header"></div>
             <!-- Tab content will be here -->
           </td>
-          <td width="10%"></td>
+          <td></td>
         <tr id="footer-tr">
-          <td width="10%"></td>
-          <td><p class="footer footer-logo">© {{ feed_datetime.year }} Naive Feedya</p></td>
-          <td width="10%"></td>
+          <td></td>
+          <td width="80%"><p class="footer footer-logo">© {{ feed_datetime.year }} Naive Feedya</p></td>
+          <td></td>
         </tr>
       </tbody>
     </table>
