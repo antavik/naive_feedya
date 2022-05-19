@@ -8,27 +8,27 @@ Naive Feedya is a small news feed with simple web UI and filtering algorithm bas
 ## How to run:
 
 ### Prod environment
-1. Prepare ```naive_feedya/.env``` file and set ```USERNAME``` and ```PASSWORD``` vars there.
-2. Run project using docker-compose:
-```
-docker-compose -f docker-compose.prod.yml up
-```
-Check localhost path (default port 8008) ```/feed/news```
+1. Pull image ```docker pull antonsve4/naive-feedya:main```.
+2. Run image ```docker run -it -e USERNAME=YOU-USERNAME -e PASSWORD=YOUR-PASSWORD /usr/share/python3/app/bin/python3 main.py```
+Check localhost path (default port 8008) ```/news``` (default path).
 
 ### Dev environment
 1. Run project using docker-compose:
 ```
 docker-compose -f docker-compose.dev.yml up
 ```
-Check localhost path (default port 8008) ```/feed/news```
+Check localhost path (default port 8008) ```/news``` (default path).
+
+## Supported options:
+- TBD
 
 
 ## How to run tests and code style check:
 1. Run tests
 ```
-docker-compose -f docker-compose.dev.yml run nf pytest
+docker-compose -f docker-compose.dev.yml run nf /usr/share/python3/app/bin/pytest
 ```
 2. Check code style
 ```
-docker-compose -f docker-compose.dev.yml run nf flake8
+docker-compose -f docker-compose.dev.yml run nf /usr/share/python3/app/bin/flake8
 ```
