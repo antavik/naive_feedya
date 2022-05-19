@@ -81,7 +81,7 @@ async def prepare_feed_entries(
                 summary=utils.trim_text(
                     text=published_summary,
                     limit=settings.SUMMARY_TEXT_LIMIT
-                    ),
+                ),
                 valid=valid,
             )
         )
@@ -143,7 +143,7 @@ async def update_feed_classifier(feedback) -> Optional[bool]:
         updated_tokens = await reverse_stats(
             document=feedback.entry_title,
             label=feedback.entry_is_valid,
-            language=settings.APP_LANG
+            language=feedback.entry_language
         )
 
         updated = bool(updated_tokens)

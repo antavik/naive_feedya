@@ -52,16 +52,19 @@ async def update_stats(
     language = Language(language)
 
     updated_tokens, updated_docs = await _update_tokens_and_docs_stats(
-        tokens,
-        label,
-        language
+        tokens, label, language
     )
 
     return updated_tokens, updated_docs
 
 
-async def reverse_stats(document: str, label: bool, language: Language) -> int:
+async def reverse_stats(
+        document: str,
+        label: bool,
+        language: Language
+) -> tuple[int, int]:
     tokens = tokenize_document(document)
+    language = Language(language)
 
     updated_tokens, updated_docs = await _reverse_stats(
         tokens, label, language
@@ -108,9 +111,7 @@ async def _reverse_stats(
 
     for token in document_tokens:
         updated_tokens += await stats_db.reverse_token_stats(
-            token,
-            new_label,
-            old_label
+            token, new_label, old_label
         )
 
     if updated_tokens:
