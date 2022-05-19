@@ -8,8 +8,14 @@ Naive Feedya is a small news feed with simple web UI and filtering algorithm bas
 ## How to run:
 
 ### Prod environment
-1. Pull image ```docker pull antonsve4/naive-feedya:main```.
-2. Run image ```docker run -it -e USERNAME=YOU-USERNAME -e PASSWORD=YOUR-PASSWORD /usr/share/python3/app/bin/python3 main.py```
+1. Pull image
+```
+docker pull antonsve4/naive-feedya:main
+```
+2. Run image
+```
+docker run -it -e USERNAME=YOU-USERNAME -e PASSWORD=YOUR-PASSWORD /usr/share/python3/app/bin/python3 main.py
+```
 Check localhost path (default port 8008) ```/news``` (default path).
 
 ### Dev environment
