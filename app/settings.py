@@ -82,7 +82,7 @@ LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', 'false'))
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
 
-FEEDS = read_feeds_config(CONFIG_FILEPATH, APP_LANG.value)
+FEEDS = read_feeds_config(CONFIG_FILEPATH, APP_LANG)
 FEEDS_REGISTRY = {f.title: f for f in FEEDS}
 
 os.environ.clear()

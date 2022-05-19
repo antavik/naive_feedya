@@ -1,6 +1,7 @@
 import logging
 
 import utils
+import constants as const
 
 from typing import Callable, Union
 
@@ -21,13 +22,15 @@ async def train(
         await _update_tokens_and_docs_stats(tokens, is_valid, language)
 
 
-async def classify(document: str, language: str) -> bool:
+async def classify(document: str, language: const.Language) -> bool:
     tokens = tokenize_document(document)
 
     total_p_news, total_p_spam = await stats_db.get_docs_p_values(language)
 
     if total_p_news is None or total_p_spam is None:
-        logging.warning('%s docs stats have zero stats', language.capitalize())
+        logging.warning(
+            '%s docs stats have zero stats', language.value.capitalize()
+        )
 
         return True
 

@@ -1,6 +1,8 @@
 import logging
 import configparser
 
+import constants as const
+
 from dataclasses import dataclass
 from typing import Optional
 from urllib.parse import urlparse
@@ -11,8 +13,7 @@ from pathlib import Path
 class Feed:
     title: str
     url: str
-    language: str
-    # classify: bool = True
+    language: const.Language
     skip_summary: bool = False
     base_url: Optional[str] = None
 
@@ -36,7 +37,7 @@ class Feed:
             )
 
 
-def read_feeds_config(filepath: Path, language: str) -> list[Feed]:
+def read_feeds_config(filepath: Path, language: const.Language) -> list[Feed]:
     with filepath.open(encoding='utf-8') as f:
         cp = configparser.ConfigParser(default_section=None)
         cp.read_file(f)
@@ -46,7 +47,7 @@ def read_feeds_config(filepath: Path, language: str) -> list[Feed]:
         if section is None:
             continue
 
-        if config['language'] != language:
+        if config['language'] != language.value:
             logging.warning(
                 'Section %s skipped because of invalid language for app configuration',  # noqa
                 section
@@ -57,7 +58,7 @@ def read_feeds_config(filepath: Path, language: str) -> list[Feed]:
         feeds.append(Feed(
             title=section,
             url=config['url'],
-            language=config['language'],
+            language=language,
             skip_summary=config.getboolean('skip_summary', fallback=False),
             base_url=config.get('base_url')
         ))
