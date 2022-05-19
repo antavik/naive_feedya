@@ -1,4 +1,4 @@
-from enum import IntEnum
+from enum import IntEnum, Enum
 
 
 class EntryType(IntEnum):
@@ -6,10 +6,9 @@ class EntryType(IntEnum):
     SPAM = False
 
 
-ENGLISH = 'english'
-RUSSIAN = 'russian'
+class Language(Enum):
+    ENG = 'english'
+    RUS = 'russian'
 
-STATS_TABLES_MAPPING = {
-    lang: f'{lang}_token_stats'
-    for lang in (ENGLISH, RUSSIAN)
-}
+
+STATS_TABLES_MAPPING = {lang: f'{lang.value}_token_stats' for lang in Language}

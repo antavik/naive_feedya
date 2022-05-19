@@ -2,14 +2,14 @@ import string
 import re
 
 import settings
-import constants
+import constants as const
 
 _translation_symbols = dict.fromkeys(string.punctuation + "’‘–«»—")
 _translation_symbols['\xa0'] = ' '
 _TRANSLATION_MAPPING = str.maketrans(_translation_symbols)
 
 
-if settings.APP_LANG == constants.ENGLISH:
+if settings.APP_LANG is const.Language.ENG:
     import nltk
 
     from nltk.corpus import stopwords
@@ -28,14 +28,14 @@ if settings.APP_LANG == constants.ENGLISH:
         tokens = tuple(
             _STEMMER.stem(word)
             for word in set(processed_document.split())
-            if word not in stopwords.words(settings.APP_LANG) and
+            if word not in stopwords.words(settings.APP_LANG.value) and
             word not in CUSTOM_FILTER and
             not re.fullmatch(r'^(19|20)\d{2}$', word)  # Regex for years 19??, 20??  # noqa
         )
 
         return tokens
 
-elif settings.APP_LANG == constants.RUSSIAN:
+elif settings.APP_LANG is const.Language.RUS:
     import spacy
 
     _LEMMER = spacy.load("ru_core_news_sm")

@@ -1,5 +1,6 @@
 import datetime
 
+from constants import Language
 from dataclasses import dataclass, astuple
 from typing import Tuple, Any
 
@@ -16,7 +17,7 @@ class TokenStats:
 
 @dataclass
 class DocCounter:
-    language: str
+    language: Language
     news: int
     spam: int
 

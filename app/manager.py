@@ -107,13 +107,13 @@ async def get_tab_sub_page(feed_type: EntryType, last_hours: int) -> str:
     feed_to_entries: dict[Feed, list] = {f: [] for f in settings.FEEDS}
 
     news_entries = await feed_entries_db.fetch_last_entries(
-        feeds=settings.FEEDS_REGESTRY.keys(),
+        feeds=settings.FEEDS_REGISTRY.keys(),
         valid=label,
         hours_delta=last_hours
     )
 
     for entry in news_entries:
-        feed = settings.FEEDS_REGESTRY[entry.feed]
+        feed = settings.FEEDS_REGISTRY[entry.feed]
         feed_to_entries[feed].append(entry)
 
     html_page = await render_tab_sub_page(
@@ -142,7 +142,8 @@ async def update_feed_classifier(feedback) -> Optional[bool]:
     if entry_classified:
         updated_tokens = await reverse_stats(
             document=feedback.entry_title,
-            label=feedback.entry_is_valid
+            label=feedback.entry_is_valid,
+            language=settings.APP_LANG
         )
 
         updated = bool(updated_tokens)

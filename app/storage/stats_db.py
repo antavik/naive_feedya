@@ -3,6 +3,7 @@ import math
 import aiosqlite
 
 import settings
+import constants as const
 
 from typing import TypeVar, Tuple, Optional, Union
 
@@ -26,15 +27,19 @@ async def get_token_stats(token: str) -> Union[None, TokenStats]:
     return result and TokenStats(*result)
 
 
-async def get_doc_counter(language: str) -> Union[None, DocCounter]:
+async def get_doc_counter(language: const.Language) -> Union[None, DocCounter]:
     command = f"""
         SELECT * FROM {DOC_STATS_TABLE}
         WHERE language = ?
     """
 
-    result = await fetch_one(DB_FILEPATH, command, language)
+    result = await fetch_one(DB_FILEPATH, command, language.value)
+    if result:
+        _, news, spam = result
 
-    return result and DocCounter(*result)
+        return DocCounter(language, news, spam)
+
+    return result
 
 
 async def save_or_increment_news_token(token: str) -> int:
@@ -64,7 +69,7 @@ async def save_or_increment_spam_token(token: str) -> int:
 
 
 async def increment_doc_counter(
-        language: str,
+        language: const.Language,
         counter_type: str
 ) -> int:
     command = f"""
@@ -73,13 +78,13 @@ async def increment_doc_counter(
         WHERE language = ?
     """
 
-    result = await execute(DB_FILEPATH, command, language)
+    result = await execute(DB_FILEPATH, command, language.value)
 
     return result.rowcount
 
 
 async def get_docs_p_values(
-        language: str
+        language: const.Language
 ) -> Tuple[Optional[_Number], Optional[_Number]]:
     command = f"""
         SELECT news_p, spam_p
@@ -108,7 +113,7 @@ async def get_docs_p_values(
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.create_function('log', 1, math.log, deterministic=True)
 
-        async with db.execute(command, (language, language)) as cursor:
+        async with db.execute(command, (language.value, language.value)) as cursor:  # noqa
             docs_p_news, docs_p_spam = await cursor.fetchone()
 
     return docs_p_news, docs_p_spam
@@ -183,14 +188,20 @@ async def reverse_token_stats(
     return result.rowcount
 
 
-async def reverse_docs_stats(new_label: str, old_label: str) -> int:
+async def reverse_docs_stats(
+        new_label: str,
+        old_label: str,
+        language: const.Language
+) -> int:
     command = f"""
         UPDATE {DOC_STATS_TABLE}
         SET {new_label} = {new_label} + 1, {old_label} = {old_label} - 1
         WHERE language = ?
     """
 
-    result = await execute(DB_FILEPATH, command, settings.APP_LANG)
+    result = await execute(
+        DB_FILEPATH, command, language.value
+    )
 
     return result.rowcount
 
@@ -218,6 +229,8 @@ async def _setup_db():
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.executescript(create_table_command)
 
-        await db.execute(insert_required_values_command, (settings.APP_LANG,))
+        await db.execute(
+            insert_required_values_command, (settings.APP_LANG.value,)
+        )
 
         await db.commit()

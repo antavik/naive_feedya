@@ -4,7 +4,7 @@ from pathlib import Path
 
 from starlette.datastructures import Secret
 
-from constants import ENGLISH, RUSSIAN, STATS_TABLES_MAPPING
+from constants import Language, STATS_TABLES_MAPPING
 from utils import str2bool
 from feeds import read_feeds_config
 
@@ -18,12 +18,14 @@ else:
     USERNAME = Secret(os.getenv('USERNAME', 'admin'))
     PASSWORD = Secret(os.getenv('PASSWORD', 'pass'))
 
-# Languages
-SUPPORTED_LANGUAGES = (ENGLISH, RUSSIAN)
-
-APP_LANG = os.getenv('APP_LANG', ENGLISH)
-if APP_LANG not in SUPPORTED_LANGUAGES:
-    raise ValueError('APP_LANG env var has not supported value %s', APP_LANG)
+# Language
+_APP_LANG_ENV = os.getenv('APP_LANG', Language.ENG.value)
+try:
+    APP_LANG = Language(_APP_LANG_ENV)
+except ValueError:
+    raise ValueError(
+        f'APP_LANG env var has not supported value {_APP_LANG_ENV}'
+    )
 
 STATS_TABLE = STATS_TABLES_MAPPING[APP_LANG]
 
@@ -44,9 +46,9 @@ DB_PATH = CACHE_PATH / 'dbs'
 DB_PATH.mkdir(exist_ok=True)
 
 FEED_ENTRIES_DB_FILENAME = 'feed_entries.sqlite'
-FEED_ENTRIES_DB_FILEPATH = DB_PATH / APP_LANG / FEED_ENTRIES_DB_FILENAME
+FEED_ENTRIES_DB_FILEPATH = DB_PATH / APP_LANG.value / FEED_ENTRIES_DB_FILENAME
 STATS_DB_FILENAME = 'classifier.sqlite'
-STATS_DB_FILEPATH = DB_PATH / APP_LANG / STATS_DB_FILENAME
+STATS_DB_FILEPATH = DB_PATH / APP_LANG.value / STATS_DB_FILENAME
 
 # Templates paths
 TEMPLATES_FOLDER = 'web/templates'
@@ -80,7 +82,7 @@ LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', 'false'))
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
 
-FEEDS = read_feeds_config(CONFIG_FILEPATH, APP_LANG)
-FEEDS_REGESTRY = {f.title: f for f in FEEDS}
+FEEDS = read_feeds_config(CONFIG_FILEPATH, APP_LANG.value)
+FEEDS_REGISTRY = {f.title: f for f in FEEDS}
 
 os.environ.clear()

@@ -82,3 +82,8 @@ def escape_single_quote(s: str) -> str:
 @lru_cache(maxsize=1024)
 def escape_double_quotes(s: str) -> str:
     return s.replace('"', r'\"')
+
+
+@lru_cache(maxsize=64)
+def lower(s: str) -> str:
+    return s.lower()

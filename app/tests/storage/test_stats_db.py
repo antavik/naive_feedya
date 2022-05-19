@@ -222,7 +222,8 @@ async def test_reverse_docs_stats__docs_stats__success(
 
     updated = await fake_db.reverse_docs_stats(
         EntryType.NEWS.name.lower(),
-        EntryType.SPAM.name.lower()
+        EntryType.SPAM.name.lower(),
+        fake_eng_doc_counter.language
     )
 
     result = await fake_db.get_doc_counter(settings.APP_LANG)

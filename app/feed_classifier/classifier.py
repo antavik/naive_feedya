@@ -1,9 +1,11 @@
 import logging
 
+import utils
+
 from typing import Callable, Union
 
 from storage import stats_db
-from constants import EntryType
+from constants import EntryType, Language
 from .tokenizer import tokenize_document
 
 
@@ -44,6 +46,7 @@ async def update_stats(
         language: str
 ) -> tuple[int, int]:
     tokens = tokenize_document(document)
+    language = Language(language)
 
     updated_tokens, updated_docs = await _update_tokens_and_docs_stats(
         tokens,
@@ -54,10 +57,12 @@ async def update_stats(
     return updated_tokens, updated_docs
 
 
-async def reverse_stats(document: str, label: bool) -> int:
+async def reverse_stats(document: str, label: bool, language: Language) -> int:
     tokens = tokenize_document(document)
 
-    updated_tokens, updated_docs = await _reverse_stats(tokens, label)
+    updated_tokens, updated_docs = await _reverse_stats(
+        tokens, label, language
+    )
 
     return updated_tokens, updated_docs
 
@@ -65,7 +70,7 @@ async def reverse_stats(document: str, label: bool) -> int:
 async def _update_tokens_and_docs_stats(
         document_tokens: tuple[str, ...],
         is_valid: bool,
-        language: str
+        language: Language
 ) -> tuple[int, int]:
     updated_tokens = 0
     updated_docs = 0
@@ -79,7 +84,7 @@ async def _update_tokens_and_docs_stats(
     if updated_tokens:
         updated_docs = await stats_db.increment_doc_counter(
             language,
-            EntryType(is_valid).name.lower()
+            utils.lower(EntryType(is_valid).name)
         )
 
     return updated_tokens, updated_docs
@@ -87,15 +92,16 @@ async def _update_tokens_and_docs_stats(
 
 async def _reverse_stats(
         document_tokens: tuple[str, ...],
-        is_valid: bool
+        is_valid: bool,
+        language: Language
 ) -> tuple[int, int]:
     updated_tokens = 0
     updated_docs = 0
 
     if is_valid:
-        new_label, old_label = (EntryType.NEWS.name.lower(), EntryType.SPAM.name.lower())  # noqa
+        new_label, old_label = (utils.lower(EntryType.NEWS.name), utils.lower(EntryType.SPAM.name))  # noqa
     else:
-        new_label, old_label = (EntryType.SPAM.name.lower(), EntryType.NEWS.name.lower())  # noqa
+        new_label, old_label = (utils.lower(EntryType.SPAM.name), utils.lower(EntryType.NEWS.name))  # noqa
 
     for token in document_tokens:
         updated_tokens += await stats_db.reverse_token_stats(
@@ -105,6 +111,8 @@ async def _reverse_stats(
         )
 
     if updated_tokens:
-        updated_docs = await stats_db.reverse_docs_stats(new_label, old_label)
+        updated_docs = await stats_db.reverse_docs_stats(
+            new_label, old_label, language
+        )
 
     return updated_tokens, updated_docs

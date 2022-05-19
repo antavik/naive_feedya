@@ -27,7 +27,8 @@ Faker.seed(TEST_DB_ROWS_COUNT)
 
 @pytest.fixture
 def fake_feed_entry():
-    fake_entry = FeedEntry(
+
+    return FeedEntry(
         feed=fake.company(),
         title='Test_title',
         url=fake.uri(),
@@ -35,8 +36,6 @@ def fake_feed_entry():
         published_timestamp=fake.unix_time(),
         valid=fake.pybool(),
     )
-
-    return fake_entry
 
 
 @pytest.fixture
@@ -218,13 +217,12 @@ async def fake_seq_token_stats():
 
 @pytest_asyncio.fixture
 async def fake_eng_doc_counter():
-    doc_counter = DocCounter(
+
+    return DocCounter(
         language=settings.APP_LANG,
         news=fake.pyint(min_value=1),
         spam=fake.pyint(min_value=1)
     )
-
-    return doc_counter
 
 
 @pytest_asyncio.fixture
@@ -250,11 +248,17 @@ async def fake_stats_db_with_random_doc_data(
 ):
     command = f"""
         UPDATE {fake_stats_db.DOC_STATS_TABLE}
-        SET news={fake_eng_doc_counter.news}, spam={fake_eng_doc_counter.spam}
-        WHERE language = '{fake_eng_doc_counter.language}'
+        SET news=?, spam=?
+        WHERE language=?
     """
 
-    await base.execute(fake_stats_db.DB_FILEPATH, command)
+    await base.execute(
+        fake_stats_db.DB_FILEPATH,
+        command,
+        fake_eng_doc_counter.news,
+        fake_eng_doc_counter.spam,
+        fake_eng_doc_counter.language.value
+    )
 
     return fake_stats_db
 
