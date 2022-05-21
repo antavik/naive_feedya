@@ -3,8 +3,6 @@ import datetime
 
 import settings
 
-from typing import Tuple
-
 from starlette.datastructures import Secret
 
 _USERNAME = settings.USERNAME
@@ -13,7 +11,7 @@ _TOKEN: Secret = None
 _EXPIRATION: datetime.datetime = None
 
 
-def generate_token() -> Tuple[Secret, datetime.datetime]:
+def generate_token() -> tuple[Secret, datetime.datetime]:
     global _TOKEN, _EXPIRATION
 
     _TOKEN = Secret(secrets.token_hex())
