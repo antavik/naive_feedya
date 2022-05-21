@@ -36,19 +36,13 @@ async def fetch_all_entries() -> Tuple[FeedEntry, ...]:
 async def save(feed_entry: FeedEntry) -> int:
     command = f"""
         INSERT OR IGNORE INTO {FEED_ENTRIES_TABLE}
-        (feed, title, url, summary, published_date, valid, classified)
-        VALUES(
-            '{feed_entry.feed}',
-            '{escape_single_quote(feed_entry.title)}',
-            '{feed_entry.url}',
-            '{escape_single_quote(feed_entry.summary)}',
-            {feed_entry.published_timestamp},
-            {feed_entry.valid},
-            {feed_entry.classified}
-        )
+        (feed, title, url, summary, published, parsed, valid, classified)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?)
     """
 
-    result = await execute(DB_FILEPATH, command)
+    result = await execute(
+        DB_FILEPATH, command, *feed_entry_as_tuple(feed_entry)
+    )
 
     return result.rowcount
 
@@ -85,7 +79,7 @@ async def remove_old(
     command = f"""
         DELETE FROM {FEED_ENTRIES_TABLE}
         WHERE
-            published_date < CAST(
+            parsed < CAST(
                 strftime('%s', date('now', '-{days_delta} days')) as integer
             ) AND
             classified = 0 OR (classified = 1 AND valid = 0)
@@ -109,11 +103,11 @@ async def fetch_last_entries(
         WHERE
             valid = {int(valid)} AND
             feed IN ({", ".join(quoted_titles)}) AND
-            published_date >
+            parsed >
             CAST(
                 strftime('%s', date('now', '-{hours_delta} hours')) as integer
             )
-        ORDER BY published_date DESC
+        ORDER BY parsed DESC
     """
 
     news = await fetch_all(DB_FILEPATH, command)
@@ -148,7 +142,7 @@ async def is_classified(url: str) -> Optional[bool]:
 async def save_many(feeds: Iterable[FeedEntry]) -> int:
     command = f"""
         INSERT OR IGNORE INTO {FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     seq_feed_entries_data = (feed_entry_as_tuple(f) for f in feeds)
@@ -169,7 +163,8 @@ async def _setup_db():
             title TEXT,
             url TEXT PRIMARY KEY,
             summary BLOB,
-            published_date DATETIME,
+            published DATETIME,
+            parsed DATETIME,
             valid BOOLEAN,
             classified BOOLEAN DEFAULT 0
         )

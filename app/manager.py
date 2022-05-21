@@ -1,7 +1,7 @@
-import time
 import logging
 import asyncio
 import random
+import datetime
 
 import parser
 import utils
@@ -22,7 +22,7 @@ from feed_classifier.classifier import classify, update_stats, reverse_stats
 async def process_feed(feed: Feed) -> None:
     await asyncio.sleep(random.randint(*settings.FEED_REFRESH_JITTER_TIME_MINUTES) * 60)  # noqa
 
-    parsed_feed_entries = await parser.parse(feed)
+    parsed_feed_entries, parsed_dt = await parser.parse(feed)
 
     if not parsed_feed_entries:
         logging.warning('Feed %s is empty', feed.title)
@@ -32,8 +32,7 @@ async def process_feed(feed: Feed) -> None:
     filtered_entries = await filter_feed_entries(parsed_feed_entries)
 
     entries_to_save = await prepare_feed_entries(
-        feed,
-        filtered_entries
+        feed, filtered_entries, parsed_dt
     )
 
     await feed_entries_db.save_many(entries_to_save)
@@ -61,12 +60,14 @@ async def filter_feed_entries(
 
 async def prepare_feed_entries(
         feed: Feed,
-        new_parsed_entries: Iterable[FeedParserDict]
+        new_parsed_entries: Iterable[FeedParserDict],
+        parsed_dt: datetime.datetime
 ) -> list[FeedEntry]:
     feed_entries = []
+    parsed_timestamp = parsed_dt.timestamp()
 
     for entry in new_parsed_entries:
-        published_timestamp = entry.published_date or time.time()
+        published_timestamp = entry.published_timestamp or parsed_timestamp
 
         published_summary = '' if feed.skip_summary else entry.summary
 
@@ -77,6 +78,7 @@ async def prepare_feed_entries(
                 title=entry.title,
                 url=entry.url,
                 published_timestamp=published_timestamp,
+                parsed_timestamp=parsed_timestamp,
                 feed=feed.title,
                 summary=utils.trim_text(
                     text=published_summary,

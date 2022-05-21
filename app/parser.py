@@ -7,7 +7,7 @@ import feedparser as fp
 
 import settings
 
-from typing import List, Optional
+from typing import Optional
 
 from feedparser import FeedParserDict
 
@@ -26,7 +26,7 @@ class EntryProxy:
         'summary',
         'published_parsed',
         'update_parsed',
-        'published_date',
+        'published_timestamp',
     )
 
     def __init__(self, entry: FeedParserDict):
@@ -36,9 +36,8 @@ class EntryProxy:
         self.summary = entry.get('summary', '')
         self.published_parsed = entry.get('published_parsed')
         self.update_parsed = entry.get('update_parsed')
-        self.published_date = self._define_published_date(
-            self.published_parsed,
-            self.update_parsed
+        self.published_timestamp = self._define_published_timestamp(
+            self.published_parsed, self.update_parsed
         )
 
     @property
@@ -49,7 +48,7 @@ class EntryProxy:
         )
         threshold_timestamp = threshold_datetime.timestamp()
 
-        if self.published_date and self.published_date < threshold_timestamp:
+        if self.published_timestamp and self.published_timestamp < threshold_timestamp:  # noqa
             result = False
         else:
             result = True
@@ -57,23 +56,23 @@ class EntryProxy:
         return result
 
     @staticmethod
-    def _define_published_date(
+    def _define_published_timestamp(
             published: time.struct_time,
             updated: time.struct_time
     ) -> Optional[float]:
         if published or updated:
-            published_date = time.mktime(published or updated)
+            published_timestamp = time.mktime(published or updated)
         else:
-            published_date = None
+            published_timestamp = None
 
-        return published_date
+        return published_timestamp
 
     def __repr__(self):
         return (
             f'{self.__class__.__name__}('
             f'title={self.title}, '
             f'url={self.url}, '
-            f'published_date={self.published_date})'
+            f'published_timestamp={self.published_timestamp})'
         )
 
 
@@ -99,12 +98,13 @@ async def get_feed(feed: Feed) -> bytes:
     return feed_data
 
 
-async def parse(feed: Feed) -> List[EntryProxy]:
+async def parse(feed: Feed) -> tuple[list[EntryProxy], datetime.datetime]:
     feed_data = await get_feed(feed)
+    parsed_dt = datetime.datetime.utcnow()
 
     if feed_data is None:
         parsed_entries = []
     else:
         parsed_entries = [EntryProxy(e) for e in fp.parse(feed_data).entries]
 
-    return parsed_entries
+    return parsed_entries, parsed_dt

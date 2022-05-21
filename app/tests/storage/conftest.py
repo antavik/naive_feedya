@@ -34,6 +34,7 @@ def fake_feed_entry():
         url=fake.uri(),
         summary='Test_summary',
         published_timestamp=fake.unix_time(),
+        parsed_timestamp=fake.unix_time(),
         valid=fake.pybool(),
     )
 
@@ -73,6 +74,7 @@ def fake_seq_feed_entries():
             url=fake.unique.uri(),
             summary=f'Test_summary-{i}',
             published_timestamp=fake.unix_time(),
+            parsed_timestamp=fake.unix_time(),
             valid=fake.pyint(max_value=1),
             classified=fake.pyint(max_value=1),
         )
@@ -105,7 +107,7 @@ async def fake_feed_entries_db_with_random_data(
 ):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     fake_seq_feed_entries_data = (
@@ -130,7 +132,7 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
 ):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     test_days_threshold = settings.FEED_ENTRIES_DAYS_THRESHOLD + 1
@@ -163,7 +165,7 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
 ):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     half_row_count = TEST_DB_ROWS_COUNT // 2

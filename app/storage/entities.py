@@ -2,7 +2,7 @@ import datetime
 
 from constants import Language
 from dataclasses import dataclass, astuple
-from typing import Tuple, Any
+from typing import Any
 
 
 @dataclass
@@ -29,6 +29,7 @@ class FeedEntry:
     url: str
     summary: str
     published_timestamp: float
+    parsed_timestamp: float
     valid: int
     classified: int = 0
 
@@ -45,17 +46,18 @@ class FeedEntry:
         return datetime.datetime.fromtimestamp(self.published_timestamp)
 
 
-def feed_entry_to_tuple_factory(feed_entry_list: list) -> Tuple[Any, ...]:
+def feed_entry_to_tuple_factory(feed_entry_list: list) -> tuple[Any, ...]:
     return (
-        feed_entry_list[0],
-        feed_entry_list[1],
-        feed_entry_list[2],
-        feed_entry_list[3],
-        feed_entry_list[4],
-        feed_entry_list[5],
-        feed_entry_list[6],
+        feed_entry_list[0],  # feed
+        feed_entry_list[1],  # title
+        feed_entry_list[2],  # url
+        feed_entry_list[3],  # summary
+        feed_entry_list[4],  # published_timestamp
+        feed_entry_list[5],  # parsed_timestamp
+        feed_entry_list[6],  # valid
+        feed_entry_list[7],  # classified
     )
 
 
-def feed_entry_as_tuple(entry: FeedEntry) -> Tuple[Any, ...]:
+def feed_entry_as_tuple(entry: FeedEntry) -> tuple[Any, ...]:
     return astuple(entry, tuple_factory=feed_entry_to_tuple_factory)
