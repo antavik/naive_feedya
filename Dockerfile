@@ -57,3 +57,5 @@ RUN useradd -U -s /bin/bash $USER && \
 WORKDIR /home/$USER/app
 
 USER $USER
+
+EXPOSE 8008
