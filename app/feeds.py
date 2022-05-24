@@ -60,6 +60,7 @@ def read_feeds_config(filepath: Path, language: const.Language) -> list[Feed]:
                 language=language,
                 skip_summary=config.getboolean('skip_summary', fallback=False),
                 follow_redirects=config.getboolean('follow_redirects', fallback=False),  # noqa
+                allow_http=config.getboolean('allow_http', fallback=False)
                 base_url=config.get('base_url')
             )
         except ValueError as e:
