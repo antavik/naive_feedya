@@ -20,7 +20,7 @@ class Feed:
     base_url: Optional[str] = None
 
     def __post_init__(self):
-        if self.url.startswith('http') and not self.allow_http:
+        if not self.url.startswith('https') and not self.allow_http:
             raise ValueError('Feed url scheme should be https')
 
         if self.base_url is None:
@@ -31,7 +31,7 @@ class Feed:
                 self, 'base_url', f'{parsed_url.scheme}://{parsed_url.netloc}'
             )
 
-        if self.base_url.startswith('http') and not self.allow_http:
+        if not self.base_url.startswith('https') and not self.allow_http:
             raise ValueError('base_url scheme should be https')
 
 
