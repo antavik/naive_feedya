@@ -71,7 +71,7 @@ SUMMARY_TEXT_LIMIT = 200
 # Web server
 API_NAME = 'naive_feedya'
 SERVER_HOST = '0.0.0.0'
-SERVER_PORT = 8008
+SERVER_PORT = int(os.getenv('PORT', 8008))
 PATH_PREFIX = os.getenv('PATH_PREFIX', '')
 
 # Date time template
