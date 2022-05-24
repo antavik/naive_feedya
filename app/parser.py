@@ -78,7 +78,9 @@ class EntryProxy:
 
 async def get_feed(feed: Feed) -> bytes:
     async with httpx.AsyncClient(headers={'user-agent': 'nf'}) as http_client:
-        response = await http_client.get(feed.url)
+        response = await http_client.get(
+            feed.url, follow_redirects=feed.follow_redirects
+        )
 
     try:
         response.raise_for_status()
