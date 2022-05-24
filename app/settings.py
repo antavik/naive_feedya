@@ -8,7 +8,7 @@ from constants import Language, STATS_TABLES_MAPPING
 from utils import str2bool
 from feeds import read_feeds_config
 
-DEV_MODE = str2bool(os.getenv('DEV_MODE', ''))
+DEV_MODE = str2bool(os.getenv('DEV_MODE', 'false'))
 
 # User
 if not DEV_MODE:
