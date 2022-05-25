@@ -83,7 +83,7 @@ async def get_feed(feed: Feed) -> Union[bytes, None]:
                 feed.url, follow_redirects=feed.follow_redirects
             )
         except httpx.ReadTimeout as exc:
-            logging.warning('Timeout exceed for feed %s, %s', feed.title, exc)
+            logging.warning('Timeout exceed for feed %s', feed.title)
 
             return
 
