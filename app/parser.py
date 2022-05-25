@@ -7,7 +7,7 @@ import feedparser as fp
 
 import settings
 
-from typing import Optional
+from typing import Optional, Union
 
 from feedparser import FeedParserDict
 
@@ -76,28 +76,31 @@ class EntryProxy:
         )
 
 
-async def get_feed(feed: Feed) -> bytes:
+async def get_feed(feed: Feed) -> Union[bytes, None]:
     async with httpx.AsyncClient(headers={'user-agent': 'nf'}) as http_client:
-        response = await http_client.get(
-            feed.url, follow_redirects=feed.follow_redirects
-        )
+        try:
+            response = await http_client.get(
+                feed.url, follow_redirects=feed.follow_redirects
+            )
+        except httpx.ReadTimeout as exc:
+            logging.warning('Timeout exceed for feed %s, %s', feed.title, exc)
+
+            return
 
     try:
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
         logging.error(
-            'Error while getting feed %s data: %s',
+            'Error while getting feed %s data, %s',
             feed.title,
             exc
         )
 
-        feed_data = None
+        return
     else:
         logging.debug('Feed %s received', feed.title)
 
-        feed_data = await response.aread()
-
-    return feed_data
+    return await response.aread()
 
 
 async def parse(feed: Feed) -> tuple[list[EntryProxy], datetime.datetime]:
