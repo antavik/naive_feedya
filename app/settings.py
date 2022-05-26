@@ -6,7 +6,6 @@ from starlette.datastructures import Secret
 
 from constants import Language, STATS_TABLES_MAPPING
 from utils import str2bool
-from feeds import read_feeds_config
 
 DEV_MODE = str2bool(os.getenv('DEV_MODE', 'false'))
 
@@ -81,8 +80,5 @@ DT_TEMPLATE = '%b %d, %Y, %H:%M'
 LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', 'false'))
 LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
 LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
-
-FEEDS = read_feeds_config(CONFIG_FILEPATH, APP_LANG)
-FEEDS_REGISTRY = {f.title: f for f in FEEDS}
 
 os.environ.clear()

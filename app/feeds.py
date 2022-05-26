@@ -1,7 +1,7 @@
-import logging
 import configparser
 
 import constants as const
+import settings
 
 from dataclasses import dataclass
 from typing import Optional
@@ -19,23 +19,8 @@ class Feed:
     allow_http: bool = False
     base_url: Optional[str] = None
 
-    def __post_init__(self):
-        if not self.url.startswith('https') and not self.allow_http:
-            raise ValueError('Feed url scheme should be https')
 
-        if self.base_url is None:
-            parsed_url = urlparse(self.url)
-
-            # black magic for frozen dataclass attr assignment
-            object.__setattr__(
-                self, 'base_url', f'{parsed_url.scheme}://{parsed_url.netloc}'
-            )
-
-        if not self.base_url.startswith('https') and not self.allow_http:
-            raise ValueError('base_url scheme should be https')
-
-
-def read_feeds_config(filepath: Path, language: const.Language) -> list[Feed]:
+def _read_feeds_config(filepath: Path, language: const.Language) -> list[Feed]:
     with filepath.open(encoding='utf-8') as f:
         cp = configparser.ConfigParser(default_section=None)
         cp.read_file(f)
@@ -45,29 +30,39 @@ def read_feeds_config(filepath: Path, language: const.Language) -> list[Feed]:
         if section is None:
             continue
 
-        if config['language'] != language.value:
-            logging.warning(
-                'Section %s skipped because of invalid language configuration',
-                section
-            )
+        allow_http = config.getboolean('allow_http', fallback=False)
 
-            continue
+        feed_language = config['language']
+        if feed_language != language.value:
+            raise ValueError(f'Invalid language settings for {section}')
 
-        try:
-            feed = Feed(
-                title=section,
-                url=config['url'],
-                language=language,
-                skip_summary=config.getboolean('skip_summary', fallback=False),
-                follow_redirects=config.getboolean('follow_redirects', fallback=False),  # noqa
-                allow_http=config.getboolean('allow_http', fallback=False),
-                base_url=config.get('base_url')
-            )
-        except ValueError as e:
-            logging.warning(
-                'Section %s skipped of invalid url schema, %s', section, e
-            )
-        else:
-            feeds.append(feed)
+        url = config['url']
+        if not url.startswith('https') and not allow_http:
+            raise ValueError(f'Invalid feed url schema for {section}')
+
+        base_url = config.get('base_url')
+        if base_url is None:
+            parsed_url = urlparse(url)
+            base_url = f'{parsed_url.scheme}://{parsed_url.netloc}'
+
+        if not base_url.startswith('https') and not allow_http:
+            raise ValueError(f'Invalid base_url scheme for {section}')
+
+        skip_summary = config.getboolean('skip_summary', fallback=False)
+        follow_redirects = config.getboolean('follow_redirects', fallback=False)  # noqa
+
+        feeds.append(Feed(
+            title=section,
+            url=url,
+            language=language,
+            skip_summary=skip_summary,
+            follow_redirects=follow_redirects,
+            allow_http=allow_http,
+            base_url=base_url
+        ))
 
     return feeds
+
+
+FEEDS = _read_feeds_config(settings.CONFIG_FILEPATH, settings.APP_LANG)
+FEEDS_REGISTRY = {f.title: f for f in FEEDS}

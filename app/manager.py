@@ -104,18 +104,23 @@ async def get_base_page(feed_type: EntryType) -> str:
     return html_page
 
 
-async def get_tab_sub_page(feed_type: EntryType, last_hours: int) -> str:
+async def get_tab_sub_page(
+        feeds: list[Feed],
+        feed_registry: dict[str, Feed],
+        feed_type: EntryType,
+        last_hours: int
+) -> str:
     label = bool(feed_type)
-    feed_to_entries: dict[Feed, list] = {f: [] for f in settings.FEEDS}
+    feed_to_entries: dict[Feed, list] = {f: [] for f in feeds}
 
     news_entries = await feed_entries_db.fetch_last_entries(
-        feeds=settings.FEEDS_REGISTRY.keys(),
+        feeds=feed_registry.keys(),
         valid=label,
         hours_delta=last_hours
     )
 
     for entry in news_entries:
-        feed = settings.FEEDS_REGISTRY[entry.feed]
+        feed = feed_registry[entry.feed]
         feed_to_entries[feed].append(entry)
 
     html_page = await render_tab_sub_page(
