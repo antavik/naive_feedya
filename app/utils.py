@@ -3,9 +3,6 @@ import random
 from itertools import count
 from functools import lru_cache
 
-from feeds import Feed
-from storage.entities import FeedEntry
-
 
 def trim_text(text: str, limit: int) -> str:
     if len(text) <= limit:
@@ -62,16 +59,6 @@ def str2bool(value: str) -> bool:
             f'Unsupported value for boolean parameter: '
             f'{type(value)} - {value}'
         )
-
-
-def reverse_empty_feeds(
-        feeds: dict[Feed, list[FeedEntry]]
-) -> list[tuple[Feed, list[FeedEntry]]]:
-    return sorted(
-        feeds.items(),
-        key=lambda x: bool(x[1]),
-        reverse=True
-    )
 
 
 @lru_cache(maxsize=1024)

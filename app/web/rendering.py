@@ -24,8 +24,18 @@ def _format_datetime(
     return dt.strftime(template)
 
 
+def _reverse_empty_feeds(
+        feeds: dict[Feed, list[FeedEntry]]
+) -> list[tuple[Feed, list[FeedEntry]]]:
+    return sorted(
+        feeds.items(),
+        key=lambda x: bool(x[1]),
+        reverse=True
+    )
+
+
 _ENVIRONMENT.filters['format_datetime'] = _format_datetime
-_ENVIRONMENT.filters['reverse_empty_feeds'] = utils.reverse_empty_feeds
+_ENVIRONMENT.filters['reverse_empty_feeds'] = _reverse_empty_feeds
 _ENVIRONMENT.filters['escape_double_quotes'] = utils.escape_double_quotes
 _ENVIRONMENT.globals['path_prefix'] = settings.PATH_PREFIX
 
