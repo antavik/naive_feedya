@@ -14,6 +14,7 @@ from fastapi.security import (
 from fastapi.middleware.gzip import GZipMiddleware
 from starlette.responses import RedirectResponse
 
+from feeds import FEEDS, FEEDS_REGISTRY
 from manager import (
     get_base_page,
     get_tab_sub_page,
@@ -88,7 +89,9 @@ async def get_news_tab_sub_page(
         token: Optional[str] = Depends(oauth2_scheme)
 ):
     if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(EntryType.NEWS, last_hours)
+        content = await get_tab_sub_page(
+            FEEDS, FEEDS_REGISTRY, EntryType.NEWS, last_hours
+        )
         response = HTMLResponse(
             content=content,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -118,7 +121,7 @@ async def get_spam_page():
 
 @APP.get(
     '/spam/tab/',
-    response_class=HTMLResponse,
+    response_class=Union[HTMLResponse, RedirectResponse],
     summary='Get spam sub-page for main feed page or redirect login sub-page'
 )
 async def get_spam_tab_sub_page(
@@ -126,7 +129,9 @@ async def get_spam_tab_sub_page(
         token: Optional[str] = Depends(oauth2_scheme)
 ):
     if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(EntryType.SPAM, last_hours)
+        content = await get_tab_sub_page(
+            FEEDS, FEEDS_REGISTRY, EntryType.SPAM, last_hours
+        )
         response = HTMLResponse(
             content=content,
             headers={'WWW-Authenticate': 'Bearer'}
@@ -137,9 +142,7 @@ async def get_spam_tab_sub_page(
         )
         response = RedirectResponse(
             url=login_page_url,
-            headers={
-                'WWW-Authenticate': 'Bearer',
-            }
+            headers={'WWW-Authenticate': 'Bearer'}
         )
 
     return response

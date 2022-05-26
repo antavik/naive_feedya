@@ -3,18 +3,6 @@ import logging
 import datetime
 import sys
 
-import settings
-import utils
-
-from uvicorn import Config, Server
-
-from manager import (
-    process_feed,
-    clean_feed_entries_db,
-    setup_all_dbs,
-)
-from web.app import APP
-
 try:
     import uvloop
 
@@ -22,10 +10,24 @@ try:
 except:  # noqa
     pass
 
+import settings
+import utils
+
+from uvicorn import Config, Server
+
+from feeds import Feed, FEEDS
+from manager import (
+    process_feed,
+    clean_feed_entries_db,
+    setup_all_dbs,
+)
+from web.app import APP
+
 
 async def main():
     asyncio.create_task(serve())
-    asyncio.create_task(parse())
+    asyncio.create_task(parse(FEEDS, settings.FEED_REFRESH_TIME_SECONDS))
+    asyncio.create_task(clean(settings.FEED_REFRESH_TIME_SECONDS))
 
 
 async def serve():
@@ -39,25 +41,32 @@ async def serve():
     await server.serve()
 
 
-async def parse():
-    logging.info('Start fetching feeds')
+async def parse(feeds: list[Feed], refresh: int):
+    logging.info('Start parser')
 
     while True:
         utils.escape_single_quote.cache_clear()
         utils.escape_double_quotes.cache_clear()
 
-        for feed in settings.FEEDS:
+        for feed in feeds:
             asyncio.create_task(
                 process_feed(feed),
-                name=f'{feed.title.capitalize()} feed procession task'
+                name=f'{feed.title.capitalize()} feed parser'
             )
 
+        await asyncio.sleep(refresh)
+
+
+async def clean(refresh: int):
+    logging.info('Start cleaner')
+
+    while True:
         asyncio.create_task(
             clean_feed_entries_db(),
             name='DB cleaning task'
         )
 
-        await asyncio.sleep(settings.FEED_REFRESH_TIME_SECONDS)
+        await asyncio.sleep(refresh)
 
 
 async def prepare_dbs():
