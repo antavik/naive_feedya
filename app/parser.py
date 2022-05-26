@@ -82,7 +82,7 @@ async def get_feed(feed: Feed) -> Union[bytes, None]:
             response = await http_client.get(
                 feed.url, follow_redirects=feed.follow_redirects
             )
-        except httpx.ReadTimeout as exc:
+        except httpx.ReadTimeout:
             logging.warning('Timeout exceed for feed %s', feed.title)
 
             return
@@ -91,9 +91,7 @@ async def get_feed(feed: Feed) -> Union[bytes, None]:
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
         logging.error(
-            'Error while getting feed %s data, %s',
-            feed.title,
-            exc
+            'Error while getting feed %s data, %s', feed.title, exc
         )
 
         return
