@@ -42,7 +42,7 @@ else:
 CONFIG_FILEPATH = CACHE_PATH / CONFIG_NAME
 
 DB_PATH = CACHE_PATH / APP_LANG.value / 'dbs'
-DB_PATH.mkdir(exist_ok=True)
+DB_PATH.mkdir(parents=True, exist_ok=True)
 
 FEED_ENTRIES_DB_FILENAME = 'feed_entries.sqlite'
 FEED_ENTRIES_DB_FILEPATH = DB_PATH / FEED_ENTRIES_DB_FILENAME
@@ -50,7 +50,7 @@ STATS_DB_FILENAME = 'classifier.sqlite'
 STATS_DB_FILEPATH = DB_PATH / STATS_DB_FILENAME
 
 ARCHIVE_PATH = CACHE_PATH / APP_LANG.value / 'archive'
-ARCHIVE_PATH.mkdir(exist_ok=True)
+ARCHIVE_PATH.mkdir(parents=True, exist_ok=True)
 
 # Templates paths
 TEMPLATES_FOLDER = 'web/templates'
