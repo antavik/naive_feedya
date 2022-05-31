@@ -77,6 +77,26 @@ def fake_seq_feed_entries():
             parsed_timestamp=fake.unix_time(),
             valid=fake.pyint(max_value=1),
             classified=fake.pyint(max_value=1),
+            archive=fake.md5(raw_output=False)
+        )
+        for i in range(TEST_DB_ROWS_COUNT)
+    ]
+
+    return fake_seq
+
+
+@pytest.fixture
+def fake_seq_unarchived_feed_entries():
+    fake_seq = [
+        FeedEntry(
+            feed=fake.company(),
+            title=f'Test_title-{i}',
+            url=fake.unique.uri(),
+            summary=f'Test_summary-{i}',
+            published_timestamp=fake.unix_time(),
+            parsed_timestamp=fake.unix_time(),
+            valid=fake.pyint(max_value=1),
+            classified=fake.pyint(max_value=1)
         )
         for i in range(TEST_DB_ROWS_COUNT)
     ]
@@ -107,7 +127,7 @@ async def fake_feed_entries_db_with_random_data(
 ):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     fake_seq_feed_entries_data = (
@@ -132,7 +152,7 @@ async def fake_feed_entries_db_with_random_data_older_than_days_threshold(
 ):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     test_days_threshold = settings.FEED_ENTRIES_DAYS_THRESHOLD + 1
@@ -165,7 +185,7 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
 ):
     command = f"""
         INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     half_row_count = TEST_DB_ROWS_COUNT // 2
@@ -183,6 +203,30 @@ async def fake_feed_entries_db_with_random_data_with_recent_feed_entries(
     fake_seq_feed_entries_data = (
         feed_entry_as_tuple(f)
         for f in fake_seq_feed_entries
+    )
+
+    await base.execute_many(
+        fake_feed_entries_db.DB_FILEPATH,
+        command,
+        *fake_seq_feed_entries_data
+    )
+
+    return fake_feed_entries_db
+
+
+@pytest_asyncio.fixture
+async def fake_feed_entries_db_with_unarchived_data(
+        fake_feed_entries_db,
+        fake_seq_unarchived_feed_entries
+):
+    command = f"""
+        INSERT INTO {fake_feed_entries_db.FEED_ENTRIES_TABLE}
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """
+
+    fake_seq_feed_entries_data = (
+        feed_entry_as_tuple(f)
+        for f in fake_seq_unarchived_feed_entries
     )
 
     await base.execute_many(

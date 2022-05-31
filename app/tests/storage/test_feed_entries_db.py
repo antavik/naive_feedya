@@ -265,3 +265,46 @@ async def test_save_many__empty_list__row_count(fake_feed_entries_db):
     result = await fake_db.save_many([])
 
     assert not result
+
+
+@pytest.mark.asyncio
+async def test_fetch_unarchived_valid_classified_entries__many_unarchived__many_entries(  # noqa
+        fake_feed_entries_db_with_unarchived_data,
+        fake_seq_unarchived_feed_entries
+):
+    fake_db = fake_feed_entries_db_with_unarchived_data
+
+    result = await fake_db.fetch_unarchived_valid_classified_entries()
+
+    expected_entites = [
+        e
+        for e in fake_seq_unarchived_feed_entries
+        if e.is_valid and e.is_classified
+    ]
+
+    assert len(expected_entites) == len(result)
+
+
+@pytest.mark.asyncio
+async def test_fetch_unarchived_valid_classified_entries__no_unarchived__no_entries(  # noqa
+        fake_feed_entries_db,
+        fake_feed_entries_db_with_random_data
+):
+    fake_db = fake_feed_entries_db_with_random_data
+
+    result = await fake_db.fetch_unarchived_valid_classified_entries()
+
+    assert not result
+
+
+@pytest.mark.asyncio
+async def test_update_archived__archived__updated(
+        fake_feed_entries_db_with_unarchived_data,
+        fake_seq_unarchived_feed_entries
+):
+    fake_db = fake_feed_entries_db_with_unarchived_data
+    test_entry = random.choice(fake_seq_unarchived_feed_entries)
+
+    result = fake_db.update_archived(test_entry)
+
+    assert result
