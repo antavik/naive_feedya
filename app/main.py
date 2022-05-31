@@ -19,6 +19,7 @@ from typing import Union
 
 from uvicorn import Config, Server
 
+from scraper import Scraper
 from feeds import Feed, FEEDS
 from manager import (
     process_feed,
@@ -30,6 +31,8 @@ from web.app import APP
 
 
 async def main():
+    scraper = Scraper()
+
     clipper_client = None
     if settings.CLIPPER_URL is not None and settings.CLIPPER_TOKEN is not None:
         clipper_client = clipper.Client(
@@ -39,7 +42,9 @@ async def main():
         )
 
     asyncio.create_task(serve())
-    asyncio.create_task(parse(FEEDS, settings.FEED_REFRESH_TIME_SECONDS))
+    asyncio.create_task(
+        parse(FEEDS, scraper, settings.FEED_REFRESH_TIME_SECONDS)
+    )
     asyncio.create_task(clean(settings.FEED_REFRESH_TIME_SECONDS))
     asyncio.create_task(archive(clipper_client, settings.ARCHIVE_REFRESH))
 
@@ -55,7 +60,7 @@ async def serve():
     await server.serve()
 
 
-async def parse(feeds: list[Feed], refresh: int):
+async def parse(feeds: list[Feed], scraper: Scraper, refresh: int):
     logging.info('Start parser')
 
     while True:
@@ -64,7 +69,7 @@ async def parse(feeds: list[Feed], refresh: int):
 
         for feed in feeds:
             asyncio.create_task(
-                process_feed(feed),
+                process_feed(feed, scraper),
                 name=f'{feed.title.capitalize()} feed parser'
             )
 
@@ -139,7 +144,7 @@ def configure_logging():
 if __name__ == '__main__':
     configure_logging()
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     loop.run_until_complete(prepare_dbs())
     loop.run_until_complete(main())
     loop.run_forever()

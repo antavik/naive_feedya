@@ -1,6 +1,7 @@
-import httpx
 import logging
 import asyncio
+
+import httpx
 
 from typing import Union
 
@@ -23,15 +24,18 @@ class Client:
             timeout=self.timeout
         )
 
-    async def make_readable(self, url: str) -> Union[None, bytes]:
-        response = await self._http_client.get('', params={'url': url})
-
+    async def make_readable(self, url: str) -> bytes:
         try:
+            response = await self._http_client.get('', params={'url': url})
             response.raise_for_status()
-        except httpx.HTTPStatusError as exc:
-            logging.error('Error clipping url %s %s', url, exc)
+        except httpx.ReadTimeout:
+            logging.warning('Clipper timeout exceed for %s', url)
 
-            return
+            return b''
+        except Exception as exc:
+            logging.error('Error clipping url %s: %s', url, exc)
+
+            return b''
         else:
             logging.debug('Url %s clipped', url)
 
@@ -41,4 +45,4 @@ class Client:
         await self._http_client.aclose()
 
     def __del__(self):
-        asyncio.get_event_loop().run_until_complete(self.close())
+        asyncio.get_running_loop().run_until_complete(self.close())

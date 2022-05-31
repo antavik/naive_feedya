@@ -5,7 +5,6 @@ import datetime
 import hashlib
 import gzip
 
-import parser
 import clipper
 import utils
 import settings
@@ -15,6 +14,8 @@ from typing import Generator, Iterable, Optional
 from feedparser import FeedParserDict
 
 from feeds import Feed
+from parser import parse, EntryProxy
+from scraper import Scraper
 from constants import EntryType
 from storage import feed_entries_db, stats_db
 from web import render_base_page, render_tab_sub_page, render_login_sub_page
@@ -22,33 +23,33 @@ from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 
 
-async def process_feed(feed: Feed) -> None:
+async def process_feed(feed: Feed, scraper: Scraper):
     await asyncio.sleep(random.randint(*settings.FEED_REFRESH_JITTER_TIME_MINUTES) * 60)  # noqa
 
-    parsed_feed_entries, parsed_dt = await parser.parse(feed)
-
-    if not parsed_feed_entries:
+    feed_data, scraped_dt = await scraper.get(feed)
+    if not feed_data:
         logging.warning('Feed %s is empty', feed.title)
 
         return
 
+    parsed_feed_entries = parse(feed_data)
     filtered_entries = await filter_feed_entries(parsed_feed_entries)
 
     entries_to_save = await prepare_feed_entries(
-        feed, filtered_entries, parsed_dt
+        feed, filtered_entries, scraped_dt
     )
 
     await feed_entries_db.save_many(entries_to_save)
 
 
 async def filter_feed_entries(
-        parsed_feed_entries: list[parser.EntryProxy]
-) -> Generator[parser.EntryProxy, None, None]:
-    fresh_urls = tuple(
+        parsed_feed_entries: list[EntryProxy]
+) -> Generator[EntryProxy, None, None]:
+    fresh_urls = {
         entry.url
         for entry in parsed_feed_entries
         if entry.under_date_threshold
-    )
+    }
 
     exist_urls = await feed_entries_db.filter_exist_urls(fresh_urls)
 
@@ -185,7 +186,7 @@ async def archive_classified_entities(clipper: clipper.Client):
 
 async def archive_entry(entry: FeedEntry, clipper: clipper.Client):
     article = await clipper.make_readable(entry.url)
-    if article is None:
+    if not article:
         return
 
     filename = hashlib.md5(entry.url.encode()).hexdigest()
