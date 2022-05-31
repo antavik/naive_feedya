@@ -42,9 +42,7 @@ async def main():
         )
 
     asyncio.create_task(serve())
-    asyncio.create_task(
-        parse(FEEDS, scraper, settings.FEED_REFRESH_TIME_SECONDS)
-    )
+    asyncio.create_task(parse(FEEDS, scraper, settings.FEED_REFRESH_TIME_SECONDS))  # noqa
     asyncio.create_task(clean(settings.FEED_REFRESH_TIME_SECONDS))
     asyncio.create_task(archive(clipper_client, settings.ARCHIVE_REFRESH))
 
