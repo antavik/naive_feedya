@@ -26,8 +26,10 @@ class Client:
         try:
             response = await self._http_client.post('', json={'url': url})
             response.raise_for_status()
-        except httpx.ReadTimeout:
-            logging.warning('Clipper timeout exceed for %s', url)
+        except httpx.TimeoutException as exc:
+            logging.warning(
+                'Clipper timeout exceed for %s: %s', url, exc
+            )
 
             return b''
         except Exception as exc:

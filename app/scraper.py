@@ -28,8 +28,10 @@ class Scraper:
                 feed.url, follow_redirects=feed.follow_redirects
             )
             response.raise_for_status()
-        except httpx.ReadTimeout:
-            logging.warning('Scraper timeout exceed for feed %s', feed.title)
+        except httpx.TimeoutException as exc:
+            logging.warning(
+                'Scraper timeout exceed for feed %s: %s', feed.title, exc
+            )
 
             return (b'', None)
         except Exception as exc:
