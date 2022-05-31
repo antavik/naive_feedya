@@ -3,8 +3,6 @@ import asyncio
 
 import httpx
 
-from typing import Union
-
 
 class Client:
 
