@@ -79,11 +79,9 @@ async def remove_old(
     query = f"""
         DELETE FROM {FEED_ENTRIES_TABLE}
         WHERE
-            parsed < CAST(
-                strftime('%s', date('now', '-{days_delta} days')) as integer
-            ) AND
-            classified = 0 OR (classified = 1 AND valid = 0)
-    """
+            parsed < CAST(strftime('%s', date('now', '-{days_delta} days')) as integer) AND
+            (classified = 0 OR (classified = 1 AND valid = 0))
+    """  # noqa
 
     result = await execute(DB_FILEPATH, query)
 
