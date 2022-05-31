@@ -1,17 +1,13 @@
-import logging
 import time
 import datetime
 
-import httpx
 import feedparser as fp
 
 import settings
 
-from typing import Optional, Union
+from typing import Optional
 
 from feedparser import FeedParserDict
-
-from feeds import Feed
 
 # Add exceptions in feed parsing sinitize filter
 fp.sanitizer._HTMLSanitizer.acceptable_elements -= {'img', 'em'}

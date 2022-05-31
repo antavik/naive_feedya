@@ -19,7 +19,10 @@ class Scraper:
 
         self._http_client = httpx.AsyncClient(headers=self.headers)
 
-    async def get(self, feed: Feed) -> tuple[bytes, Union[datetime.datetime, None]]:
+    async def get(
+            self,
+            feed: Feed
+    ) -> tuple[bytes, Union[datetime.datetime, None]]:
         try:
             response = await self._http_client.get(
                 feed.url, follow_redirects=feed.follow_redirects
