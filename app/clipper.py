@@ -24,7 +24,7 @@ class Client:
 
     async def make_readable(self, url: str) -> bytes:
         try:
-            response = await self._http_client.post('', json={'url': url})
+            response = await self._http_client.get('', params={'url': url})
             response.raise_for_status()
         except httpx.TimeoutException as exc:
             logging.warning(
