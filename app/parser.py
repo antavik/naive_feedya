@@ -76,38 +76,5 @@ class EntryProxy:
         )
 
 
-async def get_feed(feed: Feed) -> Union[bytes, None]:
-    async with httpx.AsyncClient(headers={'user-agent': 'nf'}) as http_client:
-        try:
-            response = await http_client.get(
-                feed.url, follow_redirects=feed.follow_redirects
-            )
-        except httpx.ReadTimeout:
-            logging.warning('Timeout exceed for feed %s', feed.title)
-
-            return
-
-    try:
-        response.raise_for_status()
-    except httpx.HTTPStatusError as exc:
-        logging.error(
-            'Error while getting feed %s data, %s', feed.title, exc
-        )
-
-        return
-    else:
-        logging.debug('Feed %s received', feed.title)
-
-    return await response.aread()
-
-
-async def parse(feed: Feed) -> tuple[list[EntryProxy], datetime.datetime]:
-    feed_data = await get_feed(feed)
-    parsed_dt = datetime.datetime.utcnow()
-
-    if feed_data is None:
-        parsed_entries = []
-    else:
-        parsed_entries = [EntryProxy(e) for e in fp.parse(feed_data).entries]
-
-    return parsed_entries, parsed_dt
+def parse(data: bytes) -> list[EntryProxy]:
+    return [EntryProxy(e) for e in fp.parse(data).entries]
