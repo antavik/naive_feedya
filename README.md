@@ -37,6 +37,9 @@ Check ```localhost:8008/news``` or ```localhost:8008/spam```.
 - ```CONFIG_NAME``` – name of a feeds config, required for production mode.
 - ```PATH_PREFIX``` – path to build UI links.
 - ```LOGGING_FILE_ENABLE``` – boolean switcher to save logs in file.
+- ```CLIPPER_URL``` – url to clipper service, required for archive.
+- ```CLIPPER_TOKEN``` – token to clipper service, required for archive.
+- ```CLIPPER_TIMEOUT``` – timeout for clipper service.
 
 ## How to run tests and code style check:
 1. Run tests
