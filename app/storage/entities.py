@@ -2,7 +2,7 @@ import datetime
 
 from constants import Language
 from dataclasses import dataclass, astuple
-from typing import Any
+from typing import Any, Optional
 
 
 @dataclass
@@ -32,6 +32,7 @@ class FeedEntry:
     parsed_timestamp: float
     valid: int
     classified: int = 0
+    archive: Optional[str] = None
 
     @property
     def is_valid(self):
@@ -56,6 +57,7 @@ def feed_entry_to_tuple_factory(feed_entry_list: list) -> tuple[Any, ...]:
         feed_entry_list[5],  # parsed_timestamp
         feed_entry_list[6],  # valid
         feed_entry_list[7],  # classified
+        feed_entry_list[8],  # archive
     )
 
 

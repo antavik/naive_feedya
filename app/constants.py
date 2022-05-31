@@ -12,3 +12,6 @@ class Language(Enum):
 
 
 STATS_TABLES_MAPPING = {lang: f'{lang.value}_token_stats' for lang in Language}
+
+CLEANER_TASK_NAME = 'Cleaner_task'
+ARCHIVE_TASK_NAME = 'Archive_task'
