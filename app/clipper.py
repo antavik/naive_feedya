@@ -43,9 +43,10 @@ class Client:
                 response = await self._http_client.post('', json={'url': url})
                 response.raise_for_status()
             except Exception as exc:
-                logging.error('Error clipping url %s: %s', url, exc)
-
                 exception = exc
+
+                logging.warning('Error clipping url %s: %s', url, exc)
+
                 await asyncio.sleep(self.retry_timeout)
             else:
                 logging.debug('Url %s clipped', url)
