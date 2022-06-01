@@ -176,18 +176,18 @@ async def update_feed_classifier(feedback: 'UserFeedback') -> Union[bool, None]:
     return updated
 
 
-async def archive_classified_entities(clipper: clipper.Client):
+async def archive_classified_entities(clipper_client: clipper.Client):
     entries = await feed_entries_db.fetch_unarchived_valid_classified_entries()
 
     for e in entries:
         # can't use async tasks 'cause lambda starts glitching
-        await archive_entry(e, clipper)
+        await archive_entry(e, clipper_client)
 
 
-async def archive_entry(entry: FeedEntry, clipper: clipper.Client):
+async def archive_entry(entry: FeedEntry, clipper_client: clipper.Client):
     try:
-        article = await clipper.make_readable(entry.url)
-    except Exception as exc:
+        article = await clipper_client.make_readable(entry.url)
+    except clipper.ClippingError as exc:
         entry.archive = str(exc)
     else:
         filename = hashlib.md5(entry.url.encode()).hexdigest()
