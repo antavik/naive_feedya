@@ -10,6 +10,7 @@ class Client:
             self,
             url: str,
             token: str,
+            event_loop: 
             timeout: int = 5
     ):
         self.url = url
@@ -24,6 +25,8 @@ class Client:
 
     async def make_readable(self, url: str) -> bytes:
         try:
+            logging.info('Clipping %s', url)
+
             response = await self._http_client.get('', params={'url': url})
             response.raise_for_status()
         except httpx.TimeoutException as exc:
