@@ -47,7 +47,7 @@ class Client:
 
         logging.warning('Stop clipping url %s', url)
 
-        raise Exception(exc)
+        raise Exception(exc)  # noqa
 
     async def close(self):
         await self._http_client.aclose()

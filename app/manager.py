@@ -191,8 +191,8 @@ async def archive_entry(entry: FeedEntry, clipper: clipper.Client):
         entry.archive = str(exc)
     else:
         filename = hashlib.md5(entry.url.encode()).hexdigest()
-
-        with gzip.open(settings.ARCHIVE_PATH / f'{filename}.json.gz', 'wb') as f:
+        filepath = settings.ARCHIVE_PATH / f'{filename}.json.gz'
+        with gzip.open(filepath, 'wb') as f:
             f.write(article)
 
         entry.archive = filename
