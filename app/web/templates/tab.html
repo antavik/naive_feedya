@@ -44,14 +44,14 @@
                     <br>
                     <div id="feedback-buttons" hx-vals='{"entry_title": "{{ entry.title|escape_double_quotes }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language.value }}"}' hx-swap="innerHTML" hx-target="closest #feedback-buttons">
                       {% if not entry.is_classified %}
-                      <button hx-put="{{ path_prefix }}/update"  hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button>
-                      <button hx-put="{{ path_prefix }}/update" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
+                      <button hx-put="{{ path_prefix }}/api/entry"  hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button>
+                      <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
                       {% else %}
                         {% if entry.is_valid %}
-                        <span>✅</span>
-                        <button hx-put="{{ path_prefix }}/update" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
+                        <span>✅</span> 
+                        <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
                         {% else %}
-                        <button hx-put="{{ path_prefix }}/update" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button>
+                        <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button> 
                         <span>🛑</span>
                         {% endif %}
                       {% endif %}

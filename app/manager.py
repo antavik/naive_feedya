@@ -9,7 +9,7 @@ import clipper
 import utils
 import settings
 
-from typing import Generator, Iterable, Optional
+from typing import Generator, Iterable, Union
 
 from feedparser import FeedParserDict
 
@@ -142,7 +142,7 @@ async def get_login_sub_page() -> str:
     return html_page
 
 
-async def update_feed_classifier(feedback) -> Optional[bool]:
+async def update_feed_classifier(feedback: 'UserFeedback') -> Union[bool, None]:  # TODO: make typing correct  # noqa
     entry_classified = await feed_entries_db.is_classified(feedback.entry_url)
 
     if entry_classified is None:

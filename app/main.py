@@ -31,14 +31,15 @@ from web.app import APP
 
 
 async def main():
-    scraper = Scraper()
+    scraper = Scraper(asyncio.get_running_loop())
 
     clipper_client = None
     if settings.CLIPPER_URL is not None and settings.CLIPPER_TOKEN is not None:
         clipper_client = clipper.Client(
             url=settings.CLIPPER_URL,
             token=settings.CLIPPER_TOKEN,
-            timeout=settings.CLIPPER_TIMEOUT
+            timeout=settings.CLIPPER_TIMEOUT,
+            event_loop=asyncio.get_running_loop()
         )
 
     asyncio.create_task(serve())

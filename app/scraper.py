@@ -11,7 +11,9 @@ from feeds import Feed
 
 class Scraper:
 
-    def __init__(self):
+    def __init__(self, event_loop: asyncio.AbstractEventLoop):
+        self.event_loop = event_loop
+
         self.agent = 'nf'
         self.headers = {
             'user-agent': self.agent,
@@ -51,4 +53,4 @@ class Scraper:
         await self._http_client.aclose()
 
     def __del__(self):
-        asyncio.get_running_loop().run_until_complete(self.close())
+        self.event_loop.run_until_complete(self.close())

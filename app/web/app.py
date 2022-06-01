@@ -149,9 +149,9 @@ async def get_spam_tab_sub_page(
 
 
 @APP.put(
-    '/update',
+    '/api/entry',
     response_class=HTMLResponse,
-    summary='Update feed classificator and entry label'
+    summary='Feed entries api'
 )
 async def update(
         feedback: UserFeedback,
@@ -164,12 +164,12 @@ async def update(
         if feedback.entry_is_valid:
             response = (
                 '<span>✅</span>'
-                '<button hx-put="%s/update" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>➖</button>'  # noqa
+                '<button hx-put="%s/api/entity" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>➖</button>'  # noqa
                 % settings.PATH_PREFIX
             )
         else:
             response = (
-                '<button hx-put="%s/update" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>➕</button>'  # noqa
+                '<button hx-put="%s/api/entity" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>➕</button>'  # noqa
                 '<span>🛑</span>'
                 % settings.PATH_PREFIX
             )
