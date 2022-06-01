@@ -85,7 +85,7 @@ async def clean(refresh: int):
                 name=const.CLEANER_TASK_NAME
             )
         else:
-            logging.warning('Cleaner session skipped, still processing')
+            logging.warning('Cleaner session skipped: still processing')
 
         await asyncio.sleep(refresh)
 
@@ -103,7 +103,7 @@ async def archive(clipper: Union[None, clipper.Client], refresh: int):
                 name=const.ARCHIVE_TASK_NAME
             )
         else:
-            logging.warning('Archiver session skipped, still processing')
+            logging.warning('Archiver session skipped: still processing')
 
         await asyncio.sleep(refresh)
 
