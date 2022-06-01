@@ -180,25 +180,26 @@ async def archive_classified_entities(clipper: clipper.Client):
     entries = await feed_entries_db.fetch_unarchived_valid_classified_entries()
 
     for e in entries:
-        # can't use tasks 'cause lambda starts glitching
+        # can't use async tasks 'cause lambda starts glitching
         await archive_entry(e, clipper)
 
 
 async def archive_entry(entry: FeedEntry, clipper: clipper.Client):
-    article = await clipper.make_readable(entry.url)
-    if not article:
-        return
+    try:
+        article = await clipper.make_readable(entry.url)
+    except Exception as exc:
+        entry.archive = str(exc)
+    else:
+        filename = hashlib.md5(entry.url.encode()).hexdigest()
 
-    filename = hashlib.md5(entry.url.encode()).hexdigest()
+        with gzip.open(settings.ARCHIVE_PATH / f'{filename}.json.gz', 'wb') as f:
+            f.write(article)
 
-    with gzip.open(settings.ARCHIVE_PATH / f'{filename}.json.gz', 'wb') as f:
-        f.write(article)
-
-    entry.archive = filename
+        entry.archive = filename
 
     saved = await feed_entries_db.update_archived(entry)
     if not saved:
-        logging.warning('Could not archive entry %s', entry.url)
+        logging.warning('Could not save archive entry %s', entry.url)
 
 
 async def setup_all_dbs():

@@ -11,12 +11,16 @@ class Client:
             url: str,
             token: str,
             event_loop: asyncio.AbstractEventLoop,
-            timeout: int = 5
+            timeout: int = 5,
+            retries: int = 3,
+            retry_timeout: int = 10
     ):
         self.url = url
         self.token = token
         self.timeout = timeout
         self.event_loop = event_loop
+        self.retries = retries
+        self.retry_timeout = retry_timeout
 
         self._http_client = httpx.AsyncClient(
             base_url=self.url,
@@ -25,23 +29,25 @@ class Client:
         )
 
     async def make_readable(self, url: str) -> bytes:
-        try:
-            response = await self._http_client.get('', params={'url': url})
-            response.raise_for_status()
-        except httpx.TimeoutException as exc:
-            logging.warning(
-                'Clipper timeout exceed for %s: %s', url, exc
-            )
+        while retries := self.retries:
+            try:
+                response = await self._http_client.post('', json={'url': url})
+                response.raise_for_status()
+            except Exception as exc:
+                logging.error('Error clipping url %s: %s', url, exc)
 
-            return b''
-        except Exception as exc:
-            logging.error('Error clipping url %s: %s', url, exc)
+                retries -= 1
+                await asyncio.sleep(self.retry_timeout)
 
-            return b''
-        else:
+                continue
+
             logging.debug('Url %s clipped', url)
 
-        return await response.aread()
+            return await response.aread()
+
+        logging.warning('Stop clipping url %s', url)
+
+        raise Exception(exc)
 
     async def close(self):
         await self._http_client.aclose()
