@@ -120,59 +120,6 @@ async def get_docs_p_values(
     return docs_p_news, docs_p_spam
 
 
-async def get_token_p_values(token: str) -> tuple[_Number, _Number]:
-    command = f"""
-        SELECT *
-        FROM (
-            SELECT log((1.0 + T1.token_frequency) / T2.tokens_sum)
-            FROM
-            (
-                SELECT CASE WHEN count(*) > 0
-                THEN news ELSE 0 END AS token_frequency
-                FROM {TOKENS_TABLE} WHERE token = ?
-            ) T1
-            JOIN
-            (
-                SELECT sum(c) as tokens_sum
-                FROM (
-                    SELECT count(*) AS c FROM {TOKENS_TABLE} WHERE news > 0
-                    UNION ALL
-                    SELECT count(*) AS c FROM {TOKENS_TABLE}
-                )
-            ) T2
-
-            UNION ALL
-
-            SELECT log((1.0 + T1.token_frequency) / T2.tokens_sum)
-            FROM
-            (
-                SELECT CASE WHEN count(*) > 0
-                THEN spam ELSE 0 END AS token_frequency
-                FROM {TOKENS_TABLE} WHERE token = ?
-            ) T1
-            JOIN
-            (
-                SELECT sum(c) as tokens_sum
-                FROM (
-                    SELECT count(*) AS c FROM {TOKENS_TABLE} WHERE spam > 0
-                    UNION ALL
-                    SELECT count(*) AS c FROM {TOKENS_TABLE}
-                )
-            ) T2
-        )
-    """  # noqa
-
-    async with aiosqlite.connect(DB_FILEPATH) as db:
-        await db.create_function('log', 1, math.log, deterministic=True)
-
-        async with db.execute(command, (token, token)) as cursor:
-            result = await cursor.fetchall()
-
-    token_p_news, token_p_spam = (r[0] for r in result)
-
-    return token_p_news, token_p_spam
-
-
 async def get_tokens_p_values(tokens: list[str]) -> tuple[_Number, _Number]:
     query = f"""
         WITH
@@ -217,8 +164,6 @@ async def get_tokens_p_values(tokens: list[str]) -> tuple[_Number, _Number]:
             JOIN spam_sum_t
         )
     """  # noqa
-
-    print(query)
 
     async with aiosqlite.connect(DB_FILEPATH) as db:
         await db.create_function('log', 1, math.log, deterministic=True)
