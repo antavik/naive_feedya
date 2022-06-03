@@ -97,11 +97,12 @@ async def test_filter_exist_urls__urls_from_db__urls_from_db(
 
 @pytest.mark.asyncio
 async def test_remove_old__valid_date_delta__removed_old(
-        fake_feed_entries_db_with_random_data_older_than_days_threshold
+        fake_feed_entries_db_with_random_data_older_than_days_threshold,
+        fake_seq_feed_entries
 ):
-    fake_db, fake_data = fake_feed_entries_db_with_random_data_older_than_days_threshold  # noqa
+    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold  # noqa
     expired_entities = [
-        e for e in fake_data
+        e for e in fake_seq_feed_entries
         if not e.is_classified or (e.is_classified and not e.is_valid)
     ]
 

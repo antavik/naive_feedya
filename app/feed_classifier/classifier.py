@@ -34,11 +34,9 @@ async def classify(document: str, language: const.Language) -> bool:
 
         return True
 
-    for token in tokens:
-        p_news, p_spam = await stats_db.get_token_p_values(token)
-
-        total_p_news += p_news
-        total_p_spam += p_spam
+    tokens_p_news, token_p_spam = await stats_db.get_tokens_p_values(tokens)
+    total_p_news += tokens_p_news
+    total_p_spam += token_p_spam
 
     return total_p_news > total_p_spam
 
