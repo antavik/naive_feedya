@@ -252,8 +252,8 @@ async def fake_seq_token_stats():
     token_stats = {
         TokenStats(
             token=fake.unique.word(),
-            news=fake.pyint(),
-            spam=fake.pyint(min_value=1)
+            news=fake.pyint(min_value=0),
+            spam=fake.pyint(min_value=0)
         )
         for _ in range(TEST_DB_ROWS_COUNT)
     }
@@ -293,7 +293,7 @@ async def fake_stats_db_with_random_doc_data(
         fake_eng_doc_counter
 ):
     command = f"""
-        UPDATE {fake_stats_db.DOC_STATS_TABLE}
+        UPDATE {fake_stats_db.DOC_TABLE}
         SET news=?, spam=?
         WHERE language=?
     """
@@ -315,7 +315,7 @@ async def fake_stats_db_with_random_doc_and_token_data(
         fake_seq_token_stats
 ):
     command = f"""
-        INSERT INTO {settings.STATS_TABLE}
+        INSERT INTO {fake_stats_db.TOKENS_TABLE}
         VALUES (?, ?, ?)
     """
 

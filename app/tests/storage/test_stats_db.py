@@ -186,6 +186,38 @@ async def test_get_token_p_values__valid_db__success(
 
 
 @pytest.mark.asyncio
+async def test_get_tokens_p_values__valid_db__news_p_and_spam_p(
+        fake_stats_db_with_random_doc_and_token_data,
+        fake_seq_token_stats
+):
+    fake_db = fake_stats_db_with_random_doc_and_token_data
+
+    random_seq = random.choices(
+        fake_seq_token_stats,
+        k=len(fake_seq_token_stats) // 2
+    )
+
+    expected_news_p = 0
+    expected_spam_p = 0
+    total_tokens_qty = len(fake_seq_token_stats)
+    news_tokens_qty = len([s for s in fake_seq_token_stats if s.news > 0])
+    spam_tokens_qty = len([s for s in fake_seq_token_stats if s.spam > 0])
+    for stats in random_seq:
+        expected_news_p += math.log(
+            (1 + stats.news) / (total_tokens_qty + news_tokens_qty)
+        )
+        expected_spam_p += math.log(
+            (1 + stats.spam) / (total_tokens_qty + spam_tokens_qty)
+        )
+
+    result_news_p, result_spam_p = await fake_db.get_tokens_p_values(
+        [s.token for s in random_seq]
+    )
+
+    assert (expected_news_p, expected_spam_p) == (result_news_p, result_spam_p)
+
+
+@pytest.mark.asyncio
 async def test_reverse_news_token__news_label__success(
         fake_stats_db_with_random_doc_and_token_data,
         fake_seq_token_stats
