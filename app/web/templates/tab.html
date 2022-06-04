@@ -8,10 +8,11 @@
               <tr>
                 <td width="50%">
                   <div class="tab-list" hx-ext="oauth-header" hx-target="#content-td">
-                    <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=6" class="tab-switcher {% if last_hours == 6 %}selected{% endif %}">last 6 hours</a> /
-                    <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=12" class="tab-switcher {% if last_hours == 12 %}selected{% endif %}">last 12 hours</a> /
-                    <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=24" class="tab-switcher {% if last_hours == 24 %}selected{% endif %}">last 24 hours</a> /
-                    <a hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=48" class="tab-switcher {% if last_hours == 48 %}selected{% endif %}">last 48 hours</a>
+                    <span hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=6" class="tab-switcher{% if last_hours == 6 %} selected{% endif %}">last 6 hours</span> /
+                    <span hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=12" class="tab-switcher{% if last_hours == 12 %} selected{% endif %}">last 12 hours</span> /
+                    <span hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=24" class="tab-switcher{% if last_hours == 24 %} selected{% endif %}">last 24 hours</span> /
+                    <span hx-get="{{ path_prefix }}/{{ entry_type }}/tab/?last_hours=48" class="tab-switcher{% if last_hours == 48 %} selected{% endif %}">last 48 hours</span>
+                    <span>in UTC</span>
                   </div>
                 </td>
                 <td width="50%">
