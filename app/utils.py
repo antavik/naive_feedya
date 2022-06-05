@@ -1,4 +1,5 @@
 import random
+import typing as t
 
 from itertools import count
 from functools import lru_cache
@@ -41,9 +42,9 @@ def color_pairs_randomizer() -> tuple[str, str]:
     return random.choice(_support_color_pairs)
 
 
-def str2bool(value: str) -> bool:
+def to_bool(value: t.Any) -> bool:
     if not isinstance(value, str):
-        raise ValueError(f'Unsupported input data type - {type(value)}')
+        value = str(value)
 
     true_bool_strings = {'yes', 'y', '1', 'true', 't'}
     false_bool_strings = {'no', 'n', '0', 'false', 'f', ''}

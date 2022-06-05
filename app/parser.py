@@ -1,11 +1,10 @@
 import time
 import datetime
+import typing as t
 
 import feedparser as fp
 
 import settings
-
-from typing import Optional
 
 from feedparser import FeedParserDict
 
@@ -55,7 +54,7 @@ class EntryProxy:
     def _define_published_timestamp(
             published: time.struct_time,
             updated: time.struct_time
-    ) -> Optional[float]:
+    ) -> t.Optional[float]:
         if published or updated:
             published_timestamp = time.mktime(published or updated)
         else:

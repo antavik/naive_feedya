@@ -4,12 +4,11 @@ import random
 import datetime
 import hashlib
 import gzip
+import typing as t
 
 import clipper
 import utils
 import settings
-
-from typing import Generator, Iterable, Union
 
 from feedparser import FeedParserDict
 
@@ -22,13 +21,15 @@ from web import render_base_page, render_tab_sub_page, render_login_sub_page
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 
+log = logging.getLogger(settings.LOGGER_NAME)
+
 
 async def process_feed(feed: Feed, scraper: Scraper):
     await asyncio.sleep(random.randint(*settings.FEED_REFRESH_JITTER_TIME_MINUTES) * 60)  # noqa
 
     feed_data, scraped_dt = await scraper.get(feed)
     if not feed_data:
-        logging.warning('Feed %s is empty', feed.title)
+        log.warning('Feed %s is empty', feed.title)
 
         return
 
@@ -44,7 +45,7 @@ async def process_feed(feed: Feed, scraper: Scraper):
 
 async def filter_feed_entries(
         parsed_feed_entries: list[EntryProxy]
-) -> Generator[EntryProxy, None, None]:
+) -> t.Generator[EntryProxy, None, None]:
     fresh_urls = {
         entry.url
         for entry in parsed_feed_entries
@@ -64,7 +65,7 @@ async def filter_feed_entries(
 
 async def prepare_feed_entries(
         feed: Feed,
-        new_parsed_entries: Iterable[FeedParserDict],
+        new_parsed_entries: t.Iterable[FeedParserDict],
         parsed_dt: datetime.datetime
 ) -> list[FeedEntry]:
     feed_entries = []
@@ -99,7 +100,7 @@ async def clean_feed_entries_db():
     removed = await feed_entries_db.remove_old()
 
     if removed:
-        logging.info('Feed entries DB cleaned. Removed %d entries', removed)
+        log.info('Feed entries DB cleaned. Removed %d entries', removed)
 
 
 async def get_base_page(feed_type: EntryType) -> str:
@@ -142,11 +143,11 @@ async def get_login_sub_page() -> str:
     return html_page
 
 
-async def update_feed_classifier(feedback: 'UserFeedback') -> Union[bool, None]:  # TODO: make typing correct  # noqa
+async def update_feed_classifier(feedback: 'UserFeedback') -> bool | None:  # TODO: make typing correct  # noqa
     entry_classified = await feed_entries_db.is_classified(feedback.entry_url)
 
     if entry_classified is None:
-        logging.warning('URL doesn\'t exist %s', feedback.entry_url)
+        log.warning('URL doesn\'t exist %s', feedback.entry_url)
 
         return
 
@@ -199,7 +200,7 @@ async def archive_entry(entry: FeedEntry, clipper_client: clipper.Client):
 
     saved = await feed_entries_db.update_archived(entry)
     if not saved:
-        logging.warning('Could not save archive entry %s', entry.url)
+        log.warning('Could not save archive entry %s', entry.url)
 
 
 async def setup_all_dbs():

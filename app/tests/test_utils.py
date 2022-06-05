@@ -8,7 +8,7 @@ from utils import (
     trim_text,
     escape_single_quote,
     color_pairs_randomizer,
-    str2bool,
+    to_bool,
 )
 
 
@@ -52,24 +52,24 @@ def test_colot_randomizer__no_input__tuple_hex_color():
     assert pattern.match(background_color) and pattern.match(font_color)
 
 
-def test_str2bool__valid_true_str__bool_true():
+def test_to_bool__valid_true_str__bool_true():
     true_bool_strings = ['yes', 'y', '1', 'true', 't']
     upper_true_bool_strings = [s.upper() for s in true_bool_strings]
 
     for bool_str in true_bool_strings + upper_true_bool_strings:
-        assert str2bool(bool_str) is True
+        assert to_bool(bool_str) is True
 
 
-def test_str2bool__valid_false_str__bool_false():
+def test_to_bool__valid_false_str__bool_false():
     false_bool_strings = ['no', 'n', '0', 'false', 'f', '']
     upper_false_bool_strings = [s.upper() for s in false_bool_strings]
 
     for bool_str in false_bool_strings + upper_false_bool_strings:
-        assert str2bool(bool_str) is False
+        assert to_bool(bool_str) is False
 
 
-def test_str2bool__valid_invalid_str__exception():
+def test_to_bool__valid_invalid_str__exception():
     invalid_bool_str = 'truth'
 
     with pytest.raises(ValueError):
-        str2bool(invalid_bool_str)
+        to_bool(invalid_bool_str)

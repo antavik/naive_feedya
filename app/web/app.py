@@ -1,7 +1,7 @@
+import typing as t
+
 import settings
 import user
-
-from typing import Optional, Union
 
 from pydantic import BaseModel
 from fastapi import FastAPI, Depends
@@ -81,12 +81,12 @@ async def get_news_page():
 
 @APP.get(
     '/news/tab/',
-    response_class=Union[HTMLResponse, RedirectResponse],
+    response_class=HTMLResponse | RedirectResponse,
     summary='Get news sub-page for main feed page or redirect login sub-page'
 )
 async def get_news_tab_sub_page(
         last_hours: int,
-        token: Optional[str] = Depends(oauth2_scheme)
+        token: t.Optional[str] = Depends(oauth2_scheme)
 ):
     if token is not None and user.is_valid_token(token):
         content = await get_tab_sub_page(
@@ -121,12 +121,12 @@ async def get_spam_page():
 
 @APP.get(
     '/spam/tab/',
-    response_class=Union[HTMLResponse, RedirectResponse],
+    response_class=HTMLResponse | RedirectResponse,
     summary='Get spam sub-page for main feed page or redirect login sub-page'
 )
 async def get_spam_tab_sub_page(
         last_hours: int,
-        token: Optional[str] = Depends(oauth2_scheme)
+        token: t.Optional[str] = Depends(oauth2_scheme)
 ):
     if token is not None and user.is_valid_token(token):
         content = await get_tab_sub_page(
@@ -155,29 +155,30 @@ async def get_spam_tab_sub_page(
 )
 async def update(
         feedback: UserFeedback,
-        token: Optional[str] = Depends(oauth2_scheme)
+        token: t.Optional[str] = Depends(oauth2_scheme)
 ):
-    if token is not None and user.is_valid_token(token):
-        if await update_feed_classifier(feedback) is None:
-            raise EntryURLNotFoundException
-
-        if feedback.entry_is_valid:
-            response = (
-                '<span>✅</span>'
-                '<button hx-put="%s/api/entity" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>➖</button>'  # noqa
-                % settings.PATH_PREFIX
-            )
-        else:
-            response = (
-                '<button hx-put="%s/api/entity" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>➕</button>'  # noqa
-                '<span>🛑</span>'
-                % settings.PATH_PREFIX
-            )
-    else:
+    if token is None or not user.is_valid_token(token):
         get_login_page_url = APP.url_path_for('get_login_page')
-        response = RedirectResponse(
+
+        return RedirectResponse(
             url=get_login_page_url,
             headers={'WWW-Authenticate': 'Bearer'}
+        )
+
+    if await update_feed_classifier(feedback) is None:
+        raise EntryURLNotFoundException
+
+    if feedback.entry_is_valid:
+        response = (
+            '<span>✅</span>'
+            '<button hx-put="%s/api/entry" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>➖</button>'  # noqa
+            % settings.PATH_PREFIX
+        )
+    else:
+        response = (
+            '<button hx-put="%s/api/entry" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>➕</button>'  # noqa
+            '<span>🛑</span>'
+            % settings.PATH_PREFIX
         )
 
     return response
