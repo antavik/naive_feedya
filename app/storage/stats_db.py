@@ -1,23 +1,22 @@
 import math
+import typing as t
 
 import aiosqlite
 
 import settings
 import constants as const
 
-from typing import TypeVar, Optional, Union
-
 from .base import execute, fetch_one
 from .entities import TokenStats, DocCounter
 
-_Number = TypeVar('_Number', int, float)
+_Number = t.TypeVar('_Number', int, float)
 
 DB_FILEPATH = settings.STATS_DB_FILEPATH
 TOKENS_TABLE = settings.STATS_TABLE
 DOC_TABLE = 'doc_stats'
 
 
-async def get_token_stats(token: str) -> Union[None, TokenStats]:
+async def get_token_stats(token: str) -> None | TokenStats:
     query = f"""
         SELECT * FROM {TOKENS_TABLE}
         WHERE token = ?
@@ -28,7 +27,7 @@ async def get_token_stats(token: str) -> Union[None, TokenStats]:
     return result and TokenStats(*result)
 
 
-async def get_doc_counter(language: const.Language) -> Union[None, DocCounter]:
+async def get_doc_counter(language: const.Language) -> None | DocCounter:
     query = f"""
         SELECT * FROM {DOC_TABLE}
         WHERE language = ?
@@ -86,7 +85,7 @@ async def increment_doc_counter(
 
 async def get_docs_p_values(
         language: const.Language
-) -> tuple[Optional[_Number], Optional[_Number]]:
+) -> tuple[t.Optional[_Number], t.Optional[_Number]]:
     query = f"""
         SELECT news_p, spam_p
         FROM

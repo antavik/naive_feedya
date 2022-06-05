@@ -1,18 +1,20 @@
 import logging
+import typing as t
 
 import utils
 import constants as const
-
-from typing import Callable, Union
+import settings
 
 from storage import stats_db
 from constants import EntryType, Language
 from .tokenizer import tokenize_document
 
+log = logging.getLogger(settings.LOGGER_NAME)
+
 
 async def train(
         labeled_documents: list[tuple[int, str]],
-        label_func: Callable[[Union[int, bool]], bool],
+        label_func: t.Callable[[int | bool], bool],
         language: str,
 ):
     for label, document in labeled_documents:
@@ -28,7 +30,7 @@ async def classify(document: str, language: const.Language) -> bool:
     total_p_news, total_p_spam = await stats_db.get_docs_p_values(language)
 
     if total_p_news is None or total_p_spam is None:
-        logging.warning(
+        log.warning(
             '%s docs stats have zero stats', language.value.capitalize()
         )
 

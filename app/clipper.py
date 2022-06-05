@@ -3,6 +3,10 @@ import asyncio
 
 import httpx
 
+import settings
+
+log = logging.getLogger(settings.LOGGER_NAME)
+
 
 class ClippingError(Exception):
     pass
@@ -45,15 +49,15 @@ class Client:
             except Exception as exc:
                 exception = exc
 
-                logging.warning('Error clipping url %s: %s', url, exc)
+                log.warning('Error clipping url %s: %s', url, exc)
 
                 await asyncio.sleep(self.retry_timeout)
             else:
-                logging.debug('Url %s clipped', url)
+                log.debug('Url %s clipped', url)
 
                 return await response.aread()
 
-        logging.warning('Stop clipping url %s', url)
+        log.warning('Stop clipping url %s', url)
 
         raise ClippingError(exception)
 
