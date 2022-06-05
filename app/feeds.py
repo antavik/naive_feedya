@@ -1,10 +1,11 @@
+import typing as t
+
 import configparser
 
 import constants as const
 import settings
 
 from dataclasses import dataclass
-from typing import Optional
 from urllib.parse import urlparse
 from pathlib import Path
 
@@ -17,7 +18,7 @@ class Feed:
     skip_summary: bool = False
     follow_redirects: bool = False
     allow_http: bool = False
-    base_url: Optional[str] = None
+    base_url: t.Optional[str] = None
 
 
 def _read_feeds_config(filepath: Path, language: const.Language) -> list[Feed]:

@@ -5,9 +5,9 @@ from pathlib import Path
 from starlette.datastructures import Secret
 
 from constants import Language, STATS_TABLES_MAPPING
-from utils import str2bool
+from utils import to_bool
 
-DEV_MODE = str2bool(os.getenv('DEV_MODE', 'false'))
+DEV_MODE = to_bool(os.getenv('DEV_MODE', 'false'))
 
 # User
 if not DEV_MODE:
@@ -86,8 +86,6 @@ CLIPPER_TIMEOUT = int(os.getenv('CLIPPER_TIMEOUT', 5))
 DT_TEMPLATE = '%b %d, %Y, %H:%M'
 
 # Logging
-LOGGING_FILE_ENABLE = str2bool(os.getenv('LOGGING_FILE_ENABLE', 'false'))
-LOGGING_DT_FORMAT = '%Y-%m-%d %H:%M:%S'
-LOGGING_FORMAT = '%(asctime)s [%(levelname)s] %(filename)s:%(lineno)d %(message)s'  # noqa
+LOGGER_NAME = 'nf-log'
 
 os.environ.clear()

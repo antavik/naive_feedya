@@ -4,9 +4,11 @@ import datetime
 
 import httpx
 
-from typing import Union
+import settings
 
 from feeds import Feed
+
+log = logging.getLogger(settings.LOGGER_NAME)
 
 
 class Scraper:
@@ -24,20 +26,20 @@ class Scraper:
     async def get(
             self,
             feed: Feed
-    ) -> tuple[bytes, Union[datetime.datetime, None]]:
+    ) -> tuple[bytes, datetime.datetime | None]:
         try:
             response = await self._http_client.get(
                 feed.url, follow_redirects=feed.follow_redirects
             )
             response.raise_for_status()
         except httpx.TimeoutException as exc:
-            logging.warning(
+            log.warning(
                 'Scraper timeout exceed for feed %s: %s', feed.title, exc
             )
 
             return (b'', None)
         except Exception as exc:
-            logging.error(
+            log.error(
                 'Error getting feed %s data: %s', feed.title, exc
             )
 
@@ -45,7 +47,7 @@ class Scraper:
         else:
             dt_now = datetime.datetime.utcnow()
 
-            logging.debug('Feed %s received', feed.title)
+            log.debug('Feed %s received', feed.title)
 
         return (await response.aread(), dt_now)
 

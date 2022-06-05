@@ -1,7 +1,6 @@
-import settings
+import typing as t
 
-from typing import Tuple, Optional
-from collections.abc import Iterable
+import settings
 
 from .base import execute, fetch_one, fetch_all, execute_many
 from .entities import FeedEntry, feed_entry_as_tuple
@@ -23,7 +22,7 @@ async def get(url: str) -> FeedEntry:
     return FeedEntry(*result)
 
 
-async def fetch_all_entries() -> Tuple[FeedEntry, ...]:
+async def fetch_all_entries() -> tuple[FeedEntry, ...]:
     query = f"""
         SELECT * FROM {FEED_ENTRIES_TABLE}
     """
@@ -59,7 +58,7 @@ async def exists(url: str) -> bool:
     return result is not None
 
 
-async def filter_exist_urls(urls: Iterable[str]) -> set[str]:
+async def filter_exist_urls(urls: t.Iterable[str]) -> set[str]:
     quoted_urls = (f"'{escape_single_quote(url)}'" for url in urls)
 
     query = f"""
@@ -91,8 +90,8 @@ async def remove_old(
 async def fetch_last_entries(
         valid: bool,
         hours_delta: int,
-        feeds: Iterable[str]
-) -> Tuple[FeedEntry, ...]:
+        feeds: t.Iterable[str]
+) -> tuple[FeedEntry, ...]:
     quoted_titles = (f"'{f}'" for f in feeds)
 
     query = f"""
@@ -125,7 +124,7 @@ async def update_validity(url: str, label: bool) -> int:
     return result.rowcount
 
 
-async def is_classified(url: str) -> Optional[bool]:
+async def is_classified(url: str) -> t.Optional[bool]:
     query = f"""
         SELECT classified
         FROM {FEED_ENTRIES_TABLE}
@@ -137,7 +136,7 @@ async def is_classified(url: str) -> Optional[bool]:
     return result if result is None else bool(result[0])
 
 
-async def save_many(feeds: Iterable[FeedEntry]) -> int:
+async def save_many(feeds: t.Iterable[FeedEntry]) -> int:
     query = f"""
         INSERT OR IGNORE INTO {FEED_ENTRIES_TABLE}
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -152,7 +151,7 @@ async def save_many(feeds: Iterable[FeedEntry]) -> int:
     return result.rowcount
 
 
-async def fetch_unarchived_valid_classified_entries() -> Tuple[FeedEntry, ...]:
+async def fetch_unarchived_valid_classified_entries() -> tuple[FeedEntry, ...]:
     query = f"""
         SELECT *
         FROM {FEED_ENTRIES_TABLE}
