@@ -12,12 +12,15 @@ def trim_text(text: str, limit: int) -> str:
     end_index = None
 
     ending = '...'
-    limit_index = limit - 1
-    trimmed_limit_index = limit_index - len(ending)
+    limit_index = limit - len(ending) - 1
 
-    for line, i in zip(text[limit_index::-1], count(limit_index, -1)):
-        if (line == ' ' or i == '.') and i <= trimmed_limit_index:
-            end_index = i - 1 if text[i-1] == '.' else i
+    for i, ch in zip(count(limit_index, -1), text[limit_index::-1]):
+        if ch == ' ':
+            end_index = i
+
+            break
+        elif ch == '.':
+            end_index = i - 1
 
             break
 

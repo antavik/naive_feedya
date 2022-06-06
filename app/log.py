@@ -44,6 +44,7 @@ def _interpret_color(
     return str(_ansi_colors[color] + offset)
 
 
+# code from click package
 def style(
     text: t.Any,
     fg: t.Optional[int | tuple[int, int, int] | str] = None,
@@ -62,11 +63,6 @@ def style(
     default the styling is self contained which means that at the end
     of the string a reset code is issued.  This can be prevented by
     passing ``reset=False``.
-    Examples::
-        click.echo(click.style('Hello World!', fg='green'))
-        click.echo(click.style('ATTENTION!', blink=True))
-        click.echo(click.style('Some things', reverse=True, fg='cyan'))
-        click.echo(click.style('More colors', fg=(255, 12, 128), bg=117))
     Supported color names:
     * ``black`` (might be a gray)
     * ``red``
@@ -110,57 +106,50 @@ def style(
     :param reset: by default a reset-all code is added at the end of the
                   string which means that styles do not carry over.  This
                   can be disabled to compose styles.
-    .. versionchanged:: 8.0
-        A non-string ``message`` is converted to a string.
-    .. versionchanged:: 8.0
-       Added support for 256 and RGB color codes.
-    .. versionchanged:: 8.0
-        Added the ``strikethrough``, ``italic``, and ``overline``
-        parameters.
-    .. versionchanged:: 7.0
-        Added support for bright colors.
-    .. versionadded:: 2.0
     """
     if not isinstance(text, str):
         text = str(text)
 
-    bits = []
+    bits = ''
 
     if fg:
         try:
-            bits.append(f'\033[{_interpret_color(fg)}m')
+            bits += f'\033[{_interpret_color(fg)}m'
         except KeyError:
             raise TypeError(f'Unknown color {fg!r}') from None
 
     if bg:
         try:
-            bits.append(f'\033[{_interpret_color(bg, 10)}m')
+            bits += f'\033[{_interpret_color(bg, 10)}m'
         except KeyError:
             raise TypeError(f'Unknown color {bg!r}') from None
 
     if bold is not None:
-        bits.append(f'\033[{1 if bold else 22}m')
+        bits += f'\033[{1 if bold else 22}m'
     if dim is not None:
-        bits.append(f'\033[{2 if dim else 22}m')
+        bits += f'\033[{2 if dim else 22}m'
     if underline is not None:
-        bits.append(f'\033[{4 if underline else 24}m')
+        bits += f'\033[{4 if underline else 24}m'
     if overline is not None:
-        bits.append(f'\033[{53 if overline else 55}m')
+        bits += f'\033[{53 if overline else 55}m'
     if italic is not None:
-        bits.append(f'\033[{3 if italic else 23}m')
+        bits += f'\033[{3 if italic else 23}m'
     if blink is not None:
-        bits.append(f'\033[{5 if blink else 25}m')
+        bits += f'\033[{5 if blink else 25}m'
     if reverse is not None:
-        bits.append(f'\033[{7 if reverse else 27}m')
+        bits += f'\033[{7 if reverse else 27}m'
     if strikethrough is not None:
-        bits.append(f'\033[{9 if strikethrough else 29}m')
-    bits.append(text)
+        bits += f'\033[{9 if strikethrough else 29}m'
+
+    bits += text
+
     if reset:
-        bits.append(_ansi_reset_all)
+        bits += _ansi_reset_all
 
-    return ''.join(bits)
+    return bits
 
 
+# code from uvcorn
 class ColourizedFormatter(logging.Formatter):
     """
     A custom log formatter class that:
