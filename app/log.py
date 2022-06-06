@@ -110,43 +110,43 @@ def style(
     if not isinstance(text, str):
         text = str(text)
 
-    bits = ''
+    bits = []
 
     if fg:
         try:
-            bits += f'\033[{_interpret_color(fg)}m'
+            bits.append(f'\033[{_interpret_color(fg)}m')
         except KeyError:
             raise TypeError(f'Unknown color {fg!r}') from None
 
     if bg:
         try:
-            bits += f'\033[{_interpret_color(bg, 10)}m'
+            bits.append(f'\033[{_interpret_color(bg, 10)}m')
         except KeyError:
             raise TypeError(f'Unknown color {bg!r}') from None
 
     if bold is not None:
-        bits += f'\033[{1 if bold else 22}m'
+        bits.append(f'\033[{1 if bold else 22}m')
     if dim is not None:
-        bits += f'\033[{2 if dim else 22}m'
+        bits.append(f'\033[{2 if dim else 22}m')
     if underline is not None:
-        bits += f'\033[{4 if underline else 24}m'
+        bits.append(f'\033[{4 if underline else 24}m')
     if overline is not None:
-        bits += f'\033[{53 if overline else 55}m'
+        bits.append(f'\033[{53 if overline else 55}m')
     if italic is not None:
-        bits += f'\033[{3 if italic else 23}m'
+        bits.append(f'\033[{3 if italic else 23}m')
     if blink is not None:
-        bits += f'\033[{5 if blink else 25}m'
+        bits.append(f'\033[{5 if blink else 25}m')
     if reverse is not None:
-        bits += f'\033[{7 if reverse else 27}m'
+        bits.append(f'\033[{7 if reverse else 27}m')
     if strikethrough is not None:
-        bits += f'\033[{9 if strikethrough else 29}m'
+        bits.append(f'\033[{9 if strikethrough else 29}m')
 
-    bits += text
+    bits.append(text)
 
     if reset:
-        bits += _ansi_reset_all
+        bits.append(_ansi_reset_all)
 
-    return bits
+    return ''.join(bits)
 
 
 # code from uvcorn
