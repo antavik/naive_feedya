@@ -55,9 +55,11 @@ ARCHIVE_PATH.mkdir(parents=True, exist_ok=True)
 # Templates paths
 TEMPLATES_FOLDER = 'web/templates'
 TEMPLATES_PATH = CWD / TEMPLATES_FOLDER
-BASE_TEMPLATE_FILENAME = 'base.html'
-TAB_TEMPLATE_FILENAME = 'tab.html'
-LOGIN_TEMPLATE_FILENAME = 'login.html'
+BASE_TEMPLATE = 'base.html'
+TAB_TEMPLATE = 'tab.html'
+LOGIN_TEMPLATE = 'login.html'
+POSITIVE_RESPONSE_TEMPLATE = 'positive_response.html'
+NEGATIVE_RESPONSE_TEMPLATE = 'negative_response.html'
 
 STATIC_FOLDER = 'web/static'
 STATIC_PATH = CWD / STATIC_FOLDER

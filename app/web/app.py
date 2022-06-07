@@ -22,7 +22,11 @@ from manager import (
     get_login_sub_page,
 )
 from constants import EntryType
-from .exceptions import InvalidCredentialsException, EntryURLNotFoundException
+from .exceptions import (
+    InvalidCredentials,
+    FeedTypeNotFound,
+    InternalServerError,
+)
 
 APP = FastAPI(title=settings.API_NAME, debug=settings.DEV_MODE)
 APP.mount(
@@ -60,7 +64,7 @@ async def get_login_page():
 )
 async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
     if not user.is_valid_credentials(form_data.username, form_data.password):
-        raise InvalidCredentialsException
+        raise InvalidCredentials
 
     token, _ = user.generate_token()
     response = {'access_token': str(token), 'token_type': 'bearer'}
@@ -69,83 +73,48 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
 
 
 @APP.get(
-    '/news',
+    '/{feed_type}',
     response_class=HTMLResponse,
-    summary='Get rendered news html page'
+    summary='Get base html page'
 )
-async def get_news_page():
-    response = await get_base_page(feed_type=EntryType.NEWS)
+async def get_news_page(feed_type: str):
+    try:
+        feed_type = EntryType[feed_type.upper()]
+    except KeyError:
+        raise FeedTypeNotFound from None
 
-    return response
+    return await get_base_page(feed_type=feed_type)
 
 
 @APP.get(
-    '/news/tab/',
+    '/{feed_type}/tab/',
     response_class=HTMLResponse | RedirectResponse,
-    summary='Get news sub-page for main feed page or redirect login sub-page'
+    summary='Get feed sub-page or redirect to login sub-page'
 )
 async def get_news_tab_sub_page(
+        feed_type: str,
         last_hours: int,
         token: t.Optional[str] = Depends(oauth2_scheme)
 ):
-    if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(
-            FEEDS, FEEDS_REGISTRY, EntryType.NEWS, last_hours
-        )
-        response = HTMLResponse(
-            content=content,
-            headers={'WWW-Authenticate': 'Bearer'}
-        )
-    else:
-        login_page_url = (
-            settings.PATH_PREFIX + APP.url_path_for('get_login_page')
-        )
-        response = RedirectResponse(
-            url=login_page_url,
+    if token is None or not user.is_valid_token(token):
+        return RedirectResponse(
+            url=settings.PATH_PREFIX + APP.url_path_for('get_login_page'),
             headers={'WWW-Authenticate': 'Bearer'}
         )
 
-    return response
+    try:
+        feed_type = EntryType[feed_type.upper()]
+    except KeyError:
+        raise FeedTypeNotFound from None
 
+    content = await get_tab_sub_page(
+        FEEDS, FEEDS_REGISTRY, feed_type, last_hours
+    )
 
-@APP.get(
-    '/spam',
-    response_class=HTMLResponse,
-    summary='Get rendered spam html page'
-)
-async def get_spam_page():
-    response = await get_base_page(feed_type=EntryType.SPAM)
-
-    return response
-
-
-@APP.get(
-    '/spam/tab/',
-    response_class=HTMLResponse | RedirectResponse,
-    summary='Get spam sub-page for main feed page or redirect login sub-page'
-)
-async def get_spam_tab_sub_page(
-        last_hours: int,
-        token: t.Optional[str] = Depends(oauth2_scheme)
-):
-    if token is not None and user.is_valid_token(token):
-        content = await get_tab_sub_page(
-            FEEDS, FEEDS_REGISTRY, EntryType.SPAM, last_hours
-        )
-        response = HTMLResponse(
-            content=content,
-            headers={'WWW-Authenticate': 'Bearer'}
-        )
-    else:
-        login_page_url = (
-            settings.PATH_PREFIX + APP.url_path_for('get_login_page')
-        )
-        response = RedirectResponse(
-            url=login_page_url,
-            headers={'WWW-Authenticate': 'Bearer'}
-        )
-
-    return response
+    return HTMLResponse(
+        content=content,
+        headers={'WWW-Authenticate': 'Bearer'}
+    )
 
 
 @APP.put(
@@ -158,30 +127,19 @@ async def update(
         token: t.Optional[str] = Depends(oauth2_scheme)
 ):
     if token is None or not user.is_valid_token(token):
-        get_login_page_url = APP.url_path_for('get_login_page')
-
         return RedirectResponse(
-            url=get_login_page_url,
+            url=settings.PATH_PREFIX + APP.url_path_for('get_login_page'),
             headers={'WWW-Authenticate': 'Bearer'}
         )
 
-    if await update_feed_classifier(feedback) is None:
-        raise EntryURLNotFoundException
+    content = await update_feed_classifier(feedback)
+    if content is None:
+        raise InternalServerError
 
-    if feedback.entry_is_valid:
-        response = (
-            '<span>✅</span>'
-            '<button hx-put="%s/api/entry" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": false}\'>➖</button>'  # noqa
-            % settings.PATH_PREFIX
-        )
-    else:
-        response = (
-            '<button hx-put="%s/api/entry" hx-ext="json-enc" hx-vals=\'{"entry_is_valid": true}\'>➕</button>'  # noqa
-            '<span>🛑</span>'
-            % settings.PATH_PREFIX
-        )
-
-    return response
+    return HTMLResponse(
+        content=content,
+        headers={'WWW-Authenticate': 'Bearer'}
+    )
 
 
 @APP.get(

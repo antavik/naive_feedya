@@ -1,6 +1,4 @@
 import logging
-import asyncio
-import random
 import datetime
 import hashlib
 import gzip
@@ -17,7 +15,12 @@ from parser import parse, EntryProxy
 from scraper import Scraper
 from constants import EntryType
 from storage import feed_entries_db, stats_db
-from web import render_base_page, render_tab_sub_page, render_login_sub_page
+from web import (
+    render_base_page,
+    render_tab_sub_page,
+    render_login_sub_page,
+    render_update_feedback,
+)
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
 
@@ -25,8 +28,6 @@ log = logging.getLogger(settings.LOGGER_NAME)
 
 
 async def process_feed(feed: Feed, scraper: Scraper):
-    await asyncio.sleep(random.randint(*settings.FEED_REFRESH_JITTER_TIME_MINUTES) * 60)  # noqa
-
     feed_data, scraped_dt = await scraper.get(feed)
     if not feed_data:
         log.warning('Feed %s is empty', feed.title)
@@ -145,20 +146,17 @@ async def get_login_sub_page() -> str:
 
 async def update_feed_classifier(feedback: 'UserFeedback') -> bool | None:  # TODO: make typing correct  # noqa
     entry_classified = await feed_entries_db.is_classified(feedback.entry_url)
-
     if entry_classified is None:
-        log.warning('URL doesn\'t exist %s', feedback.entry_url)
+        log.error('URL doesn\'t exist %s', feedback.entry_url)
 
         return
 
     if entry_classified:
-        updated_tokens = await reverse_stats(
+        updated_tokens, updated_docs = await reverse_stats(
             document=feedback.entry_title,
             label=feedback.entry_is_valid,
             language=feedback.entry_language
         )
-
-        updated = bool(updated_tokens)
     else:
         updated_tokens, updated_docs = await update_stats(
             document=feedback.entry_title,
@@ -166,15 +164,22 @@ async def update_feed_classifier(feedback: 'UserFeedback') -> bool | None:  # TO
             language=feedback.entry_language
         )
 
-        updated = bool(updated_tokens and updated_docs)
+    updated = bool(updated_tokens and updated_docs)
+    if not updated:
+        log.error('Classifier not updated for %s', feedback)
 
-    if updated:
-        await feed_entries_db.update_validity(
-            url=feedback.entry_url,
-            label=feedback.entry_is_valid
-        )
+        return
 
-    return updated
+    updated = await feed_entries_db.update_validity(
+        url=feedback.entry_url,
+        label=feedback.entry_is_valid
+    )
+    if not updated:
+        log.error('Feed entry not updated for %s', feedback)
+
+        return
+
+    return await render_update_feedback(feedback.entry_is_valid)
 
 
 async def archive_classified_entities(clipper_client: clipper.Client):

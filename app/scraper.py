@@ -1,6 +1,7 @@
 import logging
 import asyncio
 import datetime
+import random
 
 import httpx
 
@@ -13,8 +14,13 @@ log = logging.getLogger(settings.LOGGER_NAME)
 
 class Scraper:
 
-    def __init__(self, event_loop: asyncio.AbstractEventLoop):
+    def __init__(
+            self,
+            event_loop: asyncio.AbstractEventLoop,
+            jitter_period: tuple[int, int] = None
+    ):
         self.event_loop = event_loop
+        self.jitter_period = jitter_period
 
         self.agent = 'nf'
         self.headers = {
@@ -27,6 +33,11 @@ class Scraper:
             self,
             feed: Feed
     ) -> tuple[bytes, datetime.datetime | None]:
+        if self.jitter_period is not None:
+            await asyncio.sleep(
+                random.randint(*self.jitter_period) * 60
+            )
+
         try:
             response = await self._http_client.get(
                 feed.url, follow_redirects=feed.follow_redirects

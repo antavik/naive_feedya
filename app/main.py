@@ -29,7 +29,10 @@ log = setup_logger()
 
 
 async def main():
-    scraper = Scraper(asyncio.get_running_loop())
+    scraper = Scraper(
+        event_loop=asyncio.get_running_loop(),
+        jitter_period=settings.FEED_REFRESH_JITTER_TIME_MINUTES
+    )
 
     clipper_client = None
     if settings.CLIPPER_URL is not None and settings.CLIPPER_TOKEN is not None:

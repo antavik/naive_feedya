@@ -41,11 +41,11 @@ _ENVIRONMENT.globals['path_prefix'] = settings.PATH_PREFIX
 
 
 async def render_base_page(feed_type: const.EntryType) -> str:
-    template = _ENVIRONMENT.get_template(settings.BASE_TEMPLATE_FILENAME)
+    template = _ENVIRONMENT.get_template(settings.BASE_TEMPLATE)
 
     title_bg_color, title_font_color = utils.color_pairs_randomizer()
 
-    html_page = await template.render_async(
+    return await template.render_async(
         title_bg_color=title_bg_color,
         title_font_color=title_font_color,
         feed_datetime=datetime.datetime.now(),
@@ -53,29 +53,31 @@ async def render_base_page(feed_type: const.EntryType) -> str:
         language=settings.APP_LANG.value.capitalize()
     )
 
-    return html_page
-
 
 async def render_tab_sub_page(
         feed_type: const.EntryType,
         last_hours: int,
         feeds: dict[Feed, list[FeedEntry]]
 ) -> str:
-    template = _ENVIRONMENT.get_template(settings.TAB_TEMPLATE_FILENAME)
+    template = _ENVIRONMENT.get_template(settings.TAB_TEMPLATE)
 
-    html_page = await template.render_async(
+    return await template.render_async(
         entry_type=utils.lower(feed_type.name),
         opposite_type=utils.lower(const.EntryType(not feed_type).name),
         last_hours=last_hours,
         feeds=feeds
     )
 
-    return html_page
-
 
 async def render_login_sub_page() -> str:
-    template = _ENVIRONMENT.get_template(settings.LOGIN_TEMPLATE_FILENAME)
+    template = _ENVIRONMENT.get_template(settings.LOGIN_TEMPLATE)
 
-    html_page = await template.render_async()
+    return await template.render_async()
 
-    return html_page
+
+async def render_update_feedback(is_valid: bool) -> str:
+    template = _ENVIRONMENT.get_template(
+        settings.POSITIVE_RESPONSE_TEMPLATE if is_valid else settings.NEGATIVE_RESPONSE_TEMPLATE  # noqa
+    )
+
+    return await template.render_async()
