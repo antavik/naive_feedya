@@ -151,21 +151,14 @@ async def update_feed_classifier(feedback: 'UserFeedback') -> bool | None:  # TO
 
         return
 
-    if entry_classified:
-        updated_tokens, updated_docs = await reverse_stats(
-            document=feedback.entry_title,
-            label=feedback.entry_is_valid,
-            language=feedback.entry_language
-        )
-    else:
-        updated_tokens, updated_docs = await update_stats(
-            document=feedback.entry_title,
-            label=feedback.entry_is_valid,
-            language=feedback.entry_language
-        )
+    proc = reverse_stats if entry_classified else update_stats
 
-    updated = bool(updated_tokens and updated_docs)
-    if not updated:
+    updated_tokens, updated_docs = await proc(
+        document=feedback.entry_title,
+        label=feedback.entry_is_valid,
+        language=feedback.entry_language
+    )
+    if not bool(updated_tokens and updated_docs):
         log.error('Classifier not updated for %s', feedback)
 
         return
