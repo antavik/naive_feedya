@@ -42,12 +42,12 @@ _ENVIRONMENT.globals['path_prefix'] = settings.PATH_PREFIX
 
 
 def _get_ui_config(mobile: bool) -> dict[str, t.Any]:
-    device_config = (
+    config = (
         settings.MOBILE_UI_CONFIG if mobile else settings.DEFAULT_UI_CONFIG
     )
-    device_config['title_bg_color'], device_config['title_font_color'] = utils.color_pairs_randomizer()  # noqa
+    config['title_bg_color'], device_config['title_font_color'] = utils.color_pairs_randomizer()  # noqa
 
-    return device_config
+    return config
 
 
 async def render_base_page(feed_type: const.EntryType, mobile: bool) -> str:
