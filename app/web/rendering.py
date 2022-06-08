@@ -45,7 +45,7 @@ def _get_ui_config(mobile: bool) -> dict[str, t.Any]:
     config = (
         settings.MOBILE_UI_CONFIG if mobile else settings.DEFAULT_UI_CONFIG
     )
-    config['title_bg_color'], device_config['title_font_color'] = utils.color_pairs_randomizer()  # noqa
+    config['title_bg_color'], config['title_font_color'] = utils.color_pairs_randomizer()  # noqa
 
     return config
 
