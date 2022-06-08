@@ -79,6 +79,7 @@ API_NAME = 'naive_feedya'
 SERVER_HOST = '0.0.0.0'
 SERVER_PORT = 8008
 PATH_PREFIX = os.getenv('PATH_PREFIX', '')
+MOBILE_PREFIX = 'm'
 
 # Clipper
 CLIPPER_URL = os.getenv('CLIPPER_URL')
@@ -93,17 +94,19 @@ LOGGER_NAME = 'nf-log'
 
 # UI configurations
 DEFAULT_UI_CONFIG = {
-    'device': 'default',
+    'ui_mode': 'default',
     'content_width': '80%',
     'line_size': 3,
     'collapse_size': 9,
+    'ui_path_prefix': f'{PATH_PREFIX}'
 }
 DEFAULT_UI_CONFIG['entry_width'] = 100 // DEFAULT_UI_CONFIG['line_size']
 MOBILE_UI_CONFIG = {
-    'device': 'mobile',
+    'ui_mode': 'mobile',
     'content_width': '100%',
     'line_size': 2,
     'collapse_size': 0,
+    'ui_path_prefix': f'{PATH_PREFIX}/{MOBILE_PREFIX}'
 }
 MOBILE_UI_CONFIG['entry_width'] = 100 // MOBILE_UI_CONFIG['line_size']
 

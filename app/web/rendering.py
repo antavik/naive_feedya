@@ -72,7 +72,7 @@ async def render_tab_sub_page(
     )
 
     return await template.render_async(
-        entry_type=utils.lower(feed_type.name),
+        feed_type=utils.lower(feed_type.name),
         opposite_type=utils.lower(const.EntryType(not feed_type).name),
         last_hours=last_hours,
         feeds=feeds,

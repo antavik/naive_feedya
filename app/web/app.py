@@ -84,7 +84,7 @@ async def get_base_page(feed_type: str):
 
 
 @APP.get(
-    '/m/{feed_type}',
+    '/%s/{feed_type}' % settings.MOBILE_PREFIX,
     response_class=HTMLResponse,
     summary='Get base mobile html page'
 )
@@ -129,7 +129,7 @@ async def get_tab_sub_page(
 
 
 @APP.get(
-    '/m/{feed_type}/tab/',
+    '/%s/{feed_type}/tab/' % settings.MOBILE_PREFIX,
     response_class=HTMLResponse | RedirectResponse,
     summary='Get feed mobile sub-page or redirect to login sub-page'
 )
