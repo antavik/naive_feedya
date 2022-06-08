@@ -60,6 +60,7 @@ TAB_TEMPLATE = 'tab.html'
 LOGIN_TEMPLATE = 'login.html'
 POSITIVE_RESPONSE_TEMPLATE = 'positive_response.html'
 NEGATIVE_RESPONSE_TEMPLATE = 'negative_response.html'
+NAV_TABLE_TEMPLATE = 'nav_table.html'
 
 STATIC_FOLDER = 'web/static'
 STATIC_PATH = CWD / STATIC_FOLDER
@@ -89,5 +90,21 @@ DT_TEMPLATE = '%b %d, %Y, %H:%M'
 
 # Logging
 LOGGER_NAME = 'nf-log'
+
+# UI configurations
+DEFAULT_UI_CONFIG = {
+    'device': 'default',
+    'content_width': '80%',
+    'line_size': 3,
+    'collapse_size': 9,
+}
+DEFAULT_UI_CONFIG['entry_width'] = 100 // DEFAULT_UI_CONFIG['line_size']
+MOBILE_UI_CONFIG = {
+    'device': 'mobile',
+    'content_width': '100%',
+    'line_size': 2,
+    'collapse_size': 0,
+}
+MOBILE_UI_CONFIG['entry_width'] = 100 // MOBILE_UI_CONFIG['line_size']
 
 os.environ.clear()

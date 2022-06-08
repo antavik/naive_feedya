@@ -16,10 +16,10 @@ from starlette.responses import RedirectResponse
 
 from feeds import FEEDS, FEEDS_REGISTRY
 from manager import (
-    get_base_page,
-    get_tab_sub_page,
+    get_base_html_page,
+    get_tab_html_sub_page,
     update_feed_classifier,
-    get_login_sub_page,
+    get_login_html_sub_page,
 )
 from constants import EntryType
 from .exceptions import (
@@ -53,9 +53,7 @@ class UserFeedback(BaseModel):
     summary='Get login sub-page'
 )
 async def get_login_page():
-    response = await get_login_sub_page()
-
-    return response
+    return await get_login_html_sub_page()
 
 
 @APP.put(
@@ -67,9 +65,8 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
         raise InvalidCredentials
 
     token, _ = user.generate_token()
-    response = {'access_token': str(token), 'token_type': 'bearer'}
 
-    return response
+    return {'access_token': str(token), 'token_type': 'bearer'}
 
 
 @APP.get(
@@ -77,13 +74,27 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
     response_class=HTMLResponse,
     summary='Get base html page'
 )
-async def get_news_page(feed_type: str):
+async def get_base_page(feed_type: str):
     try:
         feed_type = EntryType[feed_type.upper()]
     except KeyError:
         raise FeedTypeNotFound from None
 
-    return await get_base_page(feed_type=feed_type)
+    return await get_base_html_page(feed_type=feed_type)
+
+
+@APP.get(
+    '/m/{feed_type}',
+    response_class=HTMLResponse,
+    summary='Get base mobile html page'
+)
+async def get_base_mobile_page(feed_type: str):
+    try:
+        feed_type = EntryType[feed_type.upper()]
+    except KeyError:
+        raise FeedTypeNotFound from None
+
+    return await get_base_html_page(feed_type=feed_type, mobile=True)
 
 
 @APP.get(
@@ -91,7 +102,7 @@ async def get_news_page(feed_type: str):
     response_class=HTMLResponse | RedirectResponse,
     summary='Get feed sub-page or redirect to login sub-page'
 )
-async def get_news_tab_sub_page(
+async def get_tab_sub_page(
         feed_type: str,
         last_hours: int,
         token: t.Optional[str] = Depends(oauth2_scheme)
@@ -107,8 +118,39 @@ async def get_news_tab_sub_page(
     except KeyError:
         raise FeedTypeNotFound from None
 
-    content = await get_tab_sub_page(
+    content = await get_tab_html_sub_page(
         FEEDS, FEEDS_REGISTRY, feed_type, last_hours
+    )
+
+    return HTMLResponse(
+        content=content,
+        headers={'WWW-Authenticate': 'Bearer'}
+    )
+
+
+@APP.get(
+    '/m/{feed_type}/tab/',
+    response_class=HTMLResponse | RedirectResponse,
+    summary='Get feed mobile sub-page or redirect to login sub-page'
+)
+async def get_mobile_tab_sub_page(
+        feed_type: str,
+        last_hours: int,
+        token: t.Optional[str] = Depends(oauth2_scheme)
+):
+    if token is None or not user.is_valid_token(token):
+        return RedirectResponse(
+            url=settings.PATH_PREFIX + APP.url_path_for('get_login_page'),
+            headers={'WWW-Authenticate': 'Bearer'}
+        )
+
+    try:
+        feed_type = EntryType[feed_type.upper()]
+    except KeyError:
+        raise FeedTypeNotFound from None
+
+    content = await get_tab_html_sub_page(
+        FEEDS, FEEDS_REGISTRY, feed_type, last_hours, mobile=True
     )
 
     return HTMLResponse(
@@ -119,7 +161,7 @@ async def get_news_tab_sub_page(
 
 @APP.put(
     '/api/entry',
-    response_class=HTMLResponse,
+    response_class=HTMLResponse | RedirectResponse,
     summary='Feed entries api'
 )
 async def update(

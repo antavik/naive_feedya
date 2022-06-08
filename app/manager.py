@@ -104,17 +104,19 @@ async def clean_feed_entries_db():
         log.info('Feed entries DB cleaned. Removed %d entries', removed)
 
 
-async def get_base_page(feed_type: EntryType) -> str:
-    html_page = await render_base_page(feed_type)
+async def get_base_html_page(
+        feed_type: EntryType,
+        mobile: bool = False
+) -> str:
+    return await render_base_page(feed_type, mobile)
 
-    return html_page
 
-
-async def get_tab_sub_page(
+async def get_tab_html_sub_page(
         feeds: list[Feed],
         feed_registry: dict[str, Feed],
         feed_type: EntryType,
-        last_hours: int
+        last_hours: int,
+        mobile: bool = False
 ) -> str:
     label = bool(feed_type)
     feed_to_entries: dict[Feed, list] = {f: [] for f in feeds}
@@ -132,16 +134,15 @@ async def get_tab_sub_page(
     html_page = await render_tab_sub_page(
         feed_type,
         last_hours,
-        feed_to_entries
+        feed_to_entries,
+        mobile
     )
 
     return html_page
 
 
-async def get_login_sub_page() -> str:
-    html_page = await render_login_sub_page()
-
-    return html_page
+async def get_login_html_sub_page() -> str:
+    return await render_login_sub_page()
 
 
 async def update_feed_classifier(feedback: 'UserFeedback') -> bool | None:  # TODO: make typing correct  # noqa
