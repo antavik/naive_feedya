@@ -102,7 +102,7 @@ async def fetch_last_entries(
             feed IN ({", ".join(quoted_titles)}) AND
             parsed > CAST(strftime('%s', datetime('now', '-{hours_delta} hours')) as integer)
         ORDER BY parsed DESC
-    """
+    """  # noqa
 
     result = await fetch_all(DB_FILEPATH, query)
 
