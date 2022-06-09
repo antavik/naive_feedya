@@ -78,7 +78,7 @@ async def remove_old(
     query = f"""
         DELETE FROM {FEED_ENTRIES_TABLE}
         WHERE
-            parsed < CAST(strftime('%s', date('now', '-{days_delta} days')) as integer) AND
+            parsed < CAST(strftime('%s', datetime('now', '-{days_delta} days')) as integer) AND
             (classified = 0 OR (classified = 1 AND valid = 0))
     """  # noqa
 
@@ -100,10 +100,7 @@ async def fetch_last_entries(
         WHERE
             valid = {int(valid)} AND
             feed IN ({", ".join(quoted_titles)}) AND
-            parsed >
-            CAST(
-                strftime('%s', date('now', '-{hours_delta} hours')) as integer
-            )
+            parsed > CAST(strftime('%s', datetime('now', '-{hours_delta} hours')) as integer)
         ORDER BY parsed DESC
     """
 
