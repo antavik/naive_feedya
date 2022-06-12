@@ -96,17 +96,39 @@ async def test_filter_exist_urls__urls_from_db__urls_from_db(
 
 
 @pytest.mark.asyncio
-async def test_remove_old__valid_date_delta__removed_old(
+async def test_fetch_expired_entries_with_archived_clips__entries_with_clips__entries(  # noqa
         fake_feed_entries_db_with_random_data_older_than_days_threshold,
         fake_seq_feed_entries
 ):
-    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold  # noqa
+    def sort_entries(entries):
+        return sorted(entries, key=lambda e: e.archive)
+
+    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold
+    expired_entities = [
+        e for e in fake_seq_feed_entries
+        if (not e.is_classified or (e.is_classified and not e.is_valid)) and
+        e.archive is not None
+    ]
+    expired_entities = sort_entries(expired_entities)
+
+    result = await fake_db.fetch_expired_entries_with_archived_clips()
+    result = sort_entries(result)
+
+    assert result == expired_entities
+
+
+@pytest.mark.asyncio
+async def test_remove_expired__valid_date_delta__removed_old(
+        fake_feed_entries_db_with_random_data_older_than_days_threshold,
+        fake_seq_feed_entries
+):
+    fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold
     expired_entities = [
         e for e in fake_seq_feed_entries
         if not e.is_classified or (e.is_classified and not e.is_valid)
     ]
 
-    removed_data = await fake_db.remove_old()
+    removed_data = await fake_db.remove_expired()
 
     assert removed_data == len(expired_entities)
 

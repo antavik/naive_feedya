@@ -72,7 +72,24 @@ async def filter_exist_urls(urls: t.Iterable[str]) -> set[str]:
     return {url[0] for url in result}
 
 
-async def remove_old(
+async def fetch_expired_entries_with_archived_clips(
+        days_delta: int = settings.FEED_ENTRIES_DAYS_THRESHOLD
+) -> tuple[FeedEntry, ...]:
+    query = f"""
+        SELECT *
+        FROM {FEED_ENTRIES_TABLE}
+        WHERE
+            parsed < CAST(strftime('%s', datetime('now', '-{days_delta} days')) as integer) AND
+            (classified = 0 OR (classified = 1 AND valid = 0)) AND
+            archive IS NOT NULL
+    """  # noqa
+
+    result = await fetch_all(DB_FILEPATH, query)
+
+    return tuple(FeedEntry(*r) for r in result)
+
+
+async def remove_expired(
         days_delta: int = settings.FEED_ENTRIES_DAYS_THRESHOLD
 ) -> int:
     query = f"""

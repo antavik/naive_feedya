@@ -97,11 +97,28 @@ async def prepare_feed_entries(
     return feed_entries
 
 
-async def clean_feed_entries_db():
-    removed = await feed_entries_db.remove_old()
+async def clean_feed_entries():
+    archived = await feed_entries_db.fetch_expired_entries_with_archived_clips()  # noqa
+    expired_archive_files = {
+        settings.ARCHIVE_PATH / e.archive
+        for e in archived
+        if e.archive.endswith('.json.gz')
+    }
+
+    archive_files = {fp for fp in settings.ARCHIVE_PATH.iterdir()}
+
+    for fp in archive_files & expired_archive_files:
+        try:
+            fp.unlink()
+        except Exception as exc:
+            log.error('Failed to remove clip %s: %s', fp, exc)
+        else:
+            log.debug('Removed clip %s', fp)
+
+    removed = await feed_entries_db.remove_expired()
 
     if removed:
-        log.info('Feed entries DB cleaned. Removed %d entries', removed)
+        log.info('Feed entries DB cleaned, removed %d entries', removed)
 
 
 async def get_base_html_page(
@@ -190,8 +207,8 @@ async def archive_entry(entry: FeedEntry, clipper_client: clipper.Client):
     except clipper.ClippingError as exc:
         entry.archive = str(exc)
     else:
-        filename = hashlib.md5(entry.url.encode()).hexdigest()
-        filepath = settings.ARCHIVE_PATH / f'{filename}.json.gz'
+        filename = f'{hashlib.md5(entry.url.encode()).hexdigest()}.json.gz'
+        filepath = settings.ARCHIVE_PATH / filename
         with gzip.open(filepath, 'wb') as f:
             f.write(article)
 

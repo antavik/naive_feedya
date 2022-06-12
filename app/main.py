@@ -20,7 +20,7 @@ from scraper import Scraper
 from feeds import Feed, FEEDS
 from manager import (
     process_feed,
-    clean_feed_entries_db,
+    clean_feed_entries,
     setup_all_dbs,
     archive_classified_entities,
 )
@@ -44,7 +44,7 @@ async def main():
         )
 
     asyncio.create_task(serve())
-    asyncio.create_task(parse(FEEDS, scraper, settings.FEED_REFRESH_TIME_SECONDS))  # noqa
+    asyncio.create_task(proc(FEEDS, scraper, settings.FEED_REFRESH_TIME_SECONDS))  # noqa
     asyncio.create_task(clean(settings.FEED_REFRESH_TIME_SECONDS))
     asyncio.create_task(archive(clipper_client, settings.ARCHIVE_REFRESH))
 
@@ -60,8 +60,8 @@ async def serve():
     await server.serve()
 
 
-async def parse(feeds: list[Feed], scraper: Scraper, refresh: int):
-    log.info('Start parser')
+async def proc(feeds: list[Feed], scraper: Scraper, refresh: int):
+    log.info('Start processor')
 
     while True:
         utils.escape_single_quote.cache_clear()
@@ -82,7 +82,7 @@ async def clean(refresh: int):
     while True:
         if const.CLEANER_TASK_NAME not in {f.get_name() for f in asyncio.all_tasks()}:  # noqa
             asyncio.create_task(
-                clean_feed_entries_db(),
+                clean_feed_entries(),
                 name=const.CLEANER_TASK_NAME
             )
         else:

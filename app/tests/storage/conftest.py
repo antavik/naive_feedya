@@ -77,7 +77,7 @@ def fake_seq_feed_entries():
             parsed_timestamp=fake.unix_time(),
             valid=fake.pyint(max_value=1),
             classified=fake.pyint(max_value=1),
-            archive=fake.md5(raw_output=False)
+            archive=f'{fake.md5(raw_output=False)}.json.gz'
         )
         for i in range(TEST_DB_ROWS_COUNT)
     ]
