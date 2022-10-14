@@ -106,15 +106,19 @@ async def test_fetch_expired_entries_with_archived_clips__entries_with_clips__en
     fake_db = fake_feed_entries_db_with_random_data_older_than_days_threshold
     expired_entities = [
         e for e in fake_seq_feed_entries
-        if (not e.is_classified or (e.is_classified and not e.is_valid)) and
-        e.archive is not None
+        if (
+            (
+                not e.is_classified
+                or (e.is_classified and not e.is_valid)
+            )
+            and e.archive is not None
+        )
     ]
     expired_entities = sort_entries(expired_entities)
 
     result = await fake_db.fetch_expired_entries_with_archived_clips()
-    result = sort_entries(result)
 
-    assert result == expired_entities
+    assert sort_entries(result) == expired_entities
 
 
 @pytest.mark.asyncio

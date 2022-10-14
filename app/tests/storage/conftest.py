@@ -19,7 +19,7 @@ from storage.entities import (
 )
 
 TEST_DB_FILENAME = 'temp_db.sqlite'
-TEST_DB_ROWS_COUNT = 20
+TEST_DB_ROWS_COUNT = 10
 
 fake = Faker()
 Faker.seed(TEST_DB_ROWS_COUNT)
