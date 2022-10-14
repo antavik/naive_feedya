@@ -34,21 +34,17 @@ class Scraper:
             feed: Feed
     ) -> tuple[bytes, datetime.datetime | None]:
         if self.jitter_period is not None:
-            await asyncio.sleep(
-                random.randint(*self.jitter_period) * 60
-            )
+            await asyncio.sleep(random.randint(*self.jitter_period) * 60)
 
         try:
             response = await self._http_client.get(
                 feed.url, follow_redirects=feed.follow_redirects
             )
             response.raise_for_status()
-        except httpx.TimeoutException:
-            log.warning('Scraper timeout exceed for feed %s', feed.title)
-
-            return (b'', None)
         except Exception as exc:
-            log.error('Error getting feed %s data: %s', feed.title, exc)
+            log.warning(
+                'Problem while getting feed %s data: %s', feed.title, exc
+            )
 
             return (b'', None)
         else:
