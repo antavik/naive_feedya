@@ -59,7 +59,7 @@ def style(
     strikethrough: t.Optional[bool] = None,
     reset: bool = True
 ) -> str:
-    """Styles a text with ANSI styles and returns the new string.  By
+    """Styles a text with ANSI styles and returns the new string. By
     default the styling is self contained which means that at the end
     of the string a reset code is issued.  This can be prevented by
     passing ``reset=False``.
@@ -215,7 +215,7 @@ def setup_logger() -> logging.Logger:
     log.setLevel(DEBUG)
 
     formatter = ColourizedFormatter(
-        logging_format, logging_dt_format, use_colors=True
+        logging_format, logging_dt_format, use_colors=False
     )
 
     stream_handler = StreamHandler(sys.stdout)
