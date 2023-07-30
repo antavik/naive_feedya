@@ -159,12 +159,12 @@ class ColourizedFormatter(logging.Formatter):
     """
 
     _level_name_colors = {
-        TRACE_LOG_LEVEL: lambda l: style(str(l), fg='blue', bold=True),
-        logging.DEBUG: lambda l: style(str(l), fg='cyan', bold=True),
-        logging.INFO: lambda l: style(str(l), fg='green', bold=True),
-        logging.WARNING: lambda l: style(str(l), fg='yellow', bold=True),
-        logging.ERROR: lambda l: style(str(l), fg='red', bold=True),
-        logging.CRITICAL: lambda l: style(str(l), fg='bright_red', bold=True),
+        TRACE_LOG_LEVEL: lambda lev: style(str(lev), fg='blue', bold=True),
+        logging.DEBUG: lambda lev: style(str(lev), fg='cyan', bold=True),
+        logging.INFO: lambda lev: style(str(lev), fg='green', bold=True),
+        logging.WARNING: lambda lev: style(str(lev), fg='yellow', bold=True),
+        logging.ERROR: lambda lev: style(str(lev), fg='red', bold=True),
+        logging.CRITICAL: lambda lev: style(str(lev), fg='bright_red', bold=True),  # noqa
     }
 
     def __init__(
