@@ -12,7 +12,9 @@
           <span hx-get="{{ ui_path_prefix }}/{{ feed_type }}/tab/?last_hours=24" class="tab-switcher{% if last_hours == 24 %} selected{% endif %}">last 24 hours</span>
           {% if ui_mode == 'default' %}
           /
-          <span hx-get="{{ ui_path_prefix }}/{{ feed_type }}/tab/?last_hours=48" class="tab-switcher{% if last_hours == 48 %} selected{% endif %}">last 48 hours</span>
+          <span hx-get="{{ ui_path_prefix }}/{{ feed_type }}/tab/?last_hours=48" class="tab-switcher{% if last_hours == 48 %} selected{% endif %}">last 2 days</span>
+          /
+          <span hx-get="{{ ui_path_prefix }}/{{ feed_type }}/tab/?last_hours=120" class="tab-switcher{% if last_hours == 120 %} selected{% endif %}">last 5 days</span>
           {% endif %}
           <span>in UTC</span>
         </div>

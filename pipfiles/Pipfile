@@ -24,7 +24,7 @@ uvloop = "==0.16.0"
 Jinja2 = "==3.1.2"
 python-multipart = "0.0.5"
 aiofiles = "==0.6.0"
-spacy = "==3.3.0"
+spacy = "==3.6.0"
 markupsafe = "==2.0.1"  # dep to download spacy models
 
 [requires]
