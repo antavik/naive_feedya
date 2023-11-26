@@ -1,5 +1,6 @@
 import datetime
 import typing as t
+import urllib.parse
 
 from constants import Language
 from dataclasses import dataclass, astuple
@@ -33,6 +34,7 @@ class FeedEntry:
     valid: int
     classified: int = 0
     archive: t.Optional[str] = None
+    gpt_summary: t.Optional[str] = None
 
     @property
     def is_valid(self):
@@ -46,6 +48,10 @@ class FeedEntry:
     def published_datetime(self) -> datetime.datetime:
         return datetime.datetime.fromtimestamp(self.published_timestamp)
 
+    @property
+    def quoted_url(self):
+        return urllib.parse.quote(self.url)
+
 
 def feed_entry_to_tuple_factory(feed_entry_list: list) -> tuple[t.Any, ...]:
     return (
@@ -58,6 +64,7 @@ def feed_entry_to_tuple_factory(feed_entry_list: list) -> tuple[t.Any, ...]:
         feed_entry_list[6],  # valid
         feed_entry_list[7],  # classified
         feed_entry_list[8],  # archive
+        feed_entry_list[9],  # gpt_summary
     )
 
 

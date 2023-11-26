@@ -1,9 +1,11 @@
 import logging
 import asyncio
+import json
 
 import httpx
 
 import settings
+import utils
 
 log = logging.getLogger(settings.LOGGER_NAME)
 
@@ -12,7 +14,7 @@ class ClippingError(Exception):
     pass
 
 
-class Client:
+class _Client:
 
     def __init__(
             self,
@@ -66,3 +68,45 @@ class Client:
 
     def __del__(self):
         self.event_loop.run_until_complete(self.close())
+
+
+_CLIENT: _Client | None = None
+
+
+def build(
+        url: str,
+        token: str,
+        event_loop: asyncio.AbstractEventLoop,
+        timeout: int = 10,
+        retries: int = 3,
+        retry_timeout: int = 10
+) -> _Client:
+    global _CLIENT
+
+    _CLIENT = _Client(
+        url=url,
+        token=token,
+        event_loop=event_loop,
+        timeout=timeout,
+        retries=retries,
+        retry_timeout=retry_timeout,
+    )
+
+    return _CLIENT
+
+
+async def make_readable_text(url: str) -> str:
+    global _CLIENT
+
+    if _CLIENT is None:
+        log.warning('Clipper client not initialized')
+        return
+
+    try:
+        result = await _CLIENT.make_readable(url)
+    except Exception:
+        return ''
+
+    data = json.loads(result.decode())
+
+    return data['textContent']

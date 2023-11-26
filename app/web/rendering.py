@@ -92,3 +92,9 @@ async def render_update_feedback(is_valid: bool) -> str:
     )
 
     return await template.render_async()
+
+
+async def render_article_summary(entry: FeedEntry) -> str:
+    template = _ENVIRONMENT.get_template(settings.ARTICLE_SUMMARY)
+    print(template)
+    return await template.render_async(entry=entry)

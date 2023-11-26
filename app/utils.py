@@ -1,5 +1,6 @@
 import random
 import typing as t
+import hashlib
 
 from itertools import count
 from functools import lru_cache
@@ -65,6 +66,11 @@ def to_bool(value: t.Any) -> bool:
         )
 
 
+@lru_cache(maxsize=64)
+def hash_url(url: str) -> str:
+    return hashlib.md5(url.encode()).hexdigest()
+
+
 @lru_cache(maxsize=1024)
 def escape_single_quote(s: str) -> str:
     return s.replace('\'', '\'\'')
@@ -78,3 +84,14 @@ def escape_double_quotes(s: str) -> str:
 @lru_cache(maxsize=64)
 def lower(s: str) -> str:
     return s.lower()
+
+
+class Singleton(type):
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)  # noqa
+
+        return cls._instances[cls]

@@ -20,6 +20,7 @@ from manager import (
     get_tab_html_sub_page,
     update_feed_classifier,
     get_login_html_sub_page,
+    summarise,
 )
 from constants import EntryType
 from .exceptions import (
@@ -67,6 +68,28 @@ async def login_user(form_data: OAuth2PasswordRequestFormStrict = Depends()):
     token, _ = user.generate_token()
 
     return {'access_token': str(token), 'token_type': 'bearer'}
+
+
+@APP.get(
+    '/summary/',
+    response_class=PlainTextResponse,
+    summary='Get summary of an article'
+)
+async def get_summary(
+        url: str,
+        token: t.Optional[str] = Depends(oauth2_scheme)
+):
+    print(url)
+    if token is None or not user.is_valid_token(token):
+        return RedirectResponse(
+            url=settings.PATH_PREFIX + APP.url_path_for('get_login_page'),
+            headers={'WWW-Authenticate': 'Bearer'}
+        )
+
+    content = await summarise(url)
+    # TODO: error handling
+
+    return content
 
 
 @APP.get(

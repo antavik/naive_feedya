@@ -2,6 +2,15 @@
   <tbody>
     <tr>
       <td>
+        <div id="modals-here"
+            class="modal modal-blur fade"
+            style="display: none"
+            aria-hidden="false"
+            tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content"></div>
+            </div>
+        </div>
         <div class="nav-table">{% block nav_table required %}{% endblock %}</div>
         <div class="tab-content" hx-ext="oauth-header">
           {% for feed, entries in feeds|reverse_empty_feeds %}
@@ -22,20 +31,38 @@
                   <div class="entry-title">
                     <a class="entry-link" href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{- entry.title }}</a>
                     <br>
-                    <div id="feedback-buttons" hx-vals='{"entry_title": "{{ entry.title|escape_double_quotes }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language.value }}"}' hx-swap="innerHTML" hx-target="closest #feedback-buttons">
-                      {% if not entry.is_classified %}
-                      <button hx-put="{{ path_prefix }}/api/entry"  hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button>
-                      <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
-                      {% else %}
-                        {% if entry.is_valid %}
-                        <span>✅</span> 
-                        <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
-                        {% else %}
-                        <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button> 
-                        <span>🛑</span>
-                        {% endif %}
-                      {% endif %}
-                    </div>
+                    <table>
+                      <tr>
+                        <td>
+                          <div id="feedback-buttons" hx-vals='{"entry_title": "{{ entry.title|escape_double_quotes }}", "entry_url": "{{ entry.url }}", "entry_language": "{{ feed.language.value }}"}' hx-swap="innerHTML" hx-target="closest #feedback-buttons">
+                            {% if not entry.is_classified %}
+                            <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button>
+                            <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
+                            {% else %}
+                              {% if entry.is_valid %}
+                              <span>✅</span> 
+                              <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": false}'>➖</button>
+                              {% else %}
+                              <button hx-put="{{ path_prefix }}/api/entry" hx-ext="json-enc" hx-vals='{"entry_is_valid": true}'>➕</button> 
+                              <span>🛑</span>
+                              {% endif %}
+                            {% endif %}
+                          </div>
+                        </td>
+                        <td>
+                          <div id='summary-button'>
+<button 
+    hx-get="{{ path_prefix }}/summary/?url={{ entry.quoted_url }}" 
+    hx-target="#modals-here" 
+    hx-trigger="click" 
+    data-bs-toggle="modal" 
+    data-bs-target="#modals-here">∑</button>
+
+
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
                   </div>
                   {% autoescape False %}
                   <p class="entry-summary">

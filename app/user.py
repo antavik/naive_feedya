@@ -2,17 +2,31 @@ import secrets
 import datetime
 
 import settings
+import constants
 
 from starlette.datastructures import Secret
 
 _USERNAME = settings.USERNAME
 _PASSWORD = settings.PASSWORD
-_TOKEN: Secret = None
-_EXPIRATION: datetime.datetime = None
+
+
+def _get_expiration_date() -> datetime.datetime:
+    return datetime.datetime.now() + datetime.timedelta(days=settings.TOKEN_EXPIRATION_DELTA_DAYS)  # noqa
+
+
+if settings.DEV_MODE:
+    _TOKEN: Secret = Secret(constants.DEV_AUTH_TOKEN)
+    _EXPIRATION: datetime.datetime = _get_expiration_date()
+else:
+    _TOKEN: Secret = None
+    _EXPIRATION: datetime.datetime = None
 
 
 def generate_token() -> tuple[Secret, datetime.datetime]:
     global _TOKEN, _EXPIRATION
+
+    if settings.DEV_MODE:
+        return _TOKEN, _EXPIRATION
 
     _TOKEN = Secret(secrets.token_hex())
     _EXPIRATION = _get_expiration_date()
@@ -41,10 +55,3 @@ def is_valid_token(token: str) -> bool:
         is_valid = True
 
     return is_valid
-
-
-def _get_expiration_date() -> datetime.datetime:
-    days_delta = datetime.timedelta(days=settings.TOKEN_EXPIRATION_DELTA_DAYS)
-    expiration = datetime.datetime.now() + days_delta
-
-    return expiration

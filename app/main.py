@@ -36,17 +36,17 @@ async def main():
 
     clipper_client = None
     if settings.CLIPPER_URL is not None and settings.CLIPPER_TOKEN is not None:
-        clipper_client = clipper.Client(
+        clipper_client = clipper.build(
             url=settings.CLIPPER_URL,
             token=settings.CLIPPER_TOKEN,
             timeout=settings.CLIPPER_TIMEOUT,
             event_loop=asyncio.get_running_loop()
         )
 
-    asyncio.create_task(serve())
     asyncio.create_task(proc(FEEDS, scraper, settings.FEED_REFRESH_TIME_SECONDS))  # noqa
     asyncio.create_task(clean(settings.FEED_REFRESH_TIME_SECONDS))
     asyncio.create_task(archive(clipper_client, settings.ARCHIVE_REFRESH))
+    asyncio.create_task(serve())
 
 
 async def serve():
@@ -91,7 +91,7 @@ async def clean(refresh: int):
         await asyncio.sleep(refresh)
 
 
-async def archive(clipper: None | clipper.Client, refresh: int):
+async def archive(clipper: None | clipper._Client, refresh: int):
     if clipper is None:
         return
 

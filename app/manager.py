@@ -7,6 +7,7 @@ import typing as t
 import clipper
 import utils
 import settings
+import gpt
 
 from feedparser import FeedParserDict
 
@@ -20,6 +21,7 @@ from web import (
     render_tab_sub_page,
     render_login_sub_page,
     render_update_feedback,
+    render_article_summary,
 )
 from storage.entities import FeedEntry
 from feed_classifier.classifier import classify, update_stats, reverse_stats
@@ -193,7 +195,7 @@ async def update_feed_classifier(feedback: 'UserFeedback') -> bool | None:  # TO
     return await render_update_feedback(feedback.entry_is_valid)
 
 
-async def archive_classified_entities(clipper_client: clipper.Client):
+async def archive_classified_entities(clipper_client: clipper._Client):
     entries = await feed_entries_db.fetch_unarchived_valid_classified_entries()
 
     for e in entries:
@@ -201,13 +203,13 @@ async def archive_classified_entities(clipper_client: clipper.Client):
         await archive_entry(e, clipper_client)
 
 
-async def archive_entry(entry: FeedEntry, clipper_client: clipper.Client):
+async def archive_entry(entry: FeedEntry, clipper_client: clipper._Client):
     try:
         article = await clipper_client.make_readable(entry.url)
     except clipper.ClippingError as exc:
         entry.archive = str(exc)
     else:
-        filename = f'{hashlib.md5(entry.url.encode()).hexdigest()}.json.gz'
+        filename = f'{utils.hash_url(entry.url)}.json.gz'
         filepath = settings.ARCHIVE_PATH / filename
         with gzip.open(filepath, 'wb') as f:
             f.write(article)
@@ -217,6 +219,24 @@ async def archive_entry(entry: FeedEntry, clipper_client: clipper.Client):
     saved = await feed_entries_db.update_archived(entry)
     if not saved:
         log.warning('Could not save archive entry %s', entry.url)
+
+
+async def summarise(url: str) -> str:
+    entry = await feed_entries_db.get(url)
+    if entry is None:
+        return 
+
+    if entry.gpt_summary:
+        return await render_article_summary(entry)
+
+    article = await clipper.make_readable_text(url)
+
+    if summary := await gpt.summarise(article):
+        entry.gpt_summary = summary
+
+        await feed_entries_db.update_gpt_summary(entry)
+
+    return await render_article_summary(entry)
 
 
 async def setup_all_dbs():

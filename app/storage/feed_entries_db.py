@@ -10,7 +10,7 @@ DB_FILEPATH = settings.FEED_ENTRIES_DB_FILEPATH
 FEED_ENTRIES_TABLE = 'feed_entries'
 
 
-async def get(url: str) -> FeedEntry:
+async def get(url: str) -> FeedEntry | None:
     query = f"""
         SELECT *
         FROM {FEED_ENTRIES_TABLE}
@@ -19,7 +19,7 @@ async def get(url: str) -> FeedEntry:
 
     result = await fetch_one(DB_FILEPATH, query, url)
 
-    return FeedEntry(*result)
+    return result and FeedEntry(*result)
 
 
 async def fetch_all_entries() -> tuple[FeedEntry, ...]:
@@ -35,8 +35,8 @@ async def fetch_all_entries() -> tuple[FeedEntry, ...]:
 async def save(feed_entry: FeedEntry) -> int:
     query = f"""
         INSERT OR IGNORE INTO {FEED_ENTRIES_TABLE}
-        (feed, title, url, summary, published, parsed, valid, classified, archive)
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (feed, title, url, summary, published, parsed, valid, classified, archive, gpt_summary)
+        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """  # noqa
 
     result = await execute(
@@ -153,7 +153,7 @@ async def is_classified(url: str) -> t.Optional[bool]:
 async def save_many(feeds: t.Iterable[FeedEntry]) -> int:
     query = f"""
         INSERT OR IGNORE INTO {FEED_ENTRIES_TABLE}
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     seq_feed_entries_data = (feed_entry_as_tuple(f) for f in feeds)
@@ -191,6 +191,20 @@ async def update_archived(feed_entry: FeedEntry) -> int:
     return result.rowcount
 
 
+async def update_gpt_summary(feed_entry: FeedEntry) -> int:
+    query = f"""
+        UPDATE {FEED_ENTRIES_TABLE}
+        SET gpt_summary = ?
+        WHERE url = ?
+    """
+
+    result = await execute(
+        DB_FILEPATH, query, feed_entry.gpt_summary, feed_entry.url
+    )
+
+    return result.rowcount
+
+
 async def _setup_db():
     query = f"""
         CREATE TABLE IF NOT EXISTS {FEED_ENTRIES_TABLE}(
@@ -202,7 +216,8 @@ async def _setup_db():
             parsed DATETIME,
             valid BOOLEAN,
             classified BOOLEAN DEFAULT 0,
-            archive TEXT DEFAULT NULL
+            archive TEXT DEFAULT NULL,
+            gpt_summary TEXT DEFAULT NULL
         )
     """
 

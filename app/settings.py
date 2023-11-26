@@ -61,6 +61,7 @@ LOGIN_TEMPLATE = 'login.html'
 POSITIVE_RESPONSE_TEMPLATE = 'positive_response.html'
 NEGATIVE_RESPONSE_TEMPLATE = 'negative_response.html'
 NAV_TABLE_TEMPLATE = 'nav_table.html'
+ARTICLE_SUMMARY = 'article_summary.html'
 
 STATIC_FOLDER = 'web/static'
 STATIC_PATH = CWD / STATIC_FOLDER
@@ -109,5 +110,15 @@ MOBILE_UI_CONFIG = {
     'ui_path_prefix': f'{PATH_PREFIX}/{MOBILE_PREFIX}'
 }
 MOBILE_UI_CONFIG['entry_width'] = 100 // MOBILE_UI_CONFIG['line_size']
+
+# GPT
+GPT_API_URL = os.getenv('GPT_API_URL')
+GPT_API_TOKEN = os.getenv('GPT_API_TOKEN')
+GPT_MODEL_VER = os.getenv('GPT_MODEL_VER')
+GPT_SUMMARY_PROMPT_TEMPLATE_PATH = CACHE_PATH / 'gpt_summary.templ'
+GPT_SUMMARY_PROMPT_TEMPLATE = None
+if GPT_SUMMARY_PROMPT_TEMPLATE_PATH.exists():
+    with GPT_SUMMARY_PROMPT_TEMPLATE_PATH.open() as f:
+        GPT_SUMMARY_PROMPT_TEMPLATE = f.read()
 
 os.environ.clear()
